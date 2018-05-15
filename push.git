@@ -1,0 +1,9 @@
+if [ $# -eq 0 ];then
+        read -p "Enter a COMMENT: " com 
+else
+        com=$1        # argument passed..use it.
+fi
+
+git add .
+git commit -m "$com"
+git push --set-upstream https://github.com/bosscha/gaia-shock master
