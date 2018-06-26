@@ -34,18 +34,33 @@ class gaiaSet:
         
         """
         
-        minRA = min(self.data[ "ra"])
-        maxRA = max(self.data[ "ra"])
+        
         minDec = min(self.data[ "dec"])
-        maxDec = max(self.data[ "dec"])
         
-        centerRA  = self.data[ "ra"].mean()
-        centerDec = self.data[ "dec"].mean()
+        if abs(minDec) > 70:
+            longitud = self.data['l']
+            latitud  = self.data['b']
+        else : 
+            longitud = self.data['ra']
+            latitud  = self.data['dec'] 
         
-        halfRA  = minRA + (maxRA-minRA)/2.
-        halfDec = minDec + (maxDec-minDec)/2.
+        centerlong  = longitud.mean()
+        centerlat = latitud.mean()
         
-        if abs(halfRA - centerRA ) < tol*math.cos(centerDec*DEG2RAD) and abs(halfDec - centerDec ) < tol:
+        minlong = min(longitud)
+        maxlong = max(longitud)
+        minlat = min(latitud)
+        maxlat = max(latitud)
+        
+        halflong  = minlong + (maxlong-minlong)/2.
+        halflat = minlat + (maxlat-minlat)/2.
+        
+        print(halflong)
+        print(centerlong)
+        print(halflat)
+        print(centerlat)
+        
+        if abs(halflong - centerlong ) < tol  and abs(halflat - centerlat ) < tol:
             return(True)
         else:
             return(False)
