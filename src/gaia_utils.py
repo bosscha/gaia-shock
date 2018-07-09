@@ -12,15 +12,17 @@ HISTORY:
 """
 
 __author__  = "SL: ALMA"
-__version__ = "0.0.1@2018.06.14"
+__version__ = "0.2.0@2018.07.08"
 
 import math
+import numpy as np
+import wavelet as wav
 
 DEG2RAD = math.pi / 180.
 
 class gaiaSet:
     
-    def __init__(self, data):
+    def __init__(self, data = []):
         "data: GAIA dataset"
         
         self.data = data
@@ -65,6 +67,67 @@ class gaiaSet:
         else:
             return(False)
         
+    def compute_rms(self, image, NSAMPLE = 10):
+        "compute the rms using NSAMPLE strip of len(x) / 10"
+        
+        xdim= image.shape[0]
+        ydim= image.shape[1]
+                          
+        strip = int(xdim / 5)    ## strip length
+        
+        sample = np.array([])
+        
+        yrand = np.random.randint(0,ydim,NSAMPLE)
+        xrand = np.random.randint(0,xdim-strip-1,NSAMPLE)
+        
+        for i in range(NSAMPLE):
+            testsample = image[xrand[i]:xrand[i]+strip,yrand[i]]
+            
+            if testsample.std() > 0:
+                sample = np.append(sample,testsample)
+                
+        print(len(sample))
+        rms = sample.std()
+        return(rms)
+            
+    
+        
+    def sampling_filtering(self,x,y,nbin, sigma, LEVELS = 6):
+        "Sampling of the points (x,y) and filtering of the images"
+        
+        
+        ### sampling
+        xmin = min(x)
+        xmax = max(x)
+        ymin = min(y)
+        ymax = max(y)
+        dx = (xmax-xmin) / nbin
+        dy = (ymax-ymin) / nbin
+        
+        image = np.zeros((nbin,nbin))
+        
+        ix = ((x - xmin)/dx).astype(int) % nbin
+        iy = ((y - ymin)/dy).astype(int) % nbin
+        
+        image[ix,iy] += 1
+        
+        
+        ## compute the rms by bootstraping
+        
+        rms = self.compute_rms(image, NSAMPLE = 1000)
+        print("## std: %f"%(rms))
+        
+        ### filtering
+        
+        wt = wav.wt(verbose = False)
+        W = wt.atrous(image,LEVELS)
+        Wf = wt.filtering(W,threshold= sigma, waveletNoise = True,imageNoise = rms)
+        image_filtered = wt.restore(Wf,0,0)
+        
+        return(image, image_filtered)
+    
+    
+    
         
         
         
