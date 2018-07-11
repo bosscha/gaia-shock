@@ -10,8 +10,8 @@ import pandas as pd
 
 from astroquery.gaia import Gaia
 
-c = coord.SkyCoord.from_name("NGC 2232")
-radius = 0.2
+c = coord.SkyCoord.from_name("Hogg 17")
+radius = 0.5
 
 queryaql = "SELECT * FROM gaiadr2.gaia_source WHERE \
 CONTAINS(POINT('ICRS',gaiadr2.gaia_source.ra,gaiadr2.gaia_source.dec),CIRCLE('ICRS' \
