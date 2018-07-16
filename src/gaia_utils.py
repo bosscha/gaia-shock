@@ -92,15 +92,22 @@ class gaiaSet:
             
     
         
-    def sampling_filtering(self,x,y,nbin, sigma, LEVELS = 6):
+    def sampling_filtering(self,x,y,nbin, sigma, LEVELS = 6, xrange = [], yrange = []):
         "Sampling of the points (x,y) and filtering of the images"
         
         
         ### sampling
-        xmin = min(x)
-        xmax = max(x)
-        ymin = min(y)
-        ymax = max(y)
+        if len(xrange) == 0:
+            xmin = min(x)
+            xmax = max(x)
+            ymin = min(y)
+            ymax = max(y)
+        else:
+            xmin = xrange[0]
+            xmax = xrange[1]
+            ymin = yrange[0]
+            ymax = yrange[1]
+            
         dx = (xmax-xmin) / nbin
         dy = (ymax-ymin) / nbin
         
