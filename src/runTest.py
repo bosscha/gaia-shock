@@ -4,27 +4,35 @@ Script to run tests on GAIA data.
 
 
 import gaia_utils as gu
-import astropy.coordinates as coord
-import matplotlib.pyplot as plt
-import pandas as pd
+import os
 
-from astroquery.gaia import Gaia
+## directory
+rootdir = "/home/stephane/Science/GAIA"
+wdir    = "%s/products"%(rootdir)
+datadir = "%s/master/notebooks/data"%(rootdir)
 
-c = coord.SkyCoord.from_name("Hogg 17")
-radius = 0.5
-
-queryaql = "SELECT * FROM gaiadr2.gaia_source WHERE \
-CONTAINS(POINT('ICRS',gaiadr2.gaia_source.ra,gaiadr2.gaia_source.dec),CIRCLE('ICRS' \
-,%f ,%f,%f))=1;"%(c.ra.deg+radius/10.,c.dec.deg+radius/10.,radius)
-
-job = Gaia.launch_job_async( queryaql, dump_to_file=False)
-# print (job)
-
-data = job.get_results()
+os.chdir(wdir)
 
 
-gaia = gu.gaiaSet(data)
-im = gaia.sampling_filtering(data['l'],data['b'], 256, 3.0)
+###################################
+clustername = "NGC 2682"
+voname = 'NGC 2682-1.0deg.vot'
+RADIUS   = 1.0
+kCluster = 6
+votable_disk = False
+BINSIZE = 64
+SIGMA = 1.0
+distclust = 830.0
+XYRANGE = [-20., 20]
+WEIGHT = [20.,5.,5.,6.,6.]
+
+################################
+
+## Read the data and do the conversion
 
 
-print(gaia.isHomogeneous())
+source = gu.source(clustername)
+source.query(RADIUS, errtol = 0.5, dump = True)
+source.read_votable(voname)
+source.convert_filter_data()
+source.normalization0_1()

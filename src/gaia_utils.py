@@ -7,19 +7,181 @@ HISTORY:
     14.06.2018:
         - first shot
         - adding a class for a dataset from gaia-on-tap
-        -
+    
+    19.07.2018:
+        - adding filterinf for data
+        - gaia query
+        - color and magnitude
         
 """
 
-__author__  = "SL: ALMA"
-__version__ = "0.2.0@2018.07.08"
+__author__  = "SL, QV: ALMA"
+__version__ = "0.3.0@2018.07.19"
 
-import math
+# Suppress warnings
+import warnings
+warnings.filterwarnings('ignore')
+
+import math , shutil
 import numpy as np
 import wavelet as wav
 
+import astropy.coordinates as coord
+
+from astropy.io.votable import parse
+from astropy.table import Table
+from astropy import units as u
+
+from astroquery.gaia import Gaia
+
 DEG2RAD = math.pi / 180.
 
+
+DIMMAX = 10
+
+class source:
+    "Class to download gaia data for a source"
+    
+    
+    ########################
+    def __init__(self, name):
+        
+        self.name = name
+        self.weight = np.ones(DIMMAX)
+    
+    
+    ################################
+    def query(self, radius, errtol = 0.1, dump = False,table="gaiadr2.gaia_source"):
+        "do a conesearch"
+        
+        c = coord.SkyCoord.from_name(self.name)
+        c_icrs = coord.SkyCoord(ra= c.ra.deg * u.degree, dec= c.dec.deg  *u.degree, frame='icrs')
+
+        pos = c_icrs.galactic
+        self.l_cluster = pos.l.value 
+        self.b_cluster = pos.b.value
+        self.ra  = c.ra.deg
+        self.dec = c.dec.deg
+        
+        
+        queryaql = "SELECT * FROM {table} WHERE CONTAINS(POINT('ICRS',{table}.ra,{table}.dec),  \
+                                    CIRCLE('ICRS',{ra:.10f},{dec:.10f},{radius:.10f})) = 1  AND abs(pmra_error/pmra)<{err:10f}  AND abs(pmdec_error/pmdec)< {err:.10f} AND abs(parallax_error/parallax)< {err:.10f};".format(table=table, ra=c.ra.deg, dec=c.dec.deg,radius=radius, err=errtol)
+        
+        print(queryaql)
+        job = Gaia.launch_job_async(queryaql, dump_to_file=dump)
+        self.data = job.get_results()
+
+        if dump:
+            filename = job.get_output_file()
+            filedst = "%s-%3.1fdeg.vot"%(self.name, radius)
+            shutil.move(filename,filedst)
+            print("## %s created"%(filedst))
+        else:
+            filename = None
+            
+        print("## Query for %s done"%(self.name))
+        print("## Total stars: %d"%(len(self.data)))
+        
+        return(filename)
+    
+    
+    ########################
+    def read_votable(self, voname):
+        "rad a votable"
+        
+
+        votable = parse(voname)
+        for table in votable.iter_tables():
+            data = table.array
+        #print(data.dtype.names)
+    
+        self.data = data
+        
+        print("## %s read..."%(voname))
+        print("## Total stars: %d"%(len(data)))
+              
+        return(len(data))
+    
+    ###################################################################################################
+    def convert_filter_data(self, dist_range = [0., 2000], vra_range = [-200,200], vdec_range = [-200.,200]) :
+        
+        lgal = self.data['l']
+        bgal = self.data['b']
+        pmas = self.data['parallax']
+        distance = 1000. / np.ma.filled(pmas, -999999.)    #distance = 1000/parallax
+        pmra = np.ma.filled(self.data['pmra'], -9999999.)   # PM RA
+        pmdec= np.ma.filled(self.data['pmdec'],-9999999.)   # PM Dec
+        vdec = 4.74 * pmdec / pmas   ##? (pour )
+        vra  = 4.74 * pmra  / pmas   # pour avoir des km.s-1
+    
+        
+    
+        #para_abs_error = data['parallax_error']/data['parallax']
+        g = self.data['phot_g_mean_mag']
+        bp = self.data['phot_bp_mean_mag']
+        rp = self.data['phot_rp_mean_mag']
+    
+        #filtering
+    
+        i1 = np.where((distance >= dist_range[0]) & (distance < dist_range[1]))
+        i2 = np.where((vra >= vra_range[0]) & (vra < vra_range[1]))
+        i12 = np.intersect1d(i1,i2)
+        i3 = np.where((vdec >= vdec_range[0]) & (vdec < vdec_range[1]))
+        ifinal = np.intersect1d(i12,i3)
+        
+        gbar = g[ifinal] + 5*np.log10(pmas[ifinal]) + 2
+        
+        self.df = np.array([lgal[ifinal],bgal[ifinal], distance[ifinal], vra[ifinal], vdec[ifinal], gbar, g[ifinal]-rp[ifinal], bp[ifinal]-g[ifinal]]).T
+        
+        print("## Conversion done...")
+        print("## Stars selected: %d"%(len(ifinal)))
+        return()
+    
+    
+    ###############################
+    def normalization(self, choix_norm=1):
+        self.dfnorm = np.zeros(df.shape)
+        self.normalization_vector = np.zeros(DIMMAX)
+    
+        for i in range(self.df.shape[1]) :
+            if choix_norm == 0 : 
+                normalization_vector[i] = np.max(abs(self.df[:,i]))
+            else               : 
+                normalization_vector[i] = np.linalg.norm(self.df[:,i])
+            
+            self.dfnorm[:,i] = self.df[:,i] / normalization_vector[i]
+        
+        print("## Normalization done on filtered data..")        
+        return()
+
+    
+    ######################
+    #Normalized the 5d datask with linear projection from [min,max] to [0,1]
+    def normalization0_1(self):
+        
+        self.dfnorm = np.zeros(self.df.shape)
+        self.normalization_vector = np.zeros((DIMMAX,2)) #Represente max and min    
+    
+        for i in range(self.df.shape[1]) :
+            self.normalization_vector[i,0] = np.max(self.df[:,i]) # max
+            self.normalization_vector[i,1] = np.min(self.df[:,i]) # min
+            self.dfnorm[:,i] = self.weight[i]*(self.df[:,i]-self.normalization_vector[i,1])/(self.normalization_vector[i,0]-self.normalization_vector[i,1])  
+        
+        print("## Normalization done on filtered data..")
+        return()
+
+    #############################
+    def unnormalization0_1(self, data):
+        
+        result = np.zeros(data.shape) 
+        for i in range(5) :
+            result[:,i] = data[:,i]*(self.normalization_vector[i,0]-self.normalization_vector[i,1])/self.weight[i] + self.normalization_vector[i,1]
+        
+        return(result)
+    
+        
+        
+##################################################################################################################
 class gaiaSet:
     
     def __init__(self, data = []):
@@ -27,7 +189,7 @@ class gaiaSet:
         
         self.data = data
         
-        
+
         
     def isHomogeneous(self, tol = 0.1):
         """
