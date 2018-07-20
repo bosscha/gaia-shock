@@ -117,9 +117,9 @@ class source:
         
     
         #para_abs_error = data['parallax_error']/data['parallax']
-        g = self.data['phot_g_mean_mag']
-        bp = self.data['phot_bp_mean_mag']
-        rp = self.data['phot_rp_mean_mag']
+        g  =  np.ma.filled(self.data['phot_g_mean_mag'], 99.)
+        bp =  np.ma.filled(self.data['phot_bp_mean_mag'], 999.)
+        rp =  np.ma.filled(self.data['phot_rp_mean_mag'], 9999.)
     
         #filtering
     
@@ -162,6 +162,7 @@ class source:
         self.dfnorm = np.zeros(self.df.shape)
         self.normalization_vector = np.zeros((DIMMAX,2)) #Represente max and min    
     
+        print(self.df.shape[1])
         for i in range(self.df.shape[1]) :
             self.normalization_vector[i,0] = np.max(self.df[:,i]) # max
             self.normalization_vector[i,1] = np.min(self.df[:,i]) # min
@@ -174,13 +175,39 @@ class source:
     def unnormalization0_1(self, data):
         
         result = np.zeros(data.shape) 
-        for i in range(5) :
+        for i in range(data.shape[1]) :
             result[:,i] = data[:,i]*(self.normalization_vector[i,0]-self.normalization_vector[i,1])/self.weight[i] + self.normalization_vector[i,1]
         
         return(result)
+ 
+ 
+    ###############################################  
+    def convert_to_cartesian(self, offCenter = []):
+        "Convert ra,dec (ICRS) and distance (pc) to Cartesian reference. Off is the offset in Lgal,Bgal"
     
+        xx = np.zeros(len(self.df[:,0]))
+        yy = np.zeros(len(self.df[:,0]))
+        zz = np.zeros(len(self.df[:,0]))
+    
+        if len(offCenter) == 0:
+            offCenter[0] = self.l_cluster
+            offCenter[1] = self.b_cluster
         
+        lgalOff = self.df[:,0] - offCenter[0]
+        bgalOff = self.df[:,1] - offCenter[1]
+    
+    
+        for i in range(len(lgalOff)):
+            c = coord.SkyCoord(l=lgalOff[i]*u.degree, b=bgalOff[i]*u.degree, distance=self.df[:,2] *u.pc, frame='galactic')
         
+            xx[i] = c.cartesian.x.value
+            yy[i] = c.cartesian.y.value
+            zz[i] = c.cartesian.z.value
+        
+    
+        return(xx, yy, zz)
+
+
 ##################################################################################################################
 class gaiaSet:
     
