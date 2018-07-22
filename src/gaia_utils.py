@@ -162,7 +162,6 @@ class source:
         self.dfnorm = np.zeros(self.df.shape)
         self.normalization_vector = np.zeros((DIMMAX,2)) #Represente max and min    
     
-        print(self.df.shape[1])
         for i in range(self.df.shape[1]) :
             self.normalization_vector[i,0] = np.max(self.df[:,i]) # max
             self.normalization_vector[i,1] = np.min(self.df[:,i]) # min
