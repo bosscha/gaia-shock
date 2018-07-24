@@ -13,10 +13,13 @@ HISTORY:
         - gaia query
         - color and magnitude
         
+    24.07.2018
+        - changing the normalization 
+        
 """
 
 __author__  = "SL, QV: ALMA"
-__version__ = "0.3.0@2018.07.19"
+__version__ = "0.3.1@2018.07.24"
 
 # Suppress warnings
 import warnings
@@ -139,25 +142,23 @@ class source:
     
     
     ###############################
-    def normalization(self, choix_norm=1):
-        self.dfnorm = np.zeros(df.shape)
-        self.normalization_vector = np.zeros(DIMMAX)
+    def normalization_normal(self):
+        "normalize to the STD and MEAN"
+        
+        self.dfnorm = np.zeros(self.df.shape)
     
         for i in range(self.df.shape[1]) :
-            if choix_norm == 0 : 
-                normalization_vector[i] = np.max(abs(self.df[:,i]))
-            else               : 
-                normalization_vector[i] = np.linalg.norm(self.df[:,i])
             
-            self.dfnorm[:,i] = self.df[:,i] / normalization_vector[i]
+            self.dfnorm[:,i] = self.weight[i] * ( self.df[:,i] - np.mean(self.df[:,i])) / np.std(self.df[:,i]) 
         
         print("## Normalization done on filtered data..")        
         return()
-
-    
+ 
+ 
+ 
     ######################
     #Normalized the 5d datask with linear projection from [min,max] to [0,1]
-    def normalization0_1(self):
+    def normalization_minmax(self):
         
         self.dfnorm = np.zeros(self.df.shape)
         self.normalization_vector = np.zeros((DIMMAX,2)) #Represente max and min    
@@ -170,16 +171,6 @@ class source:
         print("## Normalization done on filtered data..")
         return()
 
-    #############################
-    def unnormalization0_1(self, data):
-        
-        result = np.zeros(data.shape) 
-        for i in range(data.shape[1]) :
-            result[:,i] = data[:,i]*(self.normalization_vector[i,0]-self.normalization_vector[i,1])/self.weight[i] + self.normalization_vector[i,1]
-        
-        return(result)
- 
- 
     ###############################################  
     def convert_to_cartesian(self, offCenter = []):
         "Convert ra,dec (ICRS) and distance (pc) to Cartesian reference. Off is the offset in Lgal,Bgal"
