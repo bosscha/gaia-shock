@@ -295,7 +295,7 @@ class gaiaSet:
             xmax = xrange[1]
             ymin = yrange[0]
             ymax = yrange[1]
-            
+        
         dx = (xmax-xmin) / nbin
         dy = (ymax-ymin) / nbin
         
