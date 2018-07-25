@@ -37,6 +37,9 @@ from astropy import units as u
 
 from astroquery.gaia import Gaia
 
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
 DEG2RAD = math.pi / 180.
 
 
@@ -51,6 +54,8 @@ class source:
         
         self.name = name
         self.weight = np.ones(DIMMAX)
+        self.data_name = ['distance','lgal','bgal','vdec','vra',r'$G + 5 * log_{10}\bar{\omega} + 2$','$G - R_p$','$B_p - G$']
+        self.data_name_cart = ['distance (x)','y','z','vdec','vra',r'$G + 5 * log_{10}\bar{\omega} + 2$','$G - R_p$','$B_p - G$']
     
     
     ################################
@@ -68,7 +73,9 @@ class source:
         
         
         queryaql = "SELECT * FROM {table} WHERE CONTAINS(POINT('ICRS',{table}.ra,{table}.dec),  \
-                                    CIRCLE('ICRS',{ra:.10f},{dec:.10f},{radius:.10f})) = 1  AND abs(pmra_error/pmra)<{err:10f}  AND abs(pmdec_error/pmdec)< {err:.10f} AND abs(parallax_error/parallax)< {err:.10f};".format(table=table, ra=c.ra.deg, dec=c.dec.deg,radius=radius, err=errtol)
+                                    CIRCLE('ICRS',{ra:.10f},{dec:.10f},{radius:.10f})) = 1  \
+                                    AND abs(pmra_error/pmra)<{err:10f}  AND abs(pmdec_error/pmdec)< {err:.10f} \
+                                    AND abs(parallax_error/parallax)< {err:.10f};".format(table=table, ra=c.ra.deg, dec=c.dec.deg,radius=radius, err=errtol)
         
         print(queryaql)
         job = Gaia.launch_job_async(queryaql, dump_to_file=dump)
@@ -132,20 +139,22 @@ class source:
         
         # if we don't consider masked magnitude
         if without_mag :
-            i1 = np.where(g >= 99.)
-            i2 = np.where(bp >= 99.)
+            i1 = np.where(g < 99.)[0]
+            i2 = np.where(bp < 99.)[0]
             i12 = np.intersect1d(i1,i2)
-            i3 = np.where(rp >= 99.)
+            i3 = np.where(rp < 99.)[0]
             i4 = np.intersect1d(i12,i3)
             ifinal = np.intersect1d(i4,ifinal)
+            
+        print()
         
         gbar = g[ifinal] + 5*np.log10(pmas[ifinal]) + 2
         
-        self.df = np.array([lgal[ifinal],bgal[ifinal], distance[ifinal], vra[ifinal], vdec[ifinal], gbar, g[ifinal]-rp[ifinal], bp[ifinal]-g[ifinal]]).T
+        self.df = np.array([distance[ifinal], lgal[ifinal], bgal[ifinal], vra[ifinal], vdec[ifinal], gbar, g[ifinal]-rp[ifinal], bp[ifinal]-g[ifinal]]).T
+        print(self.df.shape)
         
         print("## Conversion done...")
         print("## Stars selected: %d"%(len(ifinal)))
-        return()
     
     
     ###############################
@@ -159,7 +168,6 @@ class source:
             self.dfnorm[:,i] = self.weight[i] * ( self.df[:,i] - np.mean(self.df[:,i])) / np.std(self.df[:,i]) 
         
         print("## Normalization done on filtered data..")        
-        return()
  
  
  
@@ -176,56 +184,63 @@ class source:
             self.dfnorm[:,i] = self.weight[i]*(self.df[:,i]-self.normalization_vector[i,1])/(self.normalization_vector[i,0]-self.normalization_vector[i,1])  
         
         print("## Normalization done on filtered data..")
-        return()
 
     ###############################################  
-    def convert_to_cartesian(self, offCenter = []):
+    def convert_to_cartesian(self, centering = True):
+        #conversion of distance, lgal, bgal into cartesian coordinate
+        #centering True = x coordinate point to cluster center
         "Convert ra,dec (ICRS) and distance (pc) to Cartesian reference. Off is the offset in Lgal,Bgal"
-    
-        xx = np.zeros(len(self.df[:,0]))
-        yy = np.zeros(len(self.df[:,0]))
-        zz = np.zeros(len(self.df[:,0]))
-    
-        if len(offCenter) == 0:
-            offCenter[0] = self.l_cluster
-            offCenter[1] = self.b_cluster
         
-        lgalOff = self.df[:,0] - offCenter[0]
-        bgalOff = self.df[:,1] - offCenter[1]
-    
-    
-        for i in range(len(lgalOff)):
-            c = coord.SkyCoord(l=lgalOff[i]*u.degree, b=bgalOff[i]*u.degree, distance=self.df[:,2] *u.pc, frame='galactic')
+        xx = np.zeros(self.df.shape[0]);  yy = np.zeros(self.df.shape[0]);  zz = np.zeros(self.df.shape[0])
         
+        dist = np.copy(self.df[:,0]);    lgal = np.copy(self.df[:,1]);    bgal = np.copy(self.df[:,2])
+        
+        if centering :
+            lgal = lgal - np.mean(lgal)
+            bgal = bgal - np.mean(bgal)
+        
+        
+        for i in range(len(lgal)):
+            c = coord.SkyCoord(l=lgal[i]*u.degree, b=bgal[i]*u.degree, distance=dist[i]*u.pc, frame='galactic')
+            
             xx[i] = c.cartesian.x.value
             yy[i] = c.cartesian.y.value
             zz[i] = c.cartesian.z.value
-        
-    
-        return(xx, yy, zz)
-    
-    #conversion of lgal, bgal, distance into cartesian coordinate
-def convert_to_cartesian(lgal, bgal, dist, centering = True):
-    #centering True = x coordinate point to cluster center
-    "Convert ra,dec (ICRS) and distance (pc) to Cartesian reference. Off is the offset in Lgal,Bgal"
-    
-    xx = np.zeros(len(lgal));  yy = np.zeros(len(lgal));  zz = np.zeros(len(lgal))
-    
-    lgalOff = lgal - np.mean(lgal)
-    bgalOff = bgal - np.mean(bgal)
-    
-    
-    for i in range(len(lgal)):
-        c = SkyCoord(l=lgalOff[i]*u.degree, b=bgalOff[i]*u.degree, distance=dist[i]*u.pc, frame='galactic')
-        
-        xx[i] = c.cartesian.x.value
-        yy[i] = c.cartesian.y.value
-        zz[i] = c.cartesian.z.value
-        
-    return np.array([xx,yy,zz]).T
+            
+        self.dfcart = np.copy(self.df)
+        self.dfcart[:,:3] = np.array([xx,yy,zz]).T
 
 
-    def 
+    ##############################################
+    def HDR(self, size=0.1, colorbar = True):
+        "Plot the HD diagram"
+        
+        plt.figure(figsize=(15,6))
+        
+        for i in (6,7) :
+            plt.subplot(1,2,i-5)
+            plt.title(self.name, fontsize=20)
+            if colorbar : 
+                plt.scatter(self.data[:,i], self.data[:,5], s=size, c=self.data[:,0], cmap='gist_stern')
+                clb = plt.colorbar()
+                clb.set_label('distance', labelpad=-40, y=1.05, rotation=0)
+            else : plt.scatter(self.data[:,i], self.data[:,5], s=size, c='k')
+            plt.xlabel(self.data_name[i], fontsize=18)
+            if i == 6 : plt.ylabel(self.data_name[5], fontsize=22)
+        
+        plt.show()
+
+    ##############################################
+    def plot_information(self, size=0.1) :
+        plt.figure(figsize=(22,19))
+        for i in (0,2,3,4) :
+            if i == 0 : j = 1
+            else      : j = i
+            plt.subplot(2,2,j)
+            plt.scatter(self.df[:,1],self.df[:,i],s=size,c='k')
+            plt.xlabel(self.data_name[1], fontsize=25)
+            plt.ylabel(self.data_name[i], fontsize=25)
+        plt.show()
 
 
 
