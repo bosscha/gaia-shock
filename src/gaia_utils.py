@@ -106,7 +106,7 @@ class source:
         return(len(data))
     
     ###################################################################################################
-    def convert_filter_data(self, dist_range = [0., 2000], vra_range = [-200,200], vdec_range = [-200.,200]) :
+    def convert_filter_data(self, dist_range = [0., 2000], vra_range = [-200,200], vdec_range = [-200.,200], mag_range =[-1e9, 1e9]) :
         
         lgal = self.data['l']
         bgal = self.data['b']
@@ -118,7 +118,6 @@ class source:
         vra  = 4.74 * pmra  / pmas   # pour avoir des km.s-1
     
         
-    
         #para_abs_error = data['parallax_error']/data['parallax']
         g  =  np.ma.filled(self.data['phot_g_mean_mag'], 99.)
         bp =  np.ma.filled(self.data['phot_bp_mean_mag'], 999.)
@@ -130,7 +129,10 @@ class source:
         i2 = np.where((vra >= vra_range[0]) & (vra < vra_range[1]))
         i12 = np.intersect1d(i1,i2)
         i3 = np.where((vdec >= vdec_range[0]) & (vdec < vdec_range[1]))
-        ifinal = np.intersect1d(i12,i3)
+        i4 = np.intersect1d(i12,i3)
+        i5 = np.where((g >= mag_range[0]) & (g < mag_range[1]) & (bp >= mag_range[0]) & (bp < mag_range[1]) & (rp >= mag_range[0]) & (rp < mag_range[1]))
+        ifinal = np.intersect1d(i4,i5)
+        
         
         gbar = g[ifinal] + 5*np.log10(pmas[ifinal]) + 2
         
