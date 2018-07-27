@@ -50,16 +50,18 @@ class source:
     
     
     ########################
-    def __init__(self, name):
-        
-        self.name = name
+    def __init__(self, name, radius, errtol):
+
+        self.name = name        
+        self.radius = radius
+        self.errtol = errtol
         self.weight = np.ones(DIMMAX)
         self.data_name = ['distance','lgal','bgal','vdec','vra',r'$G + 5 * log_{10}\bar{\omega} + 2$','$G - R_p$','$B_p - G$']
         self.data_name_cart = ['distance (x)','y','z','vdec','vra',r'$G + 5 * log_{10}\bar{\omega} + 2$','$G - R_p$','$B_p - G$']
     
     
     ################################
-    def query(self, radius, errtol = 0.1, dump = False,table="gaiadr2.gaia_source"):
+    def query(self, dump = False,table="gaiadr2.gaia_source"):
         "do a conesearch"
         
         c = coord.SkyCoord.from_name(self.name)
@@ -75,7 +77,7 @@ class source:
         queryaql = "SELECT * FROM {table} WHERE CONTAINS(POINT('ICRS',{table}.ra,{table}.dec),  \
                                     CIRCLE('ICRS',{ra:.10f},{dec:.10f},{radius:.10f})) = 1  \
                                     AND abs(pmra_error/pmra)<{err:10f}  AND abs(pmdec_error/pmdec)< {err:.10f} \
-                                    AND abs(parallax_error/parallax)< {err:.10f};".format(table=table, ra=c.ra.deg, dec=c.dec.deg,radius=radius, err=errtol)
+                                    AND abs(parallax_error/parallax)< {err:.10f};".format(table=table, ra=c.ra.deg, dec=c.dec.deg,radius=self.radius, err=self.errtol)
         
         print(queryaql)
         job = Gaia.launch_job_async(queryaql, dump_to_file=dump)
@@ -83,7 +85,7 @@ class source:
 
         if dump:
             filename = job.get_output_file()
-            filedst = "%s-%3.1fdeg-%serr.vot"%(self.name, radius, errtol)
+            filedst = "%s-%3.1fdeg-%serr.vot"%(self.name, self.radius, self.errtol)
             shutil.move(filename,filedst)
             print("## %s created"%(filedst))
         else:
@@ -96,8 +98,13 @@ class source:
     
     
     ########################
-    def read_votable(self, voname):
+    def read_votable(self, voname = None):
         "rad a votable"
+        
+        # if no voname, find it with name, raduis, errtol
+        if voname == None :
+            voname = "%s-%3.1fdeg-%serr.vot"%(self.name, self.radius, self.errtol)
+            
         
         print("## %s read..."%(voname))
 
@@ -113,7 +120,7 @@ class source:
         return(len(data))
     
     ###################################################################################################
-    def convert_filter_data(self, dist_range = [0., 2000], vra_range = [-200,200], vdec_range = [-200.,200], without_mag = False) :
+    def convert_filter_data(self, dist_range = [0., 2000], vra_range = [-200,200], vdec_range = [-200.,200], without_mag = True) :
         
         lgal = self.data['l']
         bgal = self.data['b']
@@ -151,7 +158,6 @@ class source:
         gbar = g[ifinal] + 5*np.log10(pmas[ifinal]) + 2
         
         self.df = np.array([distance[ifinal], lgal[ifinal], bgal[ifinal], vra[ifinal], vdec[ifinal], gbar, g[ifinal]-rp[ifinal], bp[ifinal]-g[ifinal]]).T
-        print(self.df.shape)
         
         print("## Conversion done...")
         print("## Stars selected: %d"%(len(ifinal)))
@@ -212,34 +218,65 @@ class source:
 
 
     ##############################################
-    def HDR(self, size=0.1, colorbar = True):
+    def HRD(self, size=0.1, colorbar = True):
         "Plot the HD diagram"
         
         plt.figure(figsize=(15,6))
+        G_max = np.max(self.df[:,5])
+        G_min = np.min(self.df[:,5])
         
         for i in (6,7) :
             plt.subplot(1,2,i-5)
+            plt.ylim(G_max, G_min)
             plt.title(self.name, fontsize=20)
             if colorbar : 
-                plt.scatter(self.data[:,i], self.data[:,5], s=size, c=self.data[:,0], cmap='gist_stern')
+                plt.scatter(self.df[:,i], self.df[:,5], s=size, c=self.df[:,0], cmap='gist_stern')
                 clb = plt.colorbar()
                 clb.set_label('distance', labelpad=-40, y=1.05, rotation=0)
-            else : plt.scatter(self.data[:,i], self.data[:,5], s=size, c='k')
+            else : plt.scatter(self.df[:,i], self.df[:,5], s=size, c='k')
             plt.xlabel(self.data_name[i], fontsize=18)
             if i == 6 : plt.ylabel(self.data_name[5], fontsize=22)
         
         plt.show()
 
     ##############################################
-    def plot_information(self, size=0.1) :
-        plt.figure(figsize=(22,19))
+    def plot_information(self, size=0.1, HRD=True, ilabel=[]) :
+        "Plot some graphs about data"
+        
+        plt.figure(figsize=(19,19))
         for i in (0,2,3,4) :
             if i == 0 : j = 1
             else      : j = i
-            plt.subplot(2,2,j)
+            plt.subplot(3,2,j)
             plt.scatter(self.df[:,1],self.df[:,i],s=size,c='k')
+            plt.scatter(self.df[ilabel,1],self.df[ilabel,i],s=size*20,c='r')
             plt.xlabel(self.data_name[1], fontsize=25)
             plt.ylabel(self.data_name[i], fontsize=25)
+        plt.subplot(3,2,5)
+        plt.scatter(self.df[:,3],self.df[:,4],s=size,c='k')
+        plt.scatter(self.df[ilabel,3],self.df[ilabel,4],s=size*20,c='r')
+        plt.xlabel(self.data_name[3], fontsize=25)
+        plt.ylabel(self.data_name[4], fontsize=25)
+        plt.show()
+        if HRD : self.HRD(size)
+        
+    ##############################################
+    def plot_3D(self, size=0.1, cartesian=False, axes = (0,1,2), ilabel=[]) :
+        "Plot in 3D the 3 axis"
+
+        fig = plt.figure(figsize=(15,10))
+        ax = fig.add_subplot(111, projection='3d')
+        if cartesian == False : 
+            ax.scatter(self.df[:,axes[0]], self.df[:,axes[1]], self.df[:,axes[2]], zdir='z', s=size, c='k', depthshade=True)
+            ax.scatter(self.df[ilabel,axes[0]], self.df[ilabel,axes[1]], self.df[ilabel,axes[2]], zdir='z', s=size*30, c='r', depthshade=True)
+            ax.set_xlabel(self.data_name[axes[0]], fontsize=35); ax.set_ylabel(self.data_name[axes[1]], fontsize=25); ax.set_zlabel(self.data_name[axes[2]], fontsize=25)
+        else :
+            ax.scatter(self.dfcart[:,axes[0]], self.dfcart[:,axes[1]], self.dfcart[:,axes[2]], zdir='z', s=size, c='k', depthshade=True)
+            ax.scatter(self.dfcart[ilabel,axes[0]], self.dfcart[ilabel,axes[1]], self.dfcart[ilabel,axes[2]], zdir='z', s=size*30, c='r', depthshade=True)
+            ax.set_xlabel(self.data_name_cart[axes[0]], fontsize=35); ax.set_ylabel(self.data_name_cart[axes[1]], fontsize=25); ax.set_zlabel(self.data_name_cart[axes[2]], fontsize=25)
+        
+        ax.set_title(self.name, fontsize=30)
+        #ax.view_init(30, 60)
         plt.show()
 
 
