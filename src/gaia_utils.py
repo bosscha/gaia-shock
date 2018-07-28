@@ -153,7 +153,7 @@ class source:
             
             self.dfnorm[:,i] = self.weight[i] * ( self.df[:,i] - np.mean(self.df[:,i])) / np.std(self.df[:,i]) 
         
-        print("## Normalization done on filtered data..")        
+        print("## Normalization Normal-Gauss done on filtered data..")        
         return()
  
  
@@ -170,7 +170,7 @@ class source:
             self.normalization_vector[i,1] = np.min(self.df[:,i]) # min
             self.dfnorm[:,i] = self.weight[i]*(self.df[:,i]-self.normalization_vector[i,1])/(self.normalization_vector[i,0]-self.normalization_vector[i,1])  
         
-        print("## Normalization done on filtered data..")
+        print("## Normalization minmax done on filtered data..")
         return()
 
     ###############################################  
