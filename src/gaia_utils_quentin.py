@@ -43,7 +43,7 @@ from mpl_toolkits.mplot3d import Axes3D
 DEG2RAD = math.pi / 180.
 
 
-DIMMAX = 10
+DIMMAX = 8
 
 class source:
     "Class to download gaia data for a source"
@@ -173,8 +173,7 @@ class source:
             
             self.dfnorm[:,i] = self.weight[i] * ( self.df[:,i] - np.mean(self.df[:,i])) / np.std(self.df[:,i]) 
         
-        print("## Normalization done on filtered data..")        
- 
+        print("## Normalization done on filtered data..")
  
  
     ######################
@@ -240,23 +239,22 @@ class source:
         plt.show()
 
     ##############################################
-    def plot_information(self, size=0.1, HRD=True, ilabel=[]) :
+    def plot_information(self, size=0.1, cartesian=False, HRD=True, ilabel=[]) :
         "Plot some graphs about data"
         
-        plt.figure(figsize=(19,19))
-        for i in (0,2,3,4) :
-            if i == 0 : j = 1
-            else      : j = i
-            plt.subplot(3,2,j)
-            plt.scatter(self.df[:,1],self.df[:,i],s=size,c='k')
-            plt.scatter(self.df[ilabel,1],self.df[ilabel,i],s=size*20,c='r')
-            plt.xlabel(self.data_name[1], fontsize=25)
-            plt.ylabel(self.data_name[i], fontsize=25)
-        plt.subplot(3,2,5)
-        plt.scatter(self.df[:,3],self.df[:,4],s=size,c='k')
-        plt.scatter(self.df[ilabel,3],self.df[ilabel,4],s=size*20,c='r')
-        plt.xlabel(self.data_name[3], fontsize=25)
-        plt.ylabel(self.data_name[4], fontsize=25)
+        plt.figure(figsize=(19,19))                
+        for i_x, i_y, i in zip((1,2,1,1,1,3),(0,0,2,3,4,4),(1,2,3,4,5,6)) :
+            plt.subplot(3,2,i)
+            if cartesian : 
+                plt.scatter(self.dfcart[:,i_x],self.dfcart[:,i_y],s=size,c='k')
+                plt.scatter(self.dfcart[ilabel,i_x],self.dfcart[ilabel,i_y],s=size*20,c='r')  
+                plt.xlabel(self.data_name_cart[i_x], fontsize=25)
+                plt.ylabel(self.data_name_cart[i_y], fontsize=25)              
+            else :
+                plt.scatter(self.df[:,i_x],self.df[:,i_y],s=size,c='k')
+                plt.scatter(self.df[ilabel,i_x],self.df[ilabel,i_y],s=size*20,c='r')
+                plt.xlabel(self.data_name[i_x], fontsize=25)
+                plt.ylabel(self.data_name[i_y], fontsize=25)
         plt.show()
         if HRD : self.HRD(size)
         
