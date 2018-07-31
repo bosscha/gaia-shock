@@ -39,6 +39,7 @@ from astroquery.gaia import Gaia
 
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+from sklearn import cluster
 
 DEG2RAD = math.pi / 180.
 
@@ -59,6 +60,12 @@ class source:
         self.data_name = ['distance','lgal','bgal','vdec','vra',r'$G + 5 * log_{10}\bar{\omega} + 2$','$G - R_p$','$B_p - G$']
         self.data_name_cart = ['distance (x)','y','z','vdec','vra',r'$G + 5 * log_{10}\bar{\omega} + 2$','$G - R_p$','$B_p - G$']
     
+    
+    ################################
+    def set_weight(self, weight) :
+        "Set the variable weight and scale the vector with its highest value"
+        
+        self.weight = weight/np.max(weight)    
     
     ################################
     def query(self, dump = False,table="gaiadr2.gaia_source"):
@@ -277,6 +284,27 @@ class source:
         #ax.view_init(30, 60)
         plt.show()
 
+
+    ##############################################
+    def dbscan_labels(self, eps=0.15, min_samples=15, display=True) :
+        "Compte a DBSCAN clustering and return the largest cluster found"
+        
+        db = cluster.DBSCAN(eps=eps, min_samples=min_samples).fit(self.dfnorm * self.weight)
+        labels = db.labels_
+        n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
+        max_size = 0
+        if n_clusters_ > 0 :
+            for i in range(n_clusters_) :
+                ilabel = np.where(labels == i)[0]
+                label_size = len(ilabel)
+                if label_size > max_size :
+                    ilabel_final = np.copy(ilabel)
+                    max_size = label_size
+            if display : print(str(n_clusters_)+" clusters, size of the largest: "+str(len(ilabel_final)))
+            return ilabel_final
+        else :
+            print("ERROR 0 cluster found with eps="+str(eps)+" and min_samples="+str(min_samples))
+            return []
 
 
 
