@@ -16,10 +16,13 @@ HISTORY:
     24.07.2018
         - changing the normalization 
         
+    31.07.2018
+        - adding two-pt angular correlation
+        
 """
 
 __author__  = "SL, QV: ALMA"
-__version__ = "0.3.1@2018.07.24"
+__version__ = "0.4.1@2018.07.31"
 
 # Suppress warnings
 import warnings
@@ -36,6 +39,7 @@ from astropy.table import Table
 from astropy import units as u
 
 from astroquery.gaia import Gaia
+from astroML.correlation import bootstrap_two_point_angular
 
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
@@ -397,7 +401,19 @@ class gaiaSet:
         return(image, image_filtered)
     
     
+    def angular_twoptcorr(x1, x2, xrange = [0.1, 1.], nbins = 20, Nbootstraps=10,  method='landy-szalay', rseed=0):
+        "angular correlation using bootstraping"
     
+        np.random.seed(rseed)
+        rlogmin = math.log10(xrange[0])
+        rlogmax = math.log10(xrange[1])
+    
+        bins = np.logspace(rlogmin, rlogmax, nbins)
+        corr, corr_err, bootstraps = bootstrap_two_point_angular(x1, x2, bins=bins, method=method, Nbootstraps=Nbootstraps)
+
+        bin_centers = 0.5 * (bins[1:] + bins[:-1])
+    
+        return(bin_centers, corr, corr_err)
         
         
         
