@@ -289,7 +289,7 @@ class source:
     def dbscan_labels(self, eps=0.15, min_samples=15, display=True) :
         "Compte a DBSCAN clustering and return the largest cluster found"
         
-        db = cluster.DBSCAN(eps=eps, min_samples=min_samples).fit(self.dfnorm * self.weight)
+        db = cluster.DBSCAN(eps=eps, min_samples=min_samples).fit(self.dfnorm)
         labels = db.labels_
         n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
         max_size = 0
