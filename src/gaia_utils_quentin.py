@@ -16,6 +16,10 @@ HISTORY:
     24.07.2018
         - changing the normalization 
         
+    29.07.2018
+        - adding plot 2D and 3D
+        - HR Diagram
+        
     31.07.2018
         - adding two-pt angular correlation
         
