@@ -53,6 +53,8 @@ DEG2RAD = math.pi / 180.
 
 
 DIMMAX = 8
+data_name = ['distance','lgal','bgal','vdec','vra',r'$G + 5 * log_{10}\bar{\omega} + 2$','$G - R_p$','$B_p - G$']
+data_name_cart = ['distance (x)','y','z','vdec','vra',r'$G + 5 * log_{10}\bar{\omega} + 2$','$G - R_p$','$B_p - G$']
 
 class source:
     "Class to download gaia data for a source"
@@ -65,8 +67,6 @@ class source:
         self.radius = radius
         self.errtol = errtol
         self.weight = np.ones(DIMMAX)
-        self.data_name = ['distance','lgal','bgal','vdec','vra',r'$G + 5 * log_{10}\bar{\omega} + 2$','$G - R_p$','$B_p - G$']
-        self.data_name_cart = ['distance (x)','y','z','vdec','vra',r'$G + 5 * log_{10}\bar{\omega} + 2$','$G - R_p$','$B_p - G$']
     
     
     ################################
@@ -248,8 +248,8 @@ class source:
                 clb = plt.colorbar()
                 clb.set_label('distance', labelpad=-40, y=1.05, rotation=0)
             else : plt.scatter(self.df[:,i], self.df[:,5], s=size, c='k')
-            plt.xlabel(self.data_name[i], fontsize=18)
-            if i == 6 : plt.ylabel(self.data_name[5], fontsize=22)
+            plt.xlabel(data_name[i], fontsize=18)
+            if i == 6 : plt.ylabel(data_name[5], fontsize=22)
         
         plt.show()
 
@@ -263,13 +263,13 @@ class source:
             if cartesian : 
                 plt.scatter(self.dfcart[:,i_x],self.dfcart[:,i_y],s=size,c='k')
                 plt.scatter(self.dfcart[ilabel,i_x],self.dfcart[ilabel,i_y],s=size*20,c='r')  
-                plt.xlabel(self.data_name_cart[i_x], fontsize=25)
-                plt.ylabel(self.data_name_cart[i_y], fontsize=25)              
+                plt.xlabel(data_name_cart[i_x], fontsize=25)
+                plt.ylabel(data_name_cart[i_y], fontsize=25)              
             else :
                 plt.scatter(self.df[:,i_x],self.df[:,i_y],s=size,c='k')
                 plt.scatter(self.df[ilabel,i_x],self.df[ilabel,i_y],s=size*20,c='r')
-                plt.xlabel(self.data_name[i_x], fontsize=25)
-                plt.ylabel(self.data_name[i_y], fontsize=25)
+                plt.xlabel(data_name[i_x], fontsize=25)
+                plt.ylabel(data_name[i_y], fontsize=25)
         plt.show()
         if HRD : self.HRD(size)
         
@@ -282,11 +282,11 @@ class source:
         if cartesian == False : 
             ax.scatter(self.df[:,axes[0]], self.df[:,axes[1]], self.df[:,axes[2]], zdir='z', s=size, c='k', depthshade=True)
             ax.scatter(self.df[ilabel,axes[0]], self.df[ilabel,axes[1]], self.df[ilabel,axes[2]], zdir='z', s=size*30, c='r', depthshade=True)
-            ax.set_xlabel(self.data_name[axes[0]], fontsize=35); ax.set_ylabel(self.data_name[axes[1]], fontsize=25); ax.set_zlabel(self.data_name[axes[2]], fontsize=25)
+            ax.set_xlabel(data_name[axes[0]], fontsize=35); ax.set_ylabel(data_name[axes[1]], fontsize=25); ax.set_zlabel(data_name[axes[2]], fontsize=25)
         else :
             ax.scatter(self.dfcart[:,axes[0]], self.dfcart[:,axes[1]], self.dfcart[:,axes[2]], zdir='z', s=size, c='k', depthshade=True)
             ax.scatter(self.dfcart[ilabel,axes[0]], self.dfcart[ilabel,axes[1]], self.dfcart[ilabel,axes[2]], zdir='z', s=size*30, c='r', depthshade=True)
-            ax.set_xlabel(self.data_name_cart[axes[0]], fontsize=35); ax.set_ylabel(self.data_name_cart[axes[1]], fontsize=25); ax.set_zlabel(self.data_name_cart[axes[2]], fontsize=25)
+            ax.set_xlabel(data_name_cart[axes[0]], fontsize=35); ax.set_ylabel(data_name_cart[axes[1]], fontsize=25); ax.set_zlabel(data_name_cart[axes[2]], fontsize=25)
         
         ax.set_title(self.name, fontsize=30)
         #ax.view_init(30, 60)
@@ -315,6 +315,50 @@ class source:
             return []
 
 
+
+##################################################################################################################
+
+
+
+##############################################
+def HRD_cluster(data, size=0.1, colorbar = True, title=""):
+    "Plot the HD diagram"
+    
+    plt.figure(figsize=(15,6))
+    G_max = np.max(data[:,5])
+    G_min = np.min(data[:,5])
+    
+    for i in (6,7) :
+        plt.subplot(1,2,i-5)
+        plt.ylim(G_max, G_min)
+        plt.title(title, fontsize=20)
+        if colorbar : 
+            plt.scatter(data[:,i], data[:,5], s=size, c=data[:,0], cmap='gist_stern')
+            clb = plt.colorbar()
+            clb.set_label('distance', labelpad=-40, y=1.05, rotation=0)
+        else : plt.scatter(data[:,i], data[:,5], s=size, c='k')
+        plt.xlabel(data_name[i], fontsize=18)
+        if i == 6 : plt.ylabel(data_name[5], fontsize=22)
+    
+    plt.show()
+
+##############################################
+def plot_information_cluster(data, size=0.1, cartesian=False, HRD=True) :
+    "Plot some graphs about cluster data"
+    
+    plt.figure(figsize=(19,19))                
+    for i_x, i_y, i in zip((1,2,1,1,1,3),(0,0,2,3,4,4),(1,2,3,4,5,6)) :
+        plt.subplot(3,2,i)
+        if cartesian : 
+            plt.scatter(data[:,i_x],data[:,i_y],s=size,c='k')
+            plt.xlabel(data_name_cart[i_x], fontsize=25)
+            plt.ylabel(data_name_cart[i_y], fontsize=25)              
+        else :
+            plt.scatter(data[:,i_x],data[:,i_y],s=size,c='k')
+            plt.xlabel(data_name[i_x], fontsize=25)
+            plt.ylabel(data_name[i_y], fontsize=25)
+    plt.show()
+    if HRD : HRD_cluster(data, size, True)
 
 
 
