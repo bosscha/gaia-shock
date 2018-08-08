@@ -76,7 +76,7 @@ class source:
         self.weight = weight 
     
     ################################
-    def query(self, dump = False,table="gaiadr2.gaia_source"):
+    def query(self, dump = False, distmax = 2000., table="gaiadr2.gaia_source"):
         "do a conesearch"
         
         c = coord.SkyCoord.from_name(self.name)
@@ -87,12 +87,14 @@ class source:
         self.b_cluster = pos.b.value
         self.ra  = c.ra.deg
         self.dec = c.dec.deg
+        self.distmax = distmax
         
         
         queryaql = "SELECT * FROM {table} WHERE CONTAINS(POINT('ICRS',{table}.ra,{table}.dec),  \
                                     CIRCLE('ICRS',{ra:.10f},{dec:.10f},{radius:.10f})) = 1  \
                                     AND abs(pmra_error/pmra)<{err:10f}  AND abs(pmdec_error/pmdec)< {err:.10f} \
-                                    AND abs(parallax_error/parallax)< {err:.10f};".format(table=table, ra=c.ra.deg, dec=c.dec.deg,radius=self.radius, err=self.errtol)
+                                    AND abs(parallax_error/parallax)< {err:.10f} \
+                                    AND 1000./parallax < {dist:.1f};".format(table=table, ra=c.ra.deg, dec=c.dec.deg,radius=self.radius, err=self.errtol, dist=distmax)
         
         print(queryaql)
         job = Gaia.launch_job_async(queryaql, dump_to_file=dump)
@@ -106,7 +108,7 @@ class source:
         else:
             filename = None
               
-        cone_volume = np.pi*2000*(np.tan(self.radius*np.pi/180.)*2000)**2 / 3
+        cone_volume = np.pi*distmax*(np.tan(self.radius*np.pi/180.)*distmax)**2 / 3
         self.density = len(self.data)/cone_volume
             
         print("## Query for %s done"%(self.name))
@@ -139,8 +141,12 @@ class source:
             data = table.array
         #print(data.dtype.names)
     
-        self.data = data              
-        cone_volume = np.pi*2000*(np.tan(self.radius*np.pi/180.)*2000)**2 / 3
+        self.data = data   
+        
+        distance_max = np.max(1000. / np.ma.filled(data['parallax'], -999999.)) 
+        self.distmax = round(distance_max/100,0)*100
+         
+        cone_volume = np.pi*self.distmax*(np.tan(self.radius*np.pi/180.)*self.distmax)**2 / 3
         self.density = len(self.data)/cone_volume
         
         print("## Total stars: %d"%(len(data)))
@@ -330,7 +336,7 @@ class source:
                     ilabel_final = np.copy(ilabel)
                     max_size = label_size
             if all_labels : result = total_labels
-            else          : result = total_labels
+            else          : result = ilabel_final
             if display :
                 print("## %d clusters, size of the largest: %d  (on %d stars : %.1f%%)"%(n_clusters_,len(ilabel_final),len(self.df[:,1]),100*len(ilabel_final)/len(self.df[:,1])))
                 tf = time.clock() - ts
