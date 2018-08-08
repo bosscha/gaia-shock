@@ -35,6 +35,7 @@ warnings.filterwarnings('ignore')
 import math , shutil
 import numpy as np
 import wavelet as wav
+import time
 
 import astropy.coordinates as coord
 
@@ -61,7 +62,7 @@ class source:
     
     
     ########################
-    def __init__(self, name, radius, errtol):
+    def __init__(self, name = "", radius = 0., errtol = 0.):
 
         self.name = name        
         self.radius = radius
@@ -71,9 +72,8 @@ class source:
     
     ################################
     def set_weight(self, weight) :
-        "Set the variable weight and scale the vector with its highest value"
-        
-        self.weight = weight/np.max(weight)    
+        "Set the variable weight"        
+        self.weight = weight 
     
     ################################
     def query(self, dump = False,table="gaiadr2.gaia_source"):
@@ -105,9 +105,13 @@ class source:
             print("## %s created"%(filedst))
         else:
             filename = None
+              
+        cone_volume = np.pi*2000*(np.tan(self.radius*np.pi/180.)*2000)**2 / 3
+        self.density = len(self.data)/cone_volume
             
         print("## Query for %s done"%(self.name))
-        print("## Total stars: %d"%(len(self.data)))
+        print("## Total stars: %d"%(len(self.data)))        
+        print("## Density star per pc^3: %.5f"%(self.density))
         
         return(filename)
     
@@ -119,6 +123,13 @@ class source:
         # if no voname, find it with name, raduis, errtol
         if voname == None :
             voname = "%s-%3.1fdeg-%serr.vot"%(self.name, self.radius, self.errtol)
+        else :
+            loc_name = voname.find('-')
+            loc_deg = voname.find('deg')
+            loc_err = voname.find('err')
+            self.name = voname[:loc_name]
+            self.radius = float(voname[loc_deg-3:loc_deg])
+            self.errtol = float(voname[loc_deg+4:loc_err])
             
         
         print("## %s read..."%(voname))
@@ -128,9 +139,12 @@ class source:
             data = table.array
         #print(data.dtype.names)
     
-        self.data = data
+        self.data = data              
+        cone_volume = np.pi*2000*(np.tan(self.radius*np.pi/180.)*2000)**2 / 3
+        self.density = len(self.data)/cone_volume
         
         print("## Total stars: %d"%(len(data)))
+        print("## Density star per pc^3: %.5f"%(self.density))
               
         return(len(data))
     
@@ -257,17 +271,20 @@ class source:
     def plot_information(self, size=0.1, cartesian=False, HRD=True, ilabel=[]) :
         "Plot some graphs about data"
         
-        plt.figure(figsize=(19,19))                
+        lenght = len(ilabel); string = ""
+        if lenght != 0 : string = " (%d)"%(lenght)
+        plt.figure(figsize=(19,21))                
         for i_x, i_y, i in zip((1,2,1,1,1,3),(0,0,2,3,4,4),(1,2,3,4,5,6)) :
             plt.subplot(3,2,i)
+            if i <= 2 : plt.title(self.name + string, fontsize=20)
             if cartesian : 
                 plt.scatter(self.dfcart[:,i_x],self.dfcart[:,i_y],s=size,c='k')
-                plt.scatter(self.dfcart[ilabel,i_x],self.dfcart[ilabel,i_y],s=size*20,c='r')  
+                if lenght != 0 : plt.scatter(self.dfcart[ilabel,i_x],self.dfcart[ilabel,i_y],s=size*20,c='r')  
                 plt.xlabel(data_name_cart[i_x], fontsize=25)
                 plt.ylabel(data_name_cart[i_y], fontsize=25)              
             else :
                 plt.scatter(self.df[:,i_x],self.df[:,i_y],s=size,c='k')
-                plt.scatter(self.df[ilabel,i_x],self.df[ilabel,i_y],s=size*20,c='r')
+                if lenght != 0 : plt.scatter(self.df[ilabel,i_x],self.df[ilabel,i_y],s=size*20,c='r')
                 plt.xlabel(data_name[i_x], fontsize=25)
                 plt.ylabel(data_name[i_y], fontsize=25)
         plt.show()
@@ -277,15 +294,16 @@ class source:
     def plot_3D(self, size=0.1, cartesian=False, axes = (0,1,2), ilabel=[]) :
         "Plot in 3D the 3 axis"
 
+        lenght = len(ilabel)
         fig = plt.figure(figsize=(15,10))
         ax = fig.add_subplot(111, projection='3d')
         if cartesian == False : 
             ax.scatter(self.df[:,axes[0]], self.df[:,axes[1]], self.df[:,axes[2]], zdir='z', s=size, c='k', depthshade=True)
-            ax.scatter(self.df[ilabel,axes[0]], self.df[ilabel,axes[1]], self.df[ilabel,axes[2]], zdir='z', s=size*30, c='r', depthshade=True)
+            if lenght != 0 : ax.scatter(self.df[ilabel,axes[0]], self.df[ilabel,axes[1]], self.df[ilabel,axes[2]], zdir='z', s=size*30, c='r', depthshade=True)
             ax.set_xlabel(data_name[axes[0]], fontsize=35); ax.set_ylabel(data_name[axes[1]], fontsize=25); ax.set_zlabel(data_name[axes[2]], fontsize=25)
         else :
             ax.scatter(self.dfcart[:,axes[0]], self.dfcart[:,axes[1]], self.dfcart[:,axes[2]], zdir='z', s=size, c='k', depthshade=True)
-            ax.scatter(self.dfcart[ilabel,axes[0]], self.dfcart[ilabel,axes[1]], self.dfcart[ilabel,axes[2]], zdir='z', s=size*30, c='r', depthshade=True)
+            if lenght != 0 : ax.scatter(self.dfcart[ilabel,axes[0]], self.dfcart[ilabel,axes[1]], self.dfcart[ilabel,axes[2]], zdir='z', s=size*30, c='r', depthshade=True)
             ax.set_xlabel(data_name_cart[axes[0]], fontsize=35); ax.set_ylabel(data_name_cart[axes[1]], fontsize=25); ax.set_zlabel(data_name_cart[axes[2]], fontsize=25)
         
         ax.set_title(self.name, fontsize=30)
@@ -294,26 +312,35 @@ class source:
 
 
     ##############################################
-    def dbscan_labels(self, eps=0.15, min_samples=15, display=True) :
+    def dbscan_labels(self, eps=0.15, min_samples=15, all_labels=False, display=True) :
         "Compte a DBSCAN clustering and return the largest cluster found"
         
+        ts = time.clock()
         db = cluster.DBSCAN(eps=eps, min_samples=min_samples).fit(self.dfnorm)
         labels = db.labels_
         n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
-        max_size = 0
         if n_clusters_ > 0 :
+            max_size = 0
+            total_labels = []
             for i in range(n_clusters_) :
                 ilabel = np.where(labels == i)[0]
+                total_labels.append(ilabel)
                 label_size = len(ilabel)
                 if label_size > max_size :
                     ilabel_final = np.copy(ilabel)
                     max_size = label_size
-            if display : print(str(n_clusters_)+" clusters, size of the largest: "+str(len(ilabel_final)))
-            return ilabel_final
+            if all_labels : result = total_labels
+            else          : result = total_labels
+            if display :
+                print("## %d clusters, size of the largest: %d  (on %d stars : %.1f%%)"%(n_clusters_,len(ilabel_final),len(self.df[:,1]),100*len(ilabel_final)/len(self.df[:,1])))
+                tf = time.clock() - ts
+                if tf//60 == 0 : string = "%.1fs"%(tf%60)
+                else : string = "%dmin %.1fs"%(tf//60,tf%60)
+                print("## Execution time : "+string)
+            return result
         else :
             print("ERROR 0 cluster found with eps="+str(eps)+" and min_samples="+str(min_samples))
             return []
-
 
 
 ##################################################################################################################
