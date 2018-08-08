@@ -16,10 +16,13 @@ HISTORY:
     24.07.2018
         - changing the normalization 
         
+    07.08.21018:
+        - adding coor option to query
+        
 """
 
 __author__  = "SL, QV: ALMA"
-__version__ = "0.3.1@2018.07.24"
+__version__ = "0.3.2@2018.08.07"
 
 # Suppress warnings
 import warnings
@@ -54,11 +57,20 @@ class source:
     
     
     ################################
-    def query(self, radius, errtol = 0.1, dump = False,table="gaiadr2.gaia_source"):
+    def query(self, radius, coor = [], errtol = 0.1, dump = False,table="gaiadr2.gaia_source"):
         "do a conesearch"
         
-        c = coord.SkyCoord.from_name(self.name)
-        c_icrs = coord.SkyCoord(ra= c.ra.deg * u.degree, dec= c.dec.deg  *u.degree, frame='icrs')
+        try:
+            c = coord.SkyCoord.from_name(self.name)
+            c_icrs = coord.SkyCoord(ra= c.ra.deg * u.degree, dec= c.dec.deg  *u.degree, frame='icrs')
+        except:
+            print("## Cluster name not found ...")
+            
+        
+        if len(coor) == 2:
+            c = coord.SkyCoord(ra=coor[0]*u.degree, dec=coor[1]*u.degree, frame='icrs')
+            c_icrs = c
+            
 
         pos = c_icrs.galactic
         self.l_cluster = pos.l.value 
@@ -85,7 +97,7 @@ class source:
         print("## Query for %s done"%(self.name))
         print("## Total stars: %d"%(len(self.data)))
         
-        return(filename)
+        return(filedst)
     
     
     ########################
