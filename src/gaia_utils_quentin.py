@@ -68,6 +68,7 @@ class source:
         self.radius = radius
         self.errtol = errtol
         self.weight = np.ones(DIMMAX)
+        self.dfcart = None
     
     
     ################################
@@ -252,7 +253,7 @@ class source:
 
 
     ##############################################
-    def HRD(self, size=0.1, colorbar = True):
+    def HRD(self, size=0.1, colorbar = True, ilabel=[]):
         "Plot the HD diagram"
         
         plt.figure(figsize=(15,6))
@@ -267,7 +268,9 @@ class source:
                 plt.scatter(self.df[:,i], self.df[:,5], s=size, c=self.df[:,0], cmap='gist_stern')
                 clb = plt.colorbar()
                 clb.set_label('distance', labelpad=-40, y=1.05, rotation=0)
-            else : plt.scatter(self.df[:,i], self.df[:,5], s=size, c='k')
+            else : 
+                plt.scatter(self.df[:,i], self.df[:,5], s=size, c='k')
+                if len(ilabel) != 0 : plt.scatter(self.df[ilabel,i], self.df[ilabel,5], s=size*50, c='r')
             plt.xlabel(data_name[i], fontsize=18)
             if i == 6 : plt.ylabel(data_name[5], fontsize=22)
         
@@ -285,16 +288,19 @@ class source:
             if i <= 2 : plt.title(self.name + string, fontsize=20)
             if cartesian : 
                 plt.scatter(self.dfcart[:,i_x],self.dfcart[:,i_y],s=size,c='k')
-                if lenght != 0 : plt.scatter(self.dfcart[ilabel,i_x],self.dfcart[ilabel,i_y],s=size*20,c='r')  
+                if lenght != 0 : plt.scatter(self.dfcart[ilabel,i_x],self.dfcart[ilabel,i_y],s=size*30,c='r')  
                 plt.xlabel(data_name_cart[i_x], fontsize=25)
                 plt.ylabel(data_name_cart[i_y], fontsize=25)              
             else :
                 plt.scatter(self.df[:,i_x],self.df[:,i_y],s=size,c='k')
-                if lenght != 0 : plt.scatter(self.df[ilabel,i_x],self.df[ilabel,i_y],s=size*20,c='r')
+                if lenght != 0 : plt.scatter(self.df[ilabel,i_x],self.df[ilabel,i_y],s=size*30,c='r')
                 plt.xlabel(data_name[i_x], fontsize=25)
                 plt.ylabel(data_name[i_y], fontsize=25)
         plt.show()
-        if HRD : self.HRD(size)
+        if HRD :
+            if lenght == 0 : self.HRD(size)
+            else           : self.HRD(size,False,ilabel)
+            
         
     ##############################################
     def plot_3D(self, size=0.1, cartesian=False, axes = (0,1,2), ilabel=[]) :
@@ -305,11 +311,11 @@ class source:
         ax = fig.add_subplot(111, projection='3d')
         if cartesian == False : 
             ax.scatter(self.df[:,axes[0]], self.df[:,axes[1]], self.df[:,axes[2]], zdir='z', s=size, c='k', depthshade=True)
-            if lenght != 0 : ax.scatter(self.df[ilabel,axes[0]], self.df[ilabel,axes[1]], self.df[ilabel,axes[2]], zdir='z', s=size*30, c='r', depthshade=True)
+            if lenght != 0 : ax.scatter(self.df[ilabel,axes[0]], self.df[ilabel,axes[1]], self.df[ilabel,axes[2]], zdir='z', s=size*40, c='r', depthshade=True)
             ax.set_xlabel(data_name[axes[0]], fontsize=35); ax.set_ylabel(data_name[axes[1]], fontsize=25); ax.set_zlabel(data_name[axes[2]], fontsize=25)
         else :
             ax.scatter(self.dfcart[:,axes[0]], self.dfcart[:,axes[1]], self.dfcart[:,axes[2]], zdir='z', s=size, c='k', depthshade=True)
-            if lenght != 0 : ax.scatter(self.dfcart[ilabel,axes[0]], self.dfcart[ilabel,axes[1]], self.dfcart[ilabel,axes[2]], zdir='z', s=size*30, c='r', depthshade=True)
+            if lenght != 0 : ax.scatter(self.dfcart[ilabel,axes[0]], self.dfcart[ilabel,axes[1]], self.dfcart[ilabel,axes[2]], zdir='z', s=size*40, c='r', depthshade=True)
             ax.set_xlabel(data_name_cart[axes[0]], fontsize=35); ax.set_ylabel(data_name_cart[axes[1]], fontsize=25); ax.set_zlabel(data_name_cart[axes[2]], fontsize=25)
         
         ax.set_title(self.name, fontsize=30)
@@ -350,7 +356,7 @@ class source:
 
 
 ##################################################################################################################
-
+# General fonctions
 
 
 ##############################################
@@ -376,22 +382,50 @@ def HRD_cluster(data, size=0.1, colorbar = True, title=""):
     plt.show()
 
 ##############################################
-def plot_information_cluster(data, size=0.1, cartesian=False, HRD=True) :
+def plot_information_cluster(data, size=0.1, cartesian=False, HRD=True, title="") :
     "Plot some graphs about cluster data"
     
     plt.figure(figsize=(19,19))                
     for i_x, i_y, i in zip((1,2,1,1,1,3),(0,0,2,3,4,4),(1,2,3,4,5,6)) :
         plt.subplot(3,2,i)
+        if i <= 2 : plt.title(title, fontsize=20)
+        plt.scatter(data[:,i_x],data[:,i_y],s=size,c='k')
         if cartesian : 
-            plt.scatter(data[:,i_x],data[:,i_y],s=size,c='k')
             plt.xlabel(data_name_cart[i_x], fontsize=25)
             plt.ylabel(data_name_cart[i_y], fontsize=25)              
         else :
-            plt.scatter(data[:,i_x],data[:,i_y],s=size,c='k')
             plt.xlabel(data_name[i_x], fontsize=25)
             plt.ylabel(data_name[i_y], fontsize=25)
     plt.show()
     if HRD : HRD_cluster(data, size, True)
+
+
+###############################################  
+def convert_to_cartesian(data, centering = True):
+    #conversion of distance, lgal, bgal into cartesian coordinate
+    #centering True = x coordinate point to cluster center
+    "Convert ra,dec (ICRS) and distance (pc) to Cartesian reference. Off is the offset in Lgal,Bgal"
+    
+    xx = np.zeros(data.shape[0]);  yy = np.zeros(data.shape[0]);  zz = np.zeros(data.shape[0])
+    
+    dist = np.copy(data[:,0]);    lgal = np.copy(data[:,1]);    bgal = np.copy(data[:,2])
+    
+    if centering :
+        lgal = lgal - np.mean(lgal)
+        bgal = bgal - np.mean(bgal)
+    
+    
+    for i in range(len(lgal)):
+        c = coord.SkyCoord(l=lgal[i]*u.degree, b=bgal[i]*u.degree, distance=dist[i]*u.pc, frame='galactic')
+        
+        xx[i] = c.cartesian.x.value
+        yy[i] = c.cartesian.y.value
+        zz[i] = c.cartesian.z.value
+        
+    data_cart = np.copy(data)
+    data_cart[:,:3] = np.array([xx,yy,zz]).T
+    
+    return data_cart
 
 
 
