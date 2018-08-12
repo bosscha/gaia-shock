@@ -19,6 +19,11 @@ HISTORY:
     07.08.21018:
         - adding coor option to query
         
+    11.08.2010:
+        - add a method to extract DBSCAN clusters.
+        
+        
+        
 """
 
 __author__  = "SL, QV: ALMA"
@@ -40,13 +45,15 @@ from astropy import units as u
 
 from astroquery.gaia import Gaia
 
+from sklearn import cluster
+
 DEG2RAD = math.pi / 180.
 
 
 DIMMAX = 10
 
 class source:
-    "Class to download gaia data for a source"
+    "Class to download gaia data for a source and to perform a clustering extractopn"
     
     
     ########################
@@ -57,21 +64,22 @@ class source:
     
     
     ################################
-    def query(self, radius, coor = [], errtol = 0.1, dump = False,table="gaiadr2.gaia_source"):
+    def query(self, radius, coordCluster = [], errtol = 0.2, dump = False,table="gaiadr2.gaia_source"):
         "do a conesearch"
         
-        try:
-            c = coord.SkyCoord.from_name(self.name)
-            c_icrs = coord.SkyCoord(ra= c.ra.deg * u.degree, dec= c.dec.deg  *u.degree, frame='icrs')
-        except:
-            print("## Cluster name not found ...")
-            
+        self.weighted = False
         
-        if len(coor) == 2:
-            c = coord.SkyCoord(ra=coor[0]*u.degree, dec=coor[1]*u.degree, frame='icrs')
+        if len(coordCluster) == 2:
+            c = coord.SkyCoord(ra=coordCluster[0]*u.degree, dec=coordCluster[1]*u.degree, frame='icrs')
             c_icrs = c
+        else:
+            try:
+                c = coord.SkyCoord.from_name(self.name)
+                c_icrs = coord.SkyCoord(ra= c.ra.deg * u.degree, dec= c.dec.deg  *u.degree, frame='icrs')
+            except:
+                print("## Cluster name not found ...")
             
-
+            
         pos = c_icrs.galactic
         self.l_cluster = pos.l.value 
         self.b_cluster = pos.b.value
@@ -104,7 +112,8 @@ class source:
     def read_votable(self, voname):
         "rad a votable"
         
-
+        self.weighted = False
+        
         votable = parse(voname)
         for table in votable.iter_tables():
             data = table.array
@@ -119,6 +128,8 @@ class source:
     
     ###################################################################################################
     def convert_filter_data(self, dist_range = [0., 2000], vra_range = [-200,200], vdec_range = [-200.,200], mag_range =[-1e9, 1e9]) :
+        
+        self.weighted = False
         
         lgal = self.data['l']
         bgal = self.data['b']
@@ -160,13 +171,16 @@ class source:
         "normalize to the STD and MEAN"
         
         self.dfnorm = np.zeros(self.df.shape)
-    
+        self.weighted = True
+        
         for i in range(self.df.shape[1]) :
             
             self.dfnorm[:,i] = self.weight[i] * ( self.df[:,i] - np.mean(self.df[:,i])) / np.std(self.df[:,i]) 
         
         print("## Normalization Normal-Gauss done on filtered data..")        
         return()
+    
+
  
  
  
@@ -176,6 +190,7 @@ class source:
         
         self.dfnorm = np.zeros(self.df.shape)
         self.normalization_vector = np.zeros((DIMMAX,2)) #Represente max and min    
+        self.weighted = True
     
         for i in range(self.df.shape[1]) :
             self.normalization_vector[i,0] = np.max(self.df[:,i]) # max
@@ -183,6 +198,8 @@ class source:
             self.dfnorm[:,i] = self.weight[i]*(self.df[:,i]-self.normalization_vector[i,1])/(self.normalization_vector[i,0]-self.normalization_vector[i,1])  
         
         print("## Normalization minmax done on filtered data..")
+        
+        
         return()
 
     ###############################################  
@@ -212,6 +229,44 @@ class source:
         return(xx, yy, zz)
 
 
+    def dbscan_(self, eps, min_samples):
+        "Perform the dbscan on dfnorm. If not weighted returns error"
+        
+        
+        if not self.weighted:
+            print("## DBSCAN error, data not weighted..")
+            return([])
+        
+        dbscan = cluster.DBSCAN(eps = eps, min_samples = min_samples)
+        dbscan.fit(self.dfnorm)
+        labels_ = dbscan.labels_
+        unique_labels = set(labels_d)
+        n_clusters_ = len(set(labels_d)) - (1 if -1 in labels_d else 0)
+        
+        result_ = {}
+        result_['label'] = []
+        result_['nstars'] = []
+        result_['distance'] = []
+        result_['distance_std'] = []    
+        result_['pos'] = []
+        result_['pos_std'] = []
+        result_['vel'] = []
+        result_['vel_std'] = []
+    
+    
+        for i in range(-1,n_clusters_):
+            result_['label'].append(i)
+            result_['nstars'].append(len(labels_d[np.where(labels_d == i)]))
+            result_['distance'].append(np.median(self.df[np.where(labels_d == i),2]))
+            result_['distance_std'].append(np.std(self.df[np.where(labels_d == i),2]))
+            result_['pos'].append([np.median(self.df[np.where(labels_d == i),0]), np.median(self.df[np.where(labels_d == i),1])])
+            result_['pos_std'].append([np.std(self.df[np.where(labels_d == i),0]), np.std(self.df[np.where(labels_d == i),1])])
+            result_['vel'].append([np.median(self.df[np.where(labels_d == i),3]), np.median(self.df[np.where(labels_d == i),4])])
+            result_['vel_std'].append([np.std(self.df[np.where(labels_d == i),3]), np.std(self.df[np.where(labels_d == i),4])])         
+
+    
+        return(labels_, result_) 
+        
 ##################################################################################################################
 class gaiaSet:
     
