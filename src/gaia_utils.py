@@ -240,8 +240,8 @@ class source:
         dbscan = cluster.DBSCAN(eps = eps, min_samples = min_samples)
         dbscan.fit(self.dfnorm)
         labels_ = dbscan.labels_
-        unique_labels = set(labels_d)
-        n_clusters_ = len(set(labels_d)) - (1 if -1 in labels_d else 0)
+        unique_labels = set(labels_)
+        n_clusters_ = len(set(labels_)) - (1 if -1 in labels_ else 0)
         
         result_ = {}
         result_['label'] = []
@@ -256,13 +256,13 @@ class source:
     
         for i in range(-1,n_clusters_):
             result_['label'].append(i)
-            result_['nstars'].append(len(labels_d[np.where(labels_d == i)]))
-            result_['distance'].append(np.median(self.df[np.where(labels_d == i),2]))
-            result_['distance_std'].append(np.std(self.df[np.where(labels_d == i),2]))
-            result_['pos'].append([np.median(self.df[np.where(labels_d == i),0]), np.median(self.df[np.where(labels_d == i),1])])
-            result_['pos_std'].append([np.std(self.df[np.where(labels_d == i),0]), np.std(self.df[np.where(labels_d == i),1])])
-            result_['vel'].append([np.median(self.df[np.where(labels_d == i),3]), np.median(self.df[np.where(labels_d == i),4])])
-            result_['vel_std'].append([np.std(self.df[np.where(labels_d == i),3]), np.std(self.df[np.where(labels_d == i),4])])         
+            result_['nstars'].append(len(labels_[np.where(labels_ == i)]))
+            result_['distance'].append(np.median(self.df[np.where(labels_ == i),2]))
+            result_['distance_std'].append(np.std(self.df[np.where(labels_ == i),2]))
+            result_['pos'].append([np.median(self.df[np.where(labels_ == i),0]), np.median(self.df[np.where(labels_ == i),1])])
+            result_['pos_std'].append([np.std(self.df[np.where(labels_ == i),0]), np.std(self.df[np.where(labels_ == i),1])])
+            result_['vel'].append([np.median(self.df[np.where(labels_ == i),3]), np.median(self.df[np.where(labels_ == i),4])])
+            result_['vel_std'].append([np.std(self.df[np.where(labels_ == i),3]), np.std(self.df[np.where(labels_ == i),4])])         
 
     
         return(labels_, result_) 
