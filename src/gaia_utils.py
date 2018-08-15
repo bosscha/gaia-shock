@@ -19,15 +19,21 @@ HISTORY:
     07.08.21018:
         - adding coor option to query
         
-    11.08.2010:
+    11.08.2018:
         - add a method to extract DBSCAN clusters.
         
+    14.08.2018:
+        - adding cartesian conversion to df and updating names
+        
+    15.08.2018:
+        - fixing bug
+        - adding normalizationVecto to make the definition more general
         
         
 """
 
 __author__  = "SL, QV: ALMA"
-__version__ = "0.3.2@2018.08.07"
+__version__ = "0.4.1@2018.08.15"
 
 # Suppress warnings
 import warnings
@@ -59,8 +65,10 @@ class source:
     ########################
     def __init__(self, name):
         
-        self.name = name
-        self.weight = np.ones(DIMMAX)
+        self.name       = name
+        self.weight     = np.ones(DIMMAX)
+        self.weightcart = np.ones(DIMMAX)
+        self.cartesuan  = False
     
     
     ################################
@@ -127,7 +135,7 @@ class source:
         return(len(data))
     
     ###################################################################################################
-    def convert_filter_data(self, dist_range = [0., 2000], vra_range = [-200,200], vdec_range = [-200.,200], mag_range =[-1e9, 1e9]) :
+    def filter_data(self, dist_range = [0., 2000], vra_range = [-200,200], vdec_range = [-200.,200], mag_range =[-1e9, 1e9]) :
         
         self.weighted = False
         
@@ -166,23 +174,72 @@ class source:
         return()
     
     
+    
     ###############################
     def normalization_normal(self):
         "normalize to the STD and MEAN"
         
         self.dfnorm = np.zeros(self.df.shape)
+        if self.cartesian:
+            self.dfcartnorm = np.zeros(self.df.shape)
         self.weighted = True
         
         for i in range(self.df.shape[1]) :
-            
             self.dfnorm[:,i] = self.weight[i] * ( self.df[:,i] - np.mean(self.df[:,i])) / np.std(self.df[:,i]) 
+            if self.cartesian:
+               self.dfcartnorm[:,i] = self.weightcart[i] * ( self.df[:,i] - np.mean(self.dfcart[:,i])) / np.std(self.dfcart[:,i]) 
         
         print("## Normalization Normal-Gauss done on filtered data..")        
         return()
     
-
  
- 
+    ################################
+    def  normalization_PerBlock(self, block, weightblock, cartesian = False, norm = "Identity"):
+        """
+        To apply the same weight on subset (i axis). Typically Spatial, velocity and magnitudes
+        blocks is a list of index list to be gathered
+        If cartesian = True only for cartesian (should be added before)
+        """
+        
+        if not cartesian:
+            self.dfnorm = np.zeros(self.df.shape)
+        elif cartesian:
+            self.dfcartnorm = np.zeros(self.df.shape)
+        self.weighted = True  
+        
+        for axis, weight in zip(block, weightblock):
+            if not cartesian:
+                normK = self.normalizationVector(norm, self.df[:,axis])
+                self.dfnorm[:,axis]    =   weight * ( self.df[:,axis] - normK[0] ) / normK[1]
+            elif cartesian:
+                normK = self.normalizationVector(norm, self.dfcart[:,axis])   
+                self.dfcartnorm[:,axis] =  weight * ( self.dfcart[:,axis]  - normK[0] ) / normK[1] 
+            
+        print("Normalization (weighted) per block done on %s filtered data..."%("cartesian" if cartesian else ""))
+        return()
+    
+    
+    #########################################
+    def normalizationVector(self, norm, arr):
+        "return a normalisation vector"
+        
+        vecNorm = [0.0, 1.0]
+        
+        if norm == "Identity":
+            vecNorm = [0.0, 1.0]
+            
+        if norm == "AverageStep":
+            sortArr = np.sort(arr, axis = None)
+            diffmean = np.mean(np.diff(sortArr))
+            vecNorm  = [ 0.0, diffmean]
+            
+        if norm == "Normal":
+            stdArr = np.std(arr, axis = None)
+            meanArr = np.mean(arr, axis = None)
+            vecNorm  = [meanArr , stdArr]
+            
+        return(vecNorm)
+        
  
     ######################
     #Normalized the 5d datask with linear projection from [min,max] to [0,1]
@@ -203,34 +260,35 @@ class source:
         return()
 
     ###############################################  
-    def convert_to_cartesian(self, offCenter = []):
-        "Convert ra,dec (ICRS) and distance (pc) to Cartesian reference. Off is the offset in Lgal,Bgal"
+    def add_cartesian(self, offCenter = []):
+        "Create a dfcart by converting l,b (ICRS) and distance (pc) to Cartesian reference. Off is the offset in Lgal,Bgal"
     
-        xx = np.zeros(len(self.df[:,0]))
-        yy = np.zeros(len(self.df[:,0]))
-        zz = np.zeros(len(self.df[:,0]))
+        self.dfcart = np.copy(self.df)
     
         if len(offCenter) == 0:
-            offCenter[0] = self.l_cluster
-            offCenter[1] = self.b_cluster
+            offCenter = [0.,0.]
+            offCenter[0] = np.mean(self.df[:,0])
+            offCenter[1] = np.mean(self.df[:,1])
         
         lgalOff = self.df[:,0] - offCenter[0]
         bgalOff = self.df[:,1] - offCenter[1]
     
     
-        for i in range(len(lgalOff)):
-            c = coord.SkyCoord(l=lgalOff[i]*u.degree, b=bgalOff[i]*u.degree, distance=self.df[:,2] *u.pc, frame='galactic')
+        coc = coord.SkyCoord(l=lgalOff*u.degree, b=bgalOff*u.degree, distance=self.df[:,2] *u.pc, frame='galactic')
+            
+        self.dfcart[:,0] = coc.cartesian.x.value
+        self.dfcart[:,1] = coc.cartesian.y.value
+        self.dfcart[:,2] = coc.cartesian.z.value
         
-            xx[i] = c.cartesian.x.value
-            yy[i] = c.cartesian.y.value
-            zz[i] = c.cartesian.z.value
-        
+        self.cartesian = True
     
-        return(xx, yy, zz)
+        print("## Cartesian coordinates added...")
+        return(True)
 
 
-    def dbscan_(self, eps, min_samples):
-        "Perform the dbscan on dfnorm. If not weighted returns error"
+    #######################################################
+    def dbscan_(self, eps, min_samples, cartesian = False):
+        "Perform the dbscan on dfnorm. If not weighted returns error. If cartesian uses dfcartnorm"
         
         
         if not self.weighted:
@@ -238,7 +296,11 @@ class source:
             return([])
         
         dbscan = cluster.DBSCAN(eps = eps, min_samples = min_samples)
-        dbscan.fit(self.dfnorm)
+        if cartesian:
+            dbscan.fit(self.dfcartnorm)
+        else:
+            dbscan.fit(self.dfnorm)
+            
         labels_ = dbscan.labels_
         unique_labels = set(labels_)
         n_clusters_ = len(set(labels_)) - (1 if -1 in labels_ else 0)
