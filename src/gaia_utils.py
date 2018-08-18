@@ -29,11 +29,14 @@ HISTORY:
         - fixing bug
         - adding normalizationVecto to make the definition more general
         
+    17.08.2918;
+        - fixing bugs
+        
         
 """
 
 __author__  = "SL, QV: ALMA"
-__version__ = "0.4.1@2018.08.15"
+__version__ = "0.4.1@2018.08.17"
 
 # Suppress warnings
 import warnings
@@ -230,7 +233,7 @@ class source:
             
         if norm == "AverageStep":
             sortArr = np.sort(arr, axis = None)
-            diffmean = np.mean(np.diff(sortArr))
+            diffmean = np.median(np.diff(sortArr))
             vecNorm  = [ 0.0, diffmean]
             
         if norm == "Normal":
