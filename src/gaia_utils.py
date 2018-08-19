@@ -32,11 +32,16 @@ HISTORY:
     17.08.2918;
         - fixing bugs
         
+    18.08.2018:
+        - minmax normalisation in perBlocks
+        - normalization per block scaled down to sum of weight
+        - update dbscan_ results for cartesian
         
+
 """
 
 __author__  = "SL, QV: ALMA"
-__version__ = "0.4.1@2018.08.17"
+__version__ = "0.4.2@2018.08.18"
 
 # Suppress warnings
 import warnings
@@ -197,12 +202,15 @@ class source:
     
  
     ################################
-    def  normalization_PerBlock(self, block, weightblock, cartesian = False, norm = "Identity"):
+    def  normalization_PerBlock(self, block, weightblock, cartesian = False, norm = "Identity", density = False):
         """
         To apply the same weight on subset (i axis). Typically Spatial, velocity and magnitudes
         blocks is a list of index list to be gathered
         If cartesian = True only for cartesian (should be added before)
+        If density = True normalized as well by number of stars
         """
+        
+        totalWeight = np.sum(weightblock)
         
         if not cartesian:
             self.dfnorm = np.zeros(self.df.shape)
@@ -212,34 +220,45 @@ class source:
         
         for axis, weight in zip(block, weightblock):
             if not cartesian:
-                normK = self.normalizationVector(norm, self.df[:,axis])
+                normK = self.normalizationVector(norm, density, self.df[:,axis])
+                normK[1] = normK[1] / totalWeight
                 self.dfnorm[:,axis]    =   weight * ( self.df[:,axis] - normK[0] ) / normK[1]
             elif cartesian:
-                normK = self.normalizationVector(norm, self.dfcart[:,axis])   
+                normK = self.normalizationVector(norm, density, self.dfcart[:,axis])  
+                normK[1] = normK[1] / totalWeight               
                 self.dfcartnorm[:,axis] =  weight * ( self.dfcart[:,axis]  - normK[0] ) / normK[1] 
+                
             
-        print("Normalization (weighted) per block done on %s filtered data..."%("cartesian" if cartesian else ""))
+        print("## Normalization (weighted) per block done on %s filtered data..."%("cartesian" if cartesian else ""))
         return()
     
     
     #########################################
-    def normalizationVector(self, norm, arr):
+    def normalizationVector(self, norm, density, arr):
         "return a normalisation vector"
         
         vecNorm = [0.0, 1.0]
         
-        if norm == "Identity":
+        if norm == "identity":
             vecNorm = [0.0, 1.0]
             
-        if norm == "AverageStep":
+        if norm == "averagestep":
             sortArr = np.sort(arr, axis = None)
             diffmean = np.median(np.diff(sortArr))
             vecNorm  = [ 0.0, diffmean]
             
-        if norm == "Normal":
+        if norm == "normal":
             stdArr = np.std(arr, axis = None)
             meanArr = np.mean(arr, axis = None)
             vecNorm  = [meanArr , stdArr]
+            
+        if norm == "minmax":
+            minarr  = np.min(arr)
+            maxarr  = np.max(arr)
+            vecNorm = [minarr, maxarr-minarr]
+            
+        if density:
+            vecNorm [1] = vecNorm[1] * len(arr[:,0])
             
         return(vecNorm)
         
@@ -308,26 +327,43 @@ class source:
         unique_labels = set(labels_)
         n_clusters_ = len(set(labels_)) - (1 if -1 in labels_ else 0)
         
-        result_ = {}
-        result_['label'] = []
-        result_['nstars'] = []
-        result_['distance'] = []
-        result_['distance_std'] = []    
-        result_['pos'] = []
-        result_['pos_std'] = []
-        result_['vel'] = []
-        result_['vel_std'] = []
-    
+        if cartesian:
+            result_ = {}
+            result_['label'] = []
+            result_['nstars'] = []  
+            result_['pos'] = []
+            result_['pos_std'] = []
+            result_['vel'] = []
+            result_['vel_std'] = []
+        else:
+            result_ = {}
+            result_['label'] = []
+            result_['nstars'] = []
+            result_['distance'] = []
+            result_['distance_std'] = []    
+            result_['pos'] = []
+            result_['pos_std'] = []
+            result_['vel'] = []
+            result_['vel_std'] = []  
     
         for i in range(-1,n_clusters_):
-            result_['label'].append(i)
-            result_['nstars'].append(len(labels_[np.where(labels_ == i)]))
-            result_['distance'].append(np.median(self.df[np.where(labels_ == i),2]))
-            result_['distance_std'].append(np.std(self.df[np.where(labels_ == i),2]))
-            result_['pos'].append([np.median(self.df[np.where(labels_ == i),0]), np.median(self.df[np.where(labels_ == i),1])])
-            result_['pos_std'].append([np.std(self.df[np.where(labels_ == i),0]), np.std(self.df[np.where(labels_ == i),1])])
-            result_['vel'].append([np.median(self.df[np.where(labels_ == i),3]), np.median(self.df[np.where(labels_ == i),4])])
-            result_['vel_std'].append([np.std(self.df[np.where(labels_ == i),3]), np.std(self.df[np.where(labels_ == i),4])])         
+            if cartesian:
+                result_['label'].append(i)
+                result_['nstars'].append(len(labels_[np.where(labels_ == i)]))
+                result_['pos'].append([np.median(self.dfcart[np.where(labels_ == i),0]), np.median(self.dfcart[np.where(labels_ == i),1]),np.median(self.dfcart[np.where(labels_ == i),2])])
+                result_['pos_std'].append([np.std(self.dfcart[np.where(labels_ == i),0]), np.std(self.dfcart[np.where(labels_ == i),1]),np.std(self.dfcart[np.where(labels_ == i),2])]) 
+                result_['vel'].append([np.median(self.dfcart[np.where(labels_ == i),3]), np.median(self.dfcart[np.where(labels_ == i),4])])
+                result_['vel_std'].append([np.std(self.dfcart[np.where(labels_ == i),3]), np.std(self.dfcart[np.where(labels_ == i),4])])         
+
+            else:
+                result_['label'].append(i)
+                result_['nstars'].append(len(labels_[np.where(labels_ == i)]))
+                result_['distance'].append(np.median(self.df[np.where(labels_ == i),2]))
+                result_['distance_std'].append(np.std(self.df[np.where(labels_ == i),2]))
+                result_['pos'].append([np.median(self.df[np.where(labels_ == i),0]), np.median(self.df[np.where(labels_ == i),1])])
+                result_['pos_std'].append([np.std(self.df[np.where(labels_ == i),0]), np.std(self.df[np.where(labels_ == i),1])])
+                result_['vel'].append([np.median(self.df[np.where(labels_ == i),3]), np.median(self.df[np.where(labels_ == i),4])])
+                result_['vel_std'].append([np.std(self.df[np.where(labels_ == i),3]), np.std(self.df[np.where(labels_ == i),4])])         
 
     
         return(labels_, result_) 
