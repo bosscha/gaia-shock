@@ -54,8 +54,8 @@ DEG2RAD = math.pi / 180.
 
 
 DIMMAX = 8
-data_name = ['distance','lgal','bgal','vdec','vra',r'$G + 5 * log_{10}\bar{\omega} + 2$','$G - R_p$','$B_p - G$']
-data_name_cart = ['distance (x)','y','z','vdec','vra',r'$G + 5 * log_{10}\bar{\omega} + 2$','$G - R_p$','$B_p - G$']
+data_name = ['distance','lgal','bgal','vra','vdec',r'$G + 5 * log_{10}\bar{\omega} + 2$','$G - R_p$','$B_p - G$']
+data_name_cart = ['distance (x)','y','z','vra','vdec',r'$G + 5 * log_{10}\bar{\omega} + 2$','$G - R_p$','$B_p - G$']
 
 class source:
     "Class to download gaia data for a source"
@@ -165,7 +165,7 @@ class source:
         pmra = np.ma.filled(self.data['pmra'], -9999999.)   # PM RA
         pmdec= np.ma.filled(self.data['pmdec'],-9999999.)   # PM Dec
         vdec = 4.74 * pmdec / pmas   ##? (pour )
-        vra  = 4.74 * pmra  / pmas   # pour avoir des km.s-1
+        vra  = 4.74 * pmra  / pmas  # pour avoir des km.s-1
     
         
         g  =  np.ma.filled(self.data['phot_g_mean_mag'], 99.)
