@@ -94,7 +94,7 @@ class source:
         queryaql = "SELECT * FROM {table} WHERE CONTAINS(POINT('ICRS',{table}.ra,{table}.dec),  \
                                     CIRCLE('ICRS',{ra:.10f},{dec:.10f},{radius:.10f})) = 1  \
                                     AND abs(pmra_error/pmra)<{err:10f}  AND abs(pmdec_error/pmdec)< {err:.10f} \
-                                    AND abs(parallax_error/parallax)< {err:.10f} \
+                                    AND 1 / parallax_over_error < {err:.10f} \
                                     AND 1000./parallax < {dist:.1f};".format(table=table, ra=c.ra.deg, dec=c.dec.deg,radius=self.radius, err=self.errtol, dist=distmax)
         
         print(queryaql)
@@ -165,7 +165,7 @@ class source:
         pmra = np.ma.filled(self.data['pmra'], -9999999.)   # PM RA
         pmdec= np.ma.filled(self.data['pmdec'],-9999999.)   # PM Dec
         vdec = 4.74 * pmdec / pmas   ##? (pour )
-        vra  = 4.74 * pmra  / pmas  # pour avoir des km.s-1
+        vra  = 4.74 * pmra / pmas  # pour avoir des km.s-1
     
         
         g  =  np.ma.filled(self.data['phot_g_mean_mag'], 99.)
@@ -195,8 +195,11 @@ class source:
         
         self.df = np.array([distance[ifinal], lgal[ifinal], bgal[ifinal], vra[ifinal], vdec[ifinal], gbar, g[ifinal]-rp[ifinal], bp[ifinal]-g[ifinal]]).T
         
-        print("## Conversion done...")
-        print("## Stars selected: %d"%(len(ifinal)))
+        self.unmasked = ifinal
+        
+        
+        print("## Conversion on %d stars done..."%(len(self.data)))
+        print("## Stars selected: %d\n"%(len(ifinal)))
     
     
     ###############################
