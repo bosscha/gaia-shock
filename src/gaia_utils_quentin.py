@@ -150,8 +150,8 @@ class source:
         cone_volume = np.pi*self.distmax*(np.tan(self.radius*np.pi/180.)*self.distmax)**2 / 3
         self.density = len(self.data)/cone_volume
         
-        print("## Total stars: %d"%(len(data)))
-        print("## Density star per pc^3: %.5f"%(self.density))
+        print("#  Total stars: %d"%(len(data)))
+        print("#  Density star per pc^3: %.5f"%(self.density))
               
         return(len(data))
     
@@ -198,8 +198,8 @@ class source:
         self.unmasked = ifinal
         
         
-        print("## Conversion on %d stars done..."%(len(self.data)))
-        print("## Stars selected: %d\n"%(len(ifinal)))
+        print("#  Conversion on %d stars done..."%(len(self.data)))
+        print("#  Stars selected: %d\n"%(len(ifinal)))
     
     
     ###############################
@@ -212,7 +212,7 @@ class source:
             
             self.dfnorm[:,i] = self.weight[i] * ( self.df[:,i] - np.mean(self.df[:,i])) / np.std(self.df[:,i]) 
         
-        print("## Normalization done on filtered data..")
+        print("#  Normalization done on filtered data..")
  
  
     ######################
@@ -227,7 +227,7 @@ class source:
             self.normalization_vector[i,1] = np.min(self.df[:,i]) # min
             self.dfnorm[:,i] = self.weight[i]*(self.df[:,i]-self.normalization_vector[i,1])/(self.normalization_vector[i,0]-self.normalization_vector[i,1])  
         
-        print("## Normalization done on filtered data..")
+        print("#  Normalization done on filtered data..")
 
     ###############################################  
     def convert_to_cartesian(self, centering = True):
@@ -242,14 +242,13 @@ class source:
         if centering :
             lgal = lgal - np.mean(lgal)
             bgal = bgal - np.mean(bgal)
-        
-        
-        for i in range(len(lgal)):
-            c = coord.SkyCoord(l=lgal[i]*u.degree, b=bgal[i]*u.degree, distance=dist[i]*u.pc, frame='galactic')
             
-            xx[i] = c.cartesian.x.value
-            yy[i] = c.cartesian.y.value
-            zz[i] = c.cartesian.z.value
+        lgal = lgal*np.pi/180
+        bgal = bgal*np.pi/180
+        
+        xx = dist*np.cos(bgal)*np.cos(lgal)
+        yy = dist*np.cos(bgal)*np.sin(lgal)
+        zz = dist*np.sin(bgal)
             
         self.dfcart = np.copy(self.df)
         self.dfcart[:,:3] = np.array([xx,yy,zz]).T
