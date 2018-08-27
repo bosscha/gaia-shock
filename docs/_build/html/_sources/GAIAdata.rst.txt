@@ -18,6 +18,18 @@ Use
 Module: *gaia_utils*
 
 .. autoclass:: source
+
+.. code-block:: python
+
+   import gaia_utils as gU
+
+   s = gU.source("NGC 2516")  # instantiate the class source
+
+
+
+Module: *gaia_utils*
+
+.. autoclass:: source
    
    
 

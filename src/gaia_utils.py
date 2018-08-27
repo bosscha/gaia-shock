@@ -37,11 +37,14 @@ HISTORY:
         - normalization per block scaled down to sum of weight
         - update dbscan_ results for cartesian
         
+    27.08.2018:
+        - 
+        
 
 """
 
 __author__  = "SL, QV: ALMA"
-__version__ = "0.4.2@2018.08.18"
+__version__ = "0.4.3@2018.08.23"
 
 # Suppress warnings
 import warnings
@@ -64,7 +67,7 @@ from sklearn import cluster
 DEG2RAD = math.pi / 180.
 
 
-DIMMAX = 10
+DIMMAX = 10     # maximum number of parameters per point
 
 class source:
     "Class to download gaia data for a source and to perform a clustering extractopn"
