@@ -76,7 +76,7 @@ class source:
         self.name       = name
         self.weight     = np.ones(DIMMAX)
         self.weightcart = np.ones(DIMMAX)
-        self.cartesuan  = False
+        self.cartesian  = False
     
     
     ################################

@@ -15,6 +15,7 @@ Welcome to GAIA-shock's documentation!
    GAIAdata
    clustering
    analysis
+   julia
 
 Scope of the project
 ====================
