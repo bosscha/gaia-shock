@@ -156,7 +156,7 @@ class source:
         distance = 1000. / np.ma.filled(pmas, -999999.)    #distance = 1000/parallax
         pmra = np.ma.filled(self.data['pmra'], -9999999.)   # PM RA
         pmdec= np.ma.filled(self.data['pmdec'],-9999999.)   # PM Dec
-        vdec = 4.74 * pmdec / pmas   ##? (pour )
+        vdec = 4.74 * pmdec / pmas   # pour avoir des km.s-1
         vra  = 4.74 * pmra  / pmas   # pour avoir des km.s-1
     
         
