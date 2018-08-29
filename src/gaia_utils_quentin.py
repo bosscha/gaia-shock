@@ -430,6 +430,38 @@ def convert_to_cartesian(data, centering = True):
     return data_cart
 
 
+###############################################  
+def dbscan_labels(data, eps=0.15, min_samples=15, all_labels=False, display=True) :
+    "Compte a DBSCAN clustering and return the largest cluster found"
+
+    ts = time.clock()
+    db = cluster.DBSCAN(eps=eps, min_samples=min_samples).fit(data)
+    labels = db.labels_
+    n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
+    if n_clusters_ > 0 :
+        max_size = 0
+        total_labels = []
+        for i in range(n_clusters_) :
+            ilabel = np.where(labels == i)[0]
+            total_labels.append(ilabel)
+            label_size = len(ilabel)
+            if label_size > max_size :
+                ilabel_final = np.copy(ilabel)
+                max_size = label_size
+        if all_labels : result = total_labels
+        else          : result = ilabel_final
+        if display :
+            print("## %d clusters, size of the largest: %d  (on %d stars : %.1f%%)"%(n_clusters_,len(ilabel_final),len(data[:,1]),100*len(ilabel_final)/len(data[:,1])))
+            tf = time.clock() - ts
+            if tf//60 == 0 : string = "%.1fs"%(tf%60)
+            else : string = "%dmin %.1fs"%(tf//60,tf%60)
+            print("## Execution time : "+string)
+        return result
+    else :
+        print("ERROR 0 cluster found with eps="+str(eps)+" and min_samples="+str(min_samples))
+        return []
+
+
 
 ##################################################################################################################
 class gaiaSet:
