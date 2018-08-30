@@ -1,7 +1,7 @@
 """
 
 Methods to help with the GAIA data.
-Python3 compl
+Python3 compliant
 
 HISTORY:
     14.06.2018:
@@ -36,9 +36,6 @@ HISTORY:
         - minmax normalisation in perBlocks
         - normalization per block scaled down to sum of weight
         - update dbscan_ results for cartesian
-        
-    27.08.2018:
-        - 
         
 
 """
