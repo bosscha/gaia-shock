@@ -36,12 +36,14 @@ HISTORY:
         - minmax normalisation in perBlocks
         - normalization per block scaled down to sum of weight
         - update dbscan_ results for cartesian
-        
+      
+     1,09.2018:
+         - minor change
 
 """
 
 __author__  = "SL, QV: ALMA"
-__version__ = "0.4.3@2018.08.23"
+__version__ = "0.4.3@2018.09.1"
 
 # Suppress warnings
 import warnings
@@ -202,7 +204,7 @@ class source:
     
  
     ################################
-    def  normalization_PerBlock(self, block, weightblock, cartesian = False, norm = "Identity", density = False):
+    def  normalization_PerBlock(self, block, weightblock, cartesian = False, norm = "identity", density = False):
         """
         To apply the same weight on subset (i axis). Typically Spatial, velocity and magnitudes
         blocks is a list of index list to be gathered
@@ -258,7 +260,7 @@ class source:
             vecNorm = [minarr, maxarr-minarr]
             
         if density:
-            vecNorm [1] = vecNorm[1] * len(arr[:,0])
+            vecNorm[1] = vecNorm[1] * len(arr[:,0])
             
         return(vecNorm)
         
