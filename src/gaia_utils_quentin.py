@@ -77,7 +77,7 @@ class source:
         self.weight = weight 
     
     ################################
-    def query(self, dump = False, distmax = 2000., table="gaiadr2.gaia_source"):
+    def query(self, dump = False, distmax = 2000., table="gaiadr2.gaia_source", display = True):
         "do a conesearch"
         
         c = coord.SkyCoord.from_name(self.name)
@@ -97,7 +97,7 @@ class source:
                                     AND 1 / parallax_over_error < {err:.10f} \
                                     AND 1000./parallax < {dist:.1f};".format(table=table, ra=c.ra.deg, dec=c.dec.deg,radius=self.radius, err=self.errtol, dist=distmax)
         
-        print(queryaql)
+        if display : print(queryaql)
         job = Gaia.launch_job_async(queryaql, dump_to_file=dump)
         self.data = job.get_results()
 
@@ -105,22 +105,23 @@ class source:
             filename = job.get_output_file()
             filedst = "%s-%3.1fdeg-%serr.vot"%(self.name, self.radius, self.errtol)
             shutil.move(filename,filedst)
-            print("## %s created"%(filedst))
+            if display : print("## %s created"%(filedst))
         else:
             filename = None
               
         cone_volume = np.pi*distmax*(np.tan(self.radius*np.pi/180.)*distmax)**2 / 3
         self.density = len(self.data)/cone_volume
             
-        print("## Query for %s done"%(self.name))
-        print("## Total stars: %d"%(len(self.data)))        
-        print("## Density star per pc^3: %.5f"%(self.density))
+        if display : 
+            print("## Query for %s done"%(self.name))
+            print("## Total stars: %d"%(len(self.data)))        
+            print("## Density star per pc^3: %.5f"%(self.density))
         
         return(filename)
     
     
     ########################
-    def read_votable(self, voname = None):
+    def read_votable(self, voname = None, display = True):
         "rad a votable"
         
         # if no voname, find it with name, raduis, errtol
@@ -135,12 +136,12 @@ class source:
             self.errtol = float(voname[loc_deg+4:loc_err])
             
         
-        print("## %s read..."%(voname))
+        if display : print("## %s read..."%(voname))
 
         votable = parse(voname)
         for table in votable.iter_tables():
             data = table.array
-        #print(data.dtype.names)
+        #if display : print(data.dtype.names)
     
         self.data = data   
         
@@ -150,13 +151,13 @@ class source:
         cone_volume = np.pi*self.distmax*(np.tan(self.radius*np.pi/180.)*self.distmax)**2 / 3
         self.density = len(self.data)/cone_volume
         
-        print("#  Total stars: %d"%(len(data)))
-        print("#  Density star per pc^3: %.5f"%(self.density))
+        if display : print("#  Total stars: %d"%(len(data)))
+        if display : print("#  Density star per pc^3: %.5f"%(self.density))
               
         return(len(data))
     
     ###################################################################################################
-    def convert_filter_data(self, dist_range = [0., 2000], vra_range = [-200,200], vdec_range = [-200.,200], without_mag = True) :
+    def convert_filter_data(self, dist_range = [0., 2000], vra_range = [-200,200], vdec_range = [-200.,200], without_mag = True, display = True) :
         
         lgal = self.data['l']
         bgal = self.data['b']
@@ -189,7 +190,7 @@ class source:
             i4 = np.intersect1d(i12,i3)
             ifinal = np.intersect1d(i4,ifinal)
             
-        print()
+        if display : print()
         
         gbar = g[ifinal] + 5*np.log10(pmas[ifinal]) + 2
         
@@ -197,13 +198,13 @@ class source:
         
         self.unmasked = ifinal
         
-        
-        print("#  Conversion on %d stars done..."%(len(self.data)))
-        print("#  Stars selected: %d\n"%(len(ifinal)))
+        if display : 
+            print("#  Conversion on %d stars done..."%(len(self.data)))
+            print("#  Stars selected: %d\n"%(len(ifinal)))
     
     
     ###############################
-    def normalization_normal(self):
+    def normalization_normal(self, display = True):
         "normalize to the STD and MEAN"
         
         self.dfnorm = np.zeros(self.df.shape)
@@ -212,12 +213,12 @@ class source:
             
             self.dfnorm[:,i] = self.weight[i] * ( self.df[:,i] - np.mean(self.df[:,i])) / np.std(self.df[:,i]) 
         
-        print("#  Normalization done on filtered data..")
+        if display : print("#  Normalization done on filtered data..")
  
  
     ######################
     #Normalized the 5d datask with linear projection from [min,max] to [0,1]
-    def normalization_minmax(self):
+    def normalization_minmax(self, display = True):
         
         self.dfnorm = np.zeros(self.df.shape)
         self.normalization_vector = np.zeros((DIMMAX,2)) #Represente max and min    
@@ -227,7 +228,7 @@ class source:
             self.normalization_vector[i,1] = np.min(self.df[:,i]) # min
             self.dfnorm[:,i] = self.weight[i]*(self.df[:,i]-self.normalization_vector[i,1])/(self.normalization_vector[i,0]-self.normalization_vector[i,1])  
         
-        print("#  Normalization done on filtered data..")
+        if display : print("#  Normalization done on filtered data..")
 
     ###############################################  
     def convert_to_cartesian(self, centering = True):
