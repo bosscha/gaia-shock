@@ -1,5 +1,6 @@
 ## Run test with the Julia module gaiaClustering
 ## @02.09.2018
+push!(LOAD_PATH,"/home/stephane/Science/cluster/GAIA/master/src")
 
 using gaiaClustering
 

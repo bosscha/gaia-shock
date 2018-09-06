@@ -37,13 +37,16 @@ HISTORY:
         - normalization per block scaled down to sum of weight
         - update dbscan_ results for cartesian
       
-     1,09.2018:
+     01.09.2018:
          - minor change
+         
+     05.09.2018
+         - error measurements DF
 
 """
 
 __author__  = "SL, QV: ALMA"
-__version__ = "0.4.3@2018.09.1"
+__version__ = "0.4.4@2018.09.05"
 
 # Suppress warnings
 import warnings
@@ -153,7 +156,8 @@ class source:
         bgal = self.data['b']
         pmas = self.data['parallax']
         distance = 1000. / np.ma.filled(pmas, -999999.)    #distance = 1000/parallax
-        pmra = np.ma.filled(self.data['pmra'], -9999999.)   # PM RA
+        parallax_error = np.ma.filled(self.data['parallax_error'], -9999999.)
+        pmra = np.ma.filled(self.data['parallax_error'], -9999999.)   # PM RA
         pmdec= np.ma.filled(self.data['pmdec'],-9999999.)   # PM Dec
         vdec = 4.74 * pmdec / pmas   # pour avoir des km.s-1
         vra  = 4.74 * pmra  / pmas   # pour avoir des km.s-1
@@ -178,6 +182,7 @@ class source:
         gbar = g[ifinal] + 5*np.log10(pmas[ifinal]) + 2
         
         self.df = np.array([lgal[ifinal],bgal[ifinal], distance[ifinal], vra[ifinal], vdec[ifinal], gbar, g[ifinal]-rp[ifinal], bp[ifinal]-g[ifinal]]).T
+        self.dferr = np.array([parallax_error[ifinal]]).T
         
         print("## Conversion done...")
         print("## Stars selected: %d"%(len(ifinal)))
