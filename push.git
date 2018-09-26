@@ -6,4 +6,4 @@ fi
 
 git add .
 git commit -m "$com"
-git push --set-upstream https://github.com/bosscha/gaia-shock master
+git push --set-upstream https://gitlab.com/bosscha/gaia-shock master
