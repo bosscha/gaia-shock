@@ -1,3 +1,7 @@
+## from module gaiaClustering
+## Functions to deal with GAIA data and to normalize
+## 
+
 DEG2RAD =  π / 180.
 
 mutable struct Df
@@ -174,8 +178,8 @@ function normalizationVector(norm, density, arr)
             vecNorm  = [meanArr , stdArr]
             
         elseif norm == "minmax"
-            minarr  = min(arr)
-            maxarr  = max(arr)
+            minarr  = minimum(vcat(arr...))
+            maxarr  = maximum(vcat(arr...))
             vecNorm = [minarr, maxarr-minarr]
     end
             

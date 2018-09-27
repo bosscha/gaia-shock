@@ -1,4 +1,5 @@
-## Methods and types to help with the GAIA data.
+## Methods and types about stellar clusters.
+## 
 ##
 ## Julia 1.0 compliant
 ## 
@@ -11,8 +12,9 @@ using DataFrames
 using Clustering
 using Statistics
 
+## GAIA function to deal with data
 include("data.jl")
 
-export read_votable , filter_data , add_cartesian , normalization_PerBlock , toto1
+export read_votable , filter_data , add_cartesian , normalization_PerBlock , copy
 
 end
