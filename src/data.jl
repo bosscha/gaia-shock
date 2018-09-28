@@ -28,6 +28,14 @@ function copy(s::Df)::Df
     return(c)
 end
 
+## dummy ...
+function copy1(s::Df)::Df
+    c = Df(s.ndata, zeros(length(s.data[:,1]),s.ndata), zeros(length(s.err[:,1]),s.ndata))
+    c.data[:,:] = s.data[:,:]
+    c.err[:,:]  = s.err[:,:]
+    
+    return(c)
+end
 
 #########
 ## function to create the df
@@ -154,10 +162,13 @@ function  normalization_PerBlock(s::Df, block , weightblock, norm , density = fa
     dfresult    = copy(s)
     totalWeight = sum(weightblock)
     
-    for axis in block, weight in weightblock
-        normK = normalizationVector(norm, density, dfresult.data[:,axis])
-        normK[1] = normK[1] / totalWeight
-        dfresult.data[:,axis]    =   weight .* (s.data[:,axis] .- normK[1] ) ./ normK[2]
+    for aw in zip(block,weightblock)
+        weight = aw[2]
+        for ak in aw[1]
+            normK = normalizationVector(norm, density, dfresult.data[ak,:])
+            normK[2] = normK[2] / totalWeight
+            dfresult.data[ak,:]    =   weight .* (s.data[ak,:] .- normK[1] ) ./ normK[2]
+        end
     end
     
     println("## Normalization $norm done...")
@@ -184,7 +195,7 @@ function normalizationVector(norm, density, arr)
     end
             
     if density
-        vecNorm[1] = vecNorm[1] * length(arr[:,0])
+        vecNorm[2] = vecNorm[2] * length(arr)
     end
         
     return(vecNorm)
