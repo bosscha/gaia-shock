@@ -7,6 +7,7 @@ DEG2RAD =  π / 180.
 mutable struct Df
     ndata::Int32
     data::Array{Float64}
+    raw::Array{Float64}
     err::Array{Float64}
 end
 
@@ -21,8 +22,9 @@ end
 
     
 function copy(s::Df)::Df
-    c = Df(s.ndata, zeros(length(s.data[:,1]),s.ndata), zeros(length(s.err[:,1]),s.ndata))
+    c = Df(s.ndata, zeros(length(s.data[:,1]),s.ndata),zeros(length(s.raw[:,1]),s.ndata), zeros(length(s.err[:,1]),s.ndata))
     c.data[:,:] = s.data[:,:]
+    c.raw[:,:]  = s.raw[:,:]
     c.err[:,:]  = s.err[:,:]
     
     return(c)
@@ -30,8 +32,9 @@ end
 
 ## dummy ...
 function copy1(s::Df)::Df
-    c = Df(s.ndata, zeros(length(s.data[:,1]),s.ndata), zeros(length(s.err[:,1]),s.ndata))
+    c = Df(s.ndata, zeros(length(s.data[:,1]),s.ndata),zeros(length(s.raw[:,1]),s.ndata), zeros(length(s.err[:,1]),s.ndata))
     c.data[:,:] = s.data[:,:]
+    c.raw[:,:]  = s.raw[:,:]
     c.err[:,:]  = s.err[:,:]
     
     return(c)
@@ -59,7 +62,10 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250], vdec
     
     lgal = zeros(ngaia)
     bgal = zeros(ngaia)    
-    distance = zeros(ngaia)    
+    distance = zeros(ngaia)  
+    pmra = zeros(ngaia)
+    pmdec = zeros(ngaia)    
+    parallax = zeros(ngaia)
     vra = zeros(ngaia)
     vdec = zeros(ngaia)    
     g = zeros(ngaia)
@@ -73,10 +79,11 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250], vdec
         lgal[i]     = convert(Float64,gaia[i]["l"])
         bgal[i]     = convert(Float64,gaia[i]["b"])
         distance[i] = 1000. / convert(Float64,gaia[i]["parallax"])
-        pmra  = convert(Float64,gaia[i]["pmra"])
-        pmdec = convert(Float64,gaia[i]["pmdec"])
-        vra[i]      = 4.74e-3 * pmra  * distance[i]
-        vdec[i]     = 4.74e-3 * pmdec * distance[i]
+        parallax[i] = convert(Float64,gaia[i]["parallax"])
+        pmra[i]     = convert(Float64,gaia[i]["pmra"])
+        pmdec[i]    = convert(Float64,gaia[i]["pmdec"])
+        vra[i]      = 4.74e-3 * pmra[i]  * distance[i]
+        vdec[i]     = 4.74e-3 * pmdec[i] * distance[i]
         ### errors.
         parallax_error[i]  = convert(Float64,gaia[i]["parallax_error"])
         pmra_error[i]  = convert(Float64,gaia[i]["pmra_error"])
@@ -111,7 +118,17 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250], vdec
     
     ## Df of the filtered dat
     ndata = length(distance[ifinal])
-    s = Df(ndata, zeros(8,ndata), zeros(8,ndata) )
+    s = Df(ndata, zeros(8,ndata), zeros(8,ndata) , zeros(8,ndata) )
+    
+    s.raw[1,:] = lgal[ifinal]
+    s.raw[2,:] = bgal[ifinal]
+    s.raw[3,:] = parallax[ifinal]
+    s.raw[4,:] = pmra[ifinal]
+    s.raw[5,:] = pmdec[ifinal]
+    s.raw[6,:] = gbar
+    s.raw[7,:] = rp[ifinal]
+    s.raw[8,:] = bp[ifinal] 
+    
     
     s.data[1,:] = lgal[ifinal]
     s.data[2,:] = bgal[ifinal]
@@ -157,22 +174,35 @@ function add_cartesian(s::Df, centering = true)::Df
 end
 
 ######
-function  normalization_PerBlock(s::Df, block , weightblock, norm , density = false)::Df
+function  normalization_PerBlock(s::Df, block , weightblock, norm , density = false)
 ######   
-    dfresult    = copy(s)
-    totalWeight = sum(weightblock)
+    dfresult = copy(s)
+    ndf = size(s.data)
+    println(ndf)
+    scale8d = zeros(ndf[1])
+    vector8d = 0.
     
+    ind = 1
     for aw in zip(block,weightblock)
         weight = aw[2]
         for ak in aw[1]
             normK = normalizationVector(norm, density, dfresult.data[ak,:])
-            normK[2] = normK[2] / totalWeight
+            # normK[2] = normK[2] * totalWeight
             dfresult.data[ak,:]    =   weight .* (s.data[ak,:] .- normK[1] ) ./ normK[2]
+            scale8d[ind] = weight / normK[2]
+            vector8d += scale8d[ind] ^ 2
+            ind += 1
         end
     end
     
+    vector8d = sqrt(vector8d)
+    scale8d[:] = scale8d[:] ./ vector8d
+    dfresult.data[:,:] = dfresult.data[:,:] ./ vector8d
+    
     println("## Normalization $norm done...")
-    return(dfresult)
+    println("### [1pc,1pc,1pc,1km/s,1km/s,1mag,1mag] equivalent to $scale8d")
+            
+    return(dfresult , scale8d)
 end
 
 ######
@@ -192,6 +222,7 @@ function normalizationVector(norm, density, arr)
             minarr  = minimum(vcat(arr...))
             maxarr  = maximum(vcat(arr...))
             vecNorm = [minarr, maxarr-minarr]
+            
     end
             
     if density
