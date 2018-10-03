@@ -178,7 +178,6 @@ function  normalization_PerBlock(s::Df, block , weightblock, norm , density = fa
 ######   
     dfresult = copy(s)
     ndf = size(s.data)
-    println(ndf)
     scale8d = zeros(ndf[1])
     vector8d = 0.
     
