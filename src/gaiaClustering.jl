@@ -14,7 +14,12 @@ using Statistics
 
 ## GAIA function to deal with data
 include("data.jl")
-
 export read_votable , filter_data , add_cartesian , normalization_PerBlock , copy1
+
+
+## stelllar cluster analysis
+include("stellarcluster.jl")
+
+
 
 end
