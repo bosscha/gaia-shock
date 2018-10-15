@@ -121,6 +121,7 @@ class source:
             shutil.move(filename,filedst)
             print("## %s created"%(filedst))
         else:
+            filedst = "dummy.vot"
             filename = None
             
         print("## Query for %s done"%(self.name))
@@ -380,7 +381,6 @@ class gaiaSet:
     
     def __init__(self, data = []):
         "data: GAIA dataset"
-        
         self.data = data
         
 

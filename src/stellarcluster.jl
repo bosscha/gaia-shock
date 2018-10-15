@@ -9,7 +9,7 @@ Author: s.leon @ ALMA
 ###
 ## The tesselation algorithm works with coordinates in range [1,2]
     
-function metricHRD(hrdi , label)
+function metricHRD(hrdi::Df , label)
     
     QA = []
     QP = []
@@ -22,17 +22,26 @@ function metricHRD(hrdi , label)
             push!(points,[hrdi.data[1,ilab[n]],hrdi.data[2,ilab[n]]])           
         end
     
-        # println("Voronoi tesselation ...")
-        per, area = voronoi(points)
+        ## println("Voronoi tesselation ...")
+        ## min_pts is the minimum of pts 
+        if length(points) > 4
+            per, area = voronoi(points)
+        else
+            per  = [1e10,1e10,1e10,1e10]
+            area = [1e10,1e10,1e10,1e10]
+        end
+        
         p = sort(per ./ nhr[1])
         a = sort(area ./ nhr[1])
         
-        n10 = trunc(Int, nhr[1] / 10)
+        n10 = max(1, trunc(Int, nhr[1] / 10))
+        start10 = max(1 , 1*n10)
+        end10   = min(nhr[1] , 9*n10)
         
-        q1a  = mean(a[1*n10:9*n10])
-        q1p  = mean(p[1*n10:9*n10])
-        dq1a = std(a[1*n10:9*n10])
-        dq1p = std(p[1*n10:9*n10])
+        q1a  = mean(a[start10:end10])
+        q1p  = mean(p[start10:end10])
+        dq1a = std(a[start10:end10])
+        dq1p = std(p[start10:end10])
         
         qa  = -log(max(1e-15, q1a))
         dqa = abs(dq1a/qa)   
@@ -40,7 +49,7 @@ function metricHRD(hrdi , label)
         dqp = abs(dq1p / qp)
         
         push!(QA, (qa,dqa))
-        push!(QP, (qp,dqp))    
+        push!(QP, (qp,dqp)) 
        
     end
     return(QA,QP)
@@ -57,7 +66,7 @@ end
 ##
 ## !!! works with dfcart !!! (cartesian and normalized)
 
-function metric(s, labels ,proj = "spatial2d", APERTURE = 1.0 , MAXAPERTURE = 15.0, NBOOTSTRAP = 50)
+function metric(s::Df, labels ,proj = "spatial2d", APERTURE = 1.0 , MAXAPERTURE = 15.0, NBOOTSTRAP = 50)
 
     if proj == "spatial2d"
         ycenter = mean(s.data[2,:])
@@ -152,7 +161,7 @@ function metric(s, labels ,proj = "spatial2d", APERTURE = 1.0 , MAXAPERTURE = 15
         Qc    = mean(qc)
         Q_std = std(qc)    
         #println("Q: $Qc -- Q_std : $Q_std")
-        push!(Q,(Qc,Q_std))       
+        push!(Q,(Qc,Q_std))  
     end
     return(Q)
 end

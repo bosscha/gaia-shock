@@ -54,26 +54,34 @@ end
 
 
 ### Voronoi tesselation using the scipy function
-function voronoi(pts)
-    
-    ndat = length(pts)
-    peri = zeros(ndat)
-    area = zeros(ndat)
+function voronoi(pts, verbose = false)
+    let
+        ndat = length(pts)
+        peri = zeros(ndat)
+        area = zeros(ndat)
 
-    spatial = pyimport("scipy.spatial")
-    vor = spatial[:Voronoi](pts)
+        spatial = pyimport("scipy.spatial")
+        vor = 0
+        try
+            vor = spatial[:Voronoi](pts)
+        catch
+            println("## Voronoi error...")
+            return([1000,1000],[1000,1000])   ## arbitrary values for peri and area
+        end
     
-    println("## Voronoi tesselation done.")
-    ver = vor[:vertices]
-    reg = vor[:regions]
-    pt  = vor[:point_region]
+        if verbose println("## Voronoi tesselation done.") end
+        
+        ver = vor[:vertices]
+        reg = vor[:regions]
+        pt  = vor[:point_region]
     
-    # println("reg:",length(reg))
-    for i in 1:ndat
-        region  =  reg[pt[i]+1]
-        peri[i] =  voronoi_perimeter(ver,region)
-        area[i] =  voronoi_area(ver,region)
+        # println("reg:",length(reg))
+        for i in 1:ndat
+            region  =  reg[pt[i]+1]
+            peri[i] =  voronoi_perimeter(ver,region)
+            area[i] =  voronoi_area(ver,region)
+        end
+    
+        return(peri , area)
     end
-    
-    return(peri , area)
 end
