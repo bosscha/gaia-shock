@@ -2,15 +2,6 @@
 ## Functions to deal with GAIA data and to normalize
 ## 
 
-DEG2RAD =  π / 180.
-
-mutable struct Df
-    ndata::Int32
-    data::Array{Float64}
-    raw::Array{Float64}
-    err::Array{Float64}
-end
-
 ############
 ## Query the GAIA data towards the coord with a radius conesearch
 #####

@@ -184,3 +184,55 @@ function clusters(data , epsilon, leaf , minneigh, mincluster)
     end
     return(label)
 end
+
+## find clusters from dbscan with a metric
+## 
+## compute the dbscan clusters, the metric and the Metropolis acceptance
+##
+## df: Gaia struct (data.jl), normally a weighted cartersian df (dfcartnorm)
+## dfcart: Gaia struct in cartesian w/o any transformation (dfcart)
+##
+## !! *qq* : composite metric. The weight could be adjusted.
+## !! *qstar* : number of stars in the highest qq
+## m: dbscan parameters.
+
+function find_clusters(df::GaiaClustering.Df, dfcart::GaiaClustering.Df , m::GaiaClustering.model)
+    let 
+        labels = clusters(df.data , m.eps , 20, m.min_nei, m.min_cl)
+        if length(labels) == 0
+            return(0, 0)
+        end
+        
+    ### metrics of the clusters
+        q2d = metric(dfcart, labels, "spatial2d" , 2.0 , 20.0, 20 )
+        qv = metric(dfcart, labels, "velocity" , 3.0 , 30.0, 20 )
+        qp, qa = metric(dfcart, labels, "HRD" )
+    
+        nlab = []
+        for ilab in labels
+            push!(nlab,length(ilab))
+        end
+    
+    
+    #### metric for number of stars in the cluster
+        qn = []
+        for nl in nlab
+            push!(qn,log10(nl))
+        end
+    
+        qc = 0.
+        qstar = 0
+        for i in 1:length(nlab)
+            k1 = q2d[i][1]
+            k2 = qv[i][1]
+            k3 = qa[i][1]
+            k4 = qn[i]
+            qq = (2k1 + 3k2 + k3 + k4) / 7.0
+            if qq > qc 
+                qc = qq
+                qstar = nlab[i]
+            end
+        end
+        return(qc, qstar)
+    end
+end
