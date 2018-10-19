@@ -191,6 +191,7 @@ function  normalization_PerBlock(s::Df, block , weightblock, norm , density = fa
     
     println("## Normalization $norm done...")
     println("### [1pc,1pc,1pc,1km/s,1km/s,1mag,1mag] equivalent to $scale8d")
+    println("##")
             
     return(dfresult , scale8d)
 end

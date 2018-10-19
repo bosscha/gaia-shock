@@ -9,10 +9,12 @@ module GaiaClustering
 
 using PyCall
 using DataFrames
+
 using Clustering
-using Statistics
-using Distributions
-using Random
+
+using Statistics , Distributions ,Random
+
+import PyPlot
 
 ## include all the types
 include("types.jl")
@@ -32,5 +34,9 @@ export metric , clusters , find_clusters
 ## MCMC for gaia
 include("mcmc.jl")
 export theta , thetaiter , abc_mcmc_dbscan, ministats
+
+## plotting functions
+include("plots.jl")
+export show_text , plot_dbscan_mcmc 
 
 end

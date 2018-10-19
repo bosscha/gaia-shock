@@ -174,7 +174,7 @@ function clusters(data , epsilon, leaf , minneigh, mincluster)
     min_cluster_size = mincluster
 
     res = dbscan(data , eps , leafsize = leaf, min_neighbors = minneigh, min_cluster_size=mincluster)
-    
+        
     label = Vector{Vector{Int}}()
     
     for cl in res
@@ -195,8 +195,11 @@ end
 ## !! *qq* : composite metric. The weight could be adjusted.
 ## !! *qstar* : number of stars in the highest qq
 ## m: dbscan parameters.
+##
+## WARNING: the default values for APERTURE
 
-function find_clusters(df::GaiaClustering.Df, dfcart::GaiaClustering.Df , m::GaiaClustering.model)
+function find_clusters(df::GaiaClustering.Df, dfcart::GaiaClustering.Df , m::GaiaClustering.model, 
+    aperture2d = 1.5, maxaperture2d = 15, aperturev = 3.0, maxaperturev = 20, nboot = 30)
     let 
         labels = clusters(df.data , m.eps , 20, m.min_nei, m.min_cl)
         if length(labels) == 0
@@ -204,8 +207,8 @@ function find_clusters(df::GaiaClustering.Df, dfcart::GaiaClustering.Df , m::Gai
         end
         
     ### metrics of the clusters
-        q2d = metric(dfcart, labels, "spatial2d" , 2.0 , 20.0, 20 )
-        qv = metric(dfcart, labels, "velocity" , 3.0 , 30.0, 20 )
+        q2d = metric(dfcart, labels, "spatial2d" , aperture2d, maxaperture2d, nboot)
+        qv = metric(dfcart, labels, "velocity" , aperturev, maxaperturev, nboot)
         qp, qa = metric(dfcart, labels, "HRD" )
     
         nlab = []
@@ -214,7 +217,7 @@ function find_clusters(df::GaiaClustering.Df, dfcart::GaiaClustering.Df , m::Gai
         end
     
     
-    #### metric for number of stars in the cluster
+    #### metric for the number of stars in the cluster
         qn = []
         for nl in nlab
             push!(qn,log10(nl))
@@ -227,7 +230,9 @@ function find_clusters(df::GaiaClustering.Df, dfcart::GaiaClustering.Df , m::Gai
             k2 = qv[i][1]
             k3 = qa[i][1]
             k4 = qn[i]
+            ############### Composite metric ###
             qq = (2k1 + 3k2 + k3 + k4) / 7.0
+            ###############
             if qq > qc 
                 qc = qq
                 qstar = nlab[i]

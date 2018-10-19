@@ -7,7 +7,7 @@
 ###
 ### peps , pminnei , pmincl are the parameter of the prior density for the DBSCAN parameters
 
-function theta(p::GaiaClustering.abc)
+function _theta(p::GaiaClustering.abc)
     peps         = TruncatedNormal(p.epsmean, p.epsdisp, 0.1 , 1000)
     pminnei      = TruncatedNormal(p.min_nei, p.ncoredisp, 1 , 1000.)
     pmincl      = TruncatedNormal(p.min_cl, p.ncoredisp, 1 , 1000.)
@@ -24,7 +24,7 @@ end
 
 ## iterate with random walk and yield the probability
 ##
-function thetaiter(θi::GaiaClustering.model , p::GaiaClustering.abc)
+function _thetaiter(θi::GaiaClustering.model , p::GaiaClustering.abc)
     let   
         peps         = TruncatedNormal(p.epsmean, p.epsdisp, 0.1 , 1000)
         pminnei      = TruncatedNormal(p.min_nei, p.ncoredisp, 1 , 1000.)
@@ -59,11 +59,49 @@ function thetaiter(θi::GaiaClustering.model , p::GaiaClustering.abc)
     end
 end   
 
+#### function to adapt the minimum condition to evaluate the  solution
+###
+function check_qminqstar(df::GaiaClustering.Df, dfcart::GaiaClustering.Df,
+        params::GaiaClustering.abc, minimumQ, minstars)
+    let
+        new_minq = minimumQ
+        new_minstars = minstars
+        notfound = true
+        mingoodsolution = 10   ## !!!! Check out!!!!
+        
+        println("### Checking the minQ and minStars conditions...")
+        while notfound
+            goodsolutions = 0
+            for i in 1:params.nburnout
+                mi, probi = _theta(params)
+                qres , nstars = find_clusters(df, dfcart, mi)
+                if qres > new_minq && nstars >= new_minstars
+                    goodsolutions += 1
+                end
+                if goodsolutions > mingoodsolution
+                    notfound = false
+                end
+            end
+            if notfound 
+                new_minq *= 0.9
+                new_minstars = trunc(Int, 0.9 * new_minstars)
+            end
+            
+            if new_minstars == 0
+                println("### Problem with minStars, return(0.5,5)")
+                return(0.5,5)
+            end      
+        end
+        return(new_minq, new_minstars)
+    end
+end
+
 ## ABC MCMC (following Weyan et al. 2013)
 ## first simple scheme for testing
 ##
 function abc_mcmc_dbscan(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, params::GaiaClustering.abc)
     let 
+        println("## ABC/MCMC for DBSCAN...")
         mci = GaiaClustering.mc(zeros(Float64,0),zeros(Int32,0),zeros(Int32,0) , zeros(Float64,0), zeros(Int32,0))
         
         initial = true
@@ -78,9 +116,18 @@ function abc_mcmc_dbscan(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, param
         niter = params.niter
         nburn = params.nburnout
     
+        println("### Minimum Q : $minimumQ")
+        println("### Minimum nstars : $minstars")
+        minimumQ , minstars = check_qminqstar(df, dfcart, params, minimumQ, minstars)
+        #params.minQ = minimuQ
+        #params.minstars = minstars
+        println("### Minimum Q : $minimumQ")
+        println("### Minimum nstars : $minstars")
+        println("### Lower conditions lead to lower quality solutions...")
+        println("###")
         
         while initial
-            mi, probi = theta(params)
+            mi, probi = _theta(params)
             qres , nstars = find_clusters(df, dfcart, mi)
             if qres > minimumQ && nstars >= minstars 
                 println("### init done ...")
@@ -100,7 +147,7 @@ function abc_mcmc_dbscan(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, param
         burndone = false
                     
         while loopAgain
-            micurrent, probcurrent = thetaiter(mi , params)
+            micurrent, probcurrent = _thetaiter(mi , params)
             qres , nstars = find_clusters(df, dfcart, micurrent)
         
             if qres > minimumQ && nstars >= minstars 
@@ -122,6 +169,8 @@ function abc_mcmc_dbscan(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, param
                 end
             end
         end
+        println("## ABC/MCMC done")
+        println("##")
         return(mci)
     end
 end
@@ -133,7 +182,7 @@ function ministats(niter::Int, df::GaiaClustering.Df, dfcart::GaiaClustering.Df,
     qcmini = []
     qnmini = []
     for i in 1:niter
-        mitest, probtest = thetaiter(mi , params)
+        mitest, probtest = _thetaiter(mi , params)
         qtest , ntest = find_clusters(df, dfcart, mitest)
         push!(qcmini,qtest)
         push!(qnmini,ntest)
