@@ -241,3 +241,40 @@ function find_clusters(df::GaiaClustering.Df, dfcart::GaiaClustering.Df , m::Gai
         return(qc, qstar)
     end
 end
+
+
+## label from the dbscan labels with maximum stars
+function find_cluster_label(labels)
+    let
+    i = 1 ; nmax = 0 ; ilabel = 1
+        for ilab in labels
+            nlab = length(ilab)
+            if nlab > nmax
+                ilabel = i
+                nmax= nlab
+            end
+            i += 1
+        end
+    return(ilabel, nmax)
+    end
+end
+
+## compute the properties of the cluster with indices indx
+function get_properties_SC(indx, df::GaiaClustering.Df, dfcart::GaiaClustering.Df)::SCproperties
+    nstars   = length(indx)
+    distance = mean(df.data[3,indx])
+    l        = mean(df.data[1,indx])
+    b        = mean(df.data[2,indx])
+    vra      = mean(df.data[4,indx])
+    vdec     = mean(df.data[5,indx])
+    xdisp    = std(dfcart.data[1,indx])
+    ydisp    = std(dfcart.data[2,indx])
+    zdisp    = std(dfcart.data[3,indx])
+    vradisp  = std(df.data[4,indx])
+    vdecdisp = std(df.data[5,indx])
+    
+    sc = SCproperties(nstars , distance, l , b , vra , vdec ,  xdisp , ydisp , zdisp , vradisp, vdecdisp)
+    return(sc)
+    
+end
+

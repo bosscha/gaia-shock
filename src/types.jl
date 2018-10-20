@@ -39,3 +39,18 @@ struct abc
     nburnout::Int
     niter::Int
 end
+
+## Basic properties of a SC
+struct SCproperties
+    nstars::Int
+    distance::Float64
+    l::Float64
+    b::Float64
+    vra::Float64
+    vdec::Float64
+    xdisp::Float64
+    ydisp::Float64
+    zdisp::Float64
+    vradisp::Float64
+    vdecdisp::Float64
+end

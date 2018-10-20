@@ -83,8 +83,8 @@ function check_qminqstar(df::GaiaClustering.Df, dfcart::GaiaClustering.Df,
                 end
             end
             if notfound 
-                new_minq *= 0.9
-                new_minstars = trunc(Int, 0.9 * new_minstars)
+                new_minq *= 0.95
+                new_minstars = trunc(Int, 0.95 * new_minstars)
             end
             
             if new_minstars == 0
