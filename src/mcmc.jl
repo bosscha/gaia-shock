@@ -67,7 +67,7 @@ function check_qminqstar(df::GaiaClustering.Df, dfcart::GaiaClustering.Df,
         new_minq = minimumQ
         new_minstars = minstars
         notfound = true
-        mingoodsolution = 10   ## !!!! Check out!!!!
+        mingoodsolution = 50   ## !!!! Check out!!!!
         
         println("### Checking the minQ and minStars conditions...")
         while notfound
@@ -83,8 +83,8 @@ function check_qminqstar(df::GaiaClustering.Df, dfcart::GaiaClustering.Df,
                 end
             end
             if notfound 
-                new_minq *= 0.95
-                new_minstars = trunc(Int, 0.95 * new_minstars)
+                new_minq *= 0.9
+                new_minstars = trunc(Int, 0.9 * new_minstars)
             end
             
             if new_minstars == 0
@@ -174,7 +174,6 @@ function abc_mcmc_dbscan(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, param
         return(mci)
     end
 end
-
 
 ## mini stats over Qc and Qn
 function ministats(niter::Int, df::GaiaClustering.Df, dfcart::GaiaClustering.Df,mi::GaiaClustering.model, params::GaiaClustering.abc)

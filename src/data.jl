@@ -52,7 +52,9 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250], vdec
     ngaia = length(gaia)
     
     lgal = zeros(ngaia)
-    bgal = zeros(ngaia)    
+    bgal = zeros(ngaia) 
+    ra = zeros(ngaia)
+    dec= zeros(ngaia)
     distance = zeros(ngaia)  
     pmra = zeros(ngaia)
     pmdec = zeros(ngaia)    
@@ -69,6 +71,8 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250], vdec
     for i in 1:ngaia
         lgal[i]     = convert(Float64,gaia[i]["l"])
         bgal[i]     = convert(Float64,gaia[i]["b"])
+        ra[i]       = convert(Float64,gaia[i]["ra"])
+        dec[i]      = convert(Float64,gaia[i]["dec"])
         distance[i] = 1000. / convert(Float64,gaia[i]["parallax"])
         parallax[i] = convert(Float64,gaia[i]["parallax"])
         pmra[i]     = convert(Float64,gaia[i]["pmra"])
@@ -109,17 +113,7 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250], vdec
     
     ## Df of the filtered dat
     ndata = length(distance[ifinal])
-    s = Df(ndata, zeros(8,ndata), zeros(8,ndata) , zeros(8,ndata) )
-    
-    s.raw[1,:] = lgal[ifinal]
-    s.raw[2,:] = bgal[ifinal]
-    s.raw[3,:] = parallax[ifinal]
-    s.raw[4,:] = pmra[ifinal]
-    s.raw[5,:] = pmdec[ifinal]
-    s.raw[6,:] = gbar
-    s.raw[7,:] = rp[ifinal]
-    s.raw[8,:] = bp[ifinal] 
-    
+    s = Df(ndata, zeros(8,ndata), zeros(10,ndata) , zeros(8,ndata) )
     
     s.data[1,:] = lgal[ifinal]
     s.data[2,:] = bgal[ifinal]
@@ -129,6 +123,19 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250], vdec
     s.data[6,:] = gbar
     s.data[7,:] = g[ifinal] .- rp[ifinal]
     s.data[8,:] = bp[ifinal] .- g[ifinal]
+    
+    
+    s.raw[1,:] = ra[ifinal]
+    s.raw[2,:] = dec[ifinal]
+    s.raw[3,:] = lgal[ifinal]
+    s.raw[4,:] = bgal[ifinal]
+    s.raw[5,:] = parallax[ifinal]
+    s.raw[6,:] = pmra[ifinal]
+    s.raw[7,:] = pmdec[ifinal]
+    s.raw[8,:] = gbar
+    s.raw[9,:] = rp[ifinal]
+    s.raw[10,:] = bp[ifinal] 
+ 
     
     ## Errors ..
     s.err[1,:] = parallax_error[ifinal]

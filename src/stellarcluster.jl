@@ -207,9 +207,10 @@ function find_clusters(df::GaiaClustering.Df, dfcart::GaiaClustering.Df , m::Gai
         end
         
     ### metrics of the clusters
-        q2d = metric(dfcart, labels, "spatial2d" , aperture2d, maxaperture2d, nboot)
-        qv = metric(dfcart, labels, "velocity" , aperturev, maxaperturev, nboot)
-        qp, qa = metric(dfcart, labels, "HRD" )
+        q2d = metric2(dfcart, labels, "spatial2d" , aperture2d, maxaperture2d, nboot)
+        q3d = metric2(dfcart, labels, "spatial3d" , aperture2d, maxaperture2d, nboot)     #### Added 
+        qv = metric2(dfcart, labels, "velocity" , aperturev, maxaperturev, nboot)
+        qp, qa = metric2(dfcart, labels, "HRD" )
     
         nlab = []
         for ilab in labels
@@ -227,11 +228,12 @@ function find_clusters(df::GaiaClustering.Df, dfcart::GaiaClustering.Df , m::Gai
         qstar = 0
         for i in 1:length(nlab)
             k1 = q2d[i][1]
+            k1bis = q3d[i][1]
             k2 = qv[i][1]
             k3 = qa[i][1]
             k4 = qn[i]
             ############### Composite metric ###
-            qq = (2k1 + 3k2 + k3 + k4) / 7.0
+            qq = (2k1 + k1bis + 3k2 + k3 + k4) / 8.0
             ###############
             if qq > qc 
                 qc = qq
@@ -246,7 +248,7 @@ end
 ## label from the dbscan labels with maximum stars
 function find_cluster_label(labels)
     let
-    i = 1 ; nmax = 0 ; ilabel = 1
+    i = 1 ; nmax = 0 ; ilabel = 0
         for ilab in labels
             nlab = length(ilab)
             if nlab > nmax
@@ -278,3 +280,144 @@ function get_properties_SC(indx, df::GaiaClustering.Df, dfcart::GaiaClustering.D
     
 end
 
+####
+#### !!! TESTING !!!!
+####
+####
+
+
+##  proj :
+##  spatial2d : y,z (id 2,3)
+##  spatial3d : x,y,z (id 1,2,3)
+##  velocity  : vrad,vdec (id 4,5)
+##  HRD       : Diagram HR (id 6,7)
+##
+## labels : labels of the clusters##
+##
+## !!! works with dfcart !!! (cartesian and normalized)
+
+## We add here a probability on the dispersion in space and velocity
+
+function metric2(s::GaiaClustering.Df, labels ,proj = "spatial2d", APERTURE = 1.0 , 
+        MAXAPERTURE = 15.0, NBOOTSTRAP = 50 , MAXDISP2D = 8.,  MAXDISP3D = 50. , MAXDISPVEL = 4.)
+
+    ### probabilities of the dispersion..
+    p2d  = Normal(0., MAXDISP2D)
+    p3d  = Normal(0., MAXDISP3D)
+    pvel = Normal(0., MAXDISPVEL)
+    
+    if proj == "spatial2d"
+        ycenter = mean(s.data[2,:])
+        zcenter = mean(s.data[3,:]) 
+    elseif proj == "spatial3d"
+        xcenter = mean(s.data[1,:])      
+        ycenter = mean(s.data[2,:])
+        zcenter = mean(s.data[3,:]) 
+    elseif proj == "velocity"
+        vxcenter = mean(s.data[4,:])      
+        vycenter = mean(s.data[5,:])
+    elseif proj == "HRD"
+        res = metricHRD(s, labels)
+        return(res)
+    end
+    
+    aper2 = APERTURE * APERTURE
+    Q = []
+    for ilab in labels
+        slab = s.data[:,ilab]
+            
+        if proj == "spatial2d"
+            yy = slab[2,:]
+            zz = slab[3,:]
+            ycenter = mean(yy)      
+            zcenter = mean(zz)             
+            angle_out = 2π * rand(Float64, NBOOTSTRAP)
+            rad_out   = (MAXAPERTURE - 2APERTURE) * rand(Float64, NBOOTSTRAP)
+            angle_in  = 2π * rand(Float64, NBOOTSTRAP)
+            rad_in    = APERTURE * randexp(Float64, NBOOTSTRAP)
+            ydisp = std(slab[2,:])
+            zdisp = std(slab[3,:])
+            prob2d = pdf(p2d,sqrt(ydisp^2+zdisp^2)) / pdf(p2d,0.)
+            # println("## disp $(sqrt(ydisp^2+zdisp^2))")
+            # println("## prob2d $prob2d")
+        elseif proj == "spatial3d"
+            xx = slab[1,:]
+            yy = slab[2,:]
+            zz = slab[3,:]
+            xcenter = mean(xx)             
+            ycenter = mean(yy)      
+            zcenter = mean(zz)             
+            angle_out = 2π * rand(Float64, NBOOTSTRAP)
+            phi_out   = π * rand(Float64, NBOOTSTRAP)
+            rad_out   = (MAXAPERTURE - 2APERTURE) * rand(Float64, NBOOTSTRAP)
+            angle_in  = 2π * rand(Float64, NBOOTSTRAP)
+            phi_in    = π * rand(Float64, NBOOTSTRAP)           
+            rad_in    = APERTURE * randexp(Float64, NBOOTSTRAP)
+            xdisp = std(slab[1,:])
+            ydisp = std(slab[2,:])
+            zdisp = std(slab[3,:])
+            prob3d = pdf(p3d,sqrt(xdisp^2+ydisp^2+zdisp^2)) / pdf(p3d,0.)
+            # println("## prob3d $prob3d")
+        elseif proj == "velocity"
+            vx = slab[4,:]
+            vy = slab[5,:]   
+            vxcenter = mean(vx)      
+            vycenter = mean(vy) 
+            angle_out = 2π * rand(Float64, NBOOTSTRAP)
+            rad_out   = (MAXAPERTURE - 2APERTURE) * rand(Float64, NBOOTSTRAP)
+            angle_in  = 2π * rand(Float64, NBOOTSTRAP)
+            rad_in    = APERTURE * rand(Float64, NBOOTSTRAP)  
+            vxdisp = std(slab[4,:])
+            vydisp = std(slab[5,:])
+            probvel = pdf(pvel,sqrt(vxdisp^2+vydisp^2)) / pdf(pvel,0.)
+            #println("## vdisp $vxdisp $vydisp")
+            #println("## probvel $probvel")
+        end  
+        
+        qc = zeros(NBOOTSTRAP)
+            
+        for k in 1:NBOOTSTRAP
+            if proj == "spatial2d"
+                prob =  prob2d
+                yout = ycenter + rad_out[k] * cos(angle_out[k])
+                zout = zcenter + rad_out[k] * sin(angle_out[k])
+                radii_out = (slab[2,:] .- yout) .* (slab[2,:] .- yout) .+ (slab[3,:] .- zout) .* (slab[3,:] .- zout)
+                yin = ycenter + rad_in[k] * cos(angle_in[k])
+                zin = zcenter + rad_in[k] * sin(angle_in[k])
+                radii_in = (slab[2,:] .- yin) .* (slab[2,:] .- yin) .+ (slab[3,:] .- zin) .* (slab[3,:] .- zin)                
+            elseif proj == "spatial3d"
+                prob = prob3d
+                xout = xcenter + rad_out[k] * cos(angle_out[k]) *  cos(phi_out[k])         
+                yout = ycenter + rad_out[k] * sin(angle_out[k]) *  cos(phi_out[k])  
+                zout = zcenter + rad_out[k] * sin(phi_out[k])
+                radii_out = (slab[1,:] .- xout) .* (slab[1,:] .- xout) .+ (slab[2,:] .- yout) .* (slab[2,:] .- yout).+ (slab[3,:] .- zout) .* (slab[3,:] .- zout)
+                xin = xcenter + rad_in[k] * cos(angle_in[k]) *  cos(phi_in[k])                  
+                yin = ycenter + rad_in[k] * sin(angle_in[k]) *  cos(phi_in[k]) 
+                zin = zcenter + rad_in[k] * sin(phi_in[k])
+                radii_in = (slab[1,:] .- xin) .* (slab[1,:] .- xin) .+ (slab[2,:] .- yin) .* (slab[2,:] .- yin).+ (slab[3,:] .- zin) .* (slab[3,:] .- zin)              
+            elseif proj == "velocity"
+                prob = probvel
+                vxout = vxcenter + rad_out[k] * cos(angle_out[k])
+                vyout = vycenter + rad_out[k] * sin(angle_out[k])
+                radii_out = (slab[4,:] .- vxout) .* (slab[4,:] .- vxout) .+ (slab[5,:] .- vyout) .* (slab[5,:] .- vyout)
+                vxin = vxcenter + rad_in[k] * cos(angle_in[k])
+                vyin = vycenter + rad_in[k] * sin(angle_in[k])
+                radii_in = (slab[4,:] .- vxin) .* (slab[4,:] .- vxin) .+ (slab[5,:] .- vyin) .* (slab[5,:] .- vyin)                
+            end
+            
+            isdout = radii_out .< aper2
+            nout   = length(radii_out[isdout])
+            isin   = radii_in .< aper2 
+            nin    = length(radii_in[isin])
+         
+            qc[k] = prob * (log(max(1,nin)) - log(max(1,nout)))
+                
+        end
+            
+        Qc    = mean(qc)
+        Q_std = std(qc)    
+        #println("Q: $Qc -- Q_std : $Q_std")
+        push!(Q,(Qc,Q_std))  
+    end
+    return(Q)
+end

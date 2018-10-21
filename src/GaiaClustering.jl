@@ -29,7 +29,7 @@ export voronoi
 
 ## stelllar cluster analysis
 include("stellarcluster.jl")
-export metric , clusters , find_clusters , find_cluster_label, get_properties_SC 
+export metric , clusters , find_clusters , find_cluster_label, get_properties_SC , metric2
 
 ## MCMC for gaia
 include("mcmc.jl")
