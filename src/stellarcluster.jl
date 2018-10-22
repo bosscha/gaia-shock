@@ -197,6 +197,7 @@ end
 ## m: dbscan parameters.
 ##
 ## WARNING: the default values for APERTURE
+## Check the metric(2) function used...
 
 function find_clusters(df::GaiaClustering.Df, dfcart::GaiaClustering.Df , m::GaiaClustering.model, 
     aperture2d = 1.5, maxaperture2d = 15, aperturev = 3.0, maxaperturev = 20, nboot = 30)
@@ -209,7 +210,7 @@ function find_clusters(df::GaiaClustering.Df, dfcart::GaiaClustering.Df , m::Gai
     ### metrics of the clusters
         q2d = metric2(dfcart, labels, "spatial2d" , aperture2d, maxaperture2d, nboot)
         q3d = metric2(dfcart, labels, "spatial3d" , aperture2d, maxaperture2d, nboot)     #### Added 
-        qv = metric2(dfcart, labels, "velocity" , aperturev, maxaperturev, nboot)
+        qv  = metric2(dfcart, labels, "velocity" , aperturev, maxaperturev, nboot)
         qp, qa = metric2(dfcart, labels, "HRD" )
     
         nlab = []

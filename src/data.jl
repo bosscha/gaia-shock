@@ -36,6 +36,8 @@ end
 ######
 function read_votable(voname::String)
 ######
+    warnings = pyimport("warnings")
+    warnings[:filterwarnings]("ignore")
     votable = pyimport("astropy.io.votable")
     vot = votable[:parse](voname)
     data = vot[:get_first_table]() 
@@ -172,7 +174,7 @@ function add_cartesian(s::Df, centering = true)::Df
 end
 
 ######
-function  normalization_PerBlock(s::Df, block , weightblock, norm , density = false)
+function  normalization_PerBlock(s::Df, block , weightblock, norm , density = false , verbose = true)
 ######   
     dfresult = copy(s)
     ndf = size(s.data)
@@ -196,9 +198,11 @@ function  normalization_PerBlock(s::Df, block , weightblock, norm , density = fa
     scale8d[:] = scale8d[:] ./ vector8d
     dfresult.data[:,:] = dfresult.data[:,:] ./ vector8d
     
-    println("## Normalization $norm done...")
-    println("### [1pc,1pc,1pc,1km/s,1km/s,1mag,1mag] equivalent to $scale8d")
-    println("##")
+    if verbose
+        println("## Normalization $norm done...")
+        println("### [1pc,1pc,1pc,1km/s,1km/s,1mag,1mag] equivalent to $scale8d")
+        println("##")
+    end
             
     return(dfresult , scale8d)
 end
