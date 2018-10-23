@@ -30,7 +30,8 @@ function thetaiter(θi::GaiaClustering.model , p::GaiaClustering.abc)
         pminnei      = TruncatedNormal(p.min_nei, p.ncoredisp, 1 , 1000.)
         pmincl       = TruncatedNormal(p.min_cl, p.ncoredisp, 1 , 1000.)
         
-        eps_rw    = TruncatedNormal(θi.eps,0.5 , 0.1, 1000.)
+        ## Random Walk settings..
+        eps_rw    = TruncatedNormal(θi.eps,0.25 , 0.1, 1000.)
         minnei_rw = TruncatedNormal(θi.min_nei , 4  , 1,  1000.)
         mincl_rw  = TruncatedNormal(θi.min_cl  , 4  , 1, 1000.)
         
@@ -154,12 +155,13 @@ function abc_mcmc_dbscan(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, param
             ### Metropolis-Hasting
                 α = probcurrent / probi
                 if α > rand() 
+                    mi = micurrent
+                    probi = probcurrent
                     nchain += 1
                     if (nchain%500 == 0) println("### chain:",nchain) end
                     if nchain > nburn && !burndone println("### burnout done...") ; nchain = 0 ; burndone = true end
                     if nchain > niter loopAgain = false end
-                    if burndone
-                        mi = micurrent
+                    if burndone    
                         push!(mci.eps, mi.eps)
                         push!(mci.mne, mi.min_nei)
                         push!(mci.mcl, mi.min_cl)
