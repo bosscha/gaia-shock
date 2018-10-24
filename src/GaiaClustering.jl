@@ -33,10 +33,11 @@ export metric , clusters , find_clusters , find_cluster_label, get_properties_SC
 
 ## MCMC for gaia
 include("mcmc.jl")
-export theta , thetaiter , abc_mcmc_dbscan, ministats
+export theta , thetaiter , abc_mcmc_dbscan, ministats , abc_mcmc_dbscan_full , ministats_full , 
+theta_full , thetaiter_full , getDfcartnorm
 
 ## plotting functions
 include("plots.jl")
-export show_text , plot_dbscan_mcmc , plot_cluster
+export show_text , plot_dbscan_mcmc , plot_cluster , plot_dbscanfull_mcmc
 
 end

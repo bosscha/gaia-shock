@@ -18,11 +18,33 @@ mutable struct model
     min_cl::Int
 end
 
+## dbcan and weighting parameters
+mutable struct modelfull
+    eps::Float64
+    min_nei::Int
+    min_cl::Int
+    w3d::Float64
+    wvel::Float64
+    whrd::Float64
+end
+
 #### mutable Markov Chains to get the stationary df for the ABC-MCMC/dbscan opt,
 mutable struct mc
     eps::Array{Float64}
     mne::Array{Int32}
     mcl::Array{Int32}
+    qc::Array{Float64}
+    qn::Array{Int32}
+end
+
+#### mutable Markov Chains to get the stationary df for the ABC-MCMC/dbscan opt,
+mutable struct mcfull
+    eps::Array{Float64}
+    mne::Array{Int32}
+    mcl::Array{Int32}
+    w3d::Array{Float64}
+    wvel::Array{Float64}
+    whrd::Array{Float64}
     qc::Array{Float64}
     qn::Array{Int32}
 end
@@ -39,6 +61,27 @@ struct abc
     nburnout::Int
     niter::Int
 end
+
+## parameters for the ABC MCMC optimization of the dbscan
+struct abcfull
+    minQ::Float64
+    minstars::Int
+    forcedminstars::Int    
+    epsmean::Float64
+    epsdisp::Float64
+    min_nei::Int
+    min_cl::Int
+    ncoredisp::Int
+    w3dmean::Float64
+    w3ddisp::Float64
+    wvelmean::Float64
+    wveldisp::Float64
+    whrdmean::Float64
+    whrddisp::Float64
+    nburnout::Int
+    niter::Int
+end
+
 
 ## Basic properties of a SC
 struct SCproperties

@@ -154,3 +154,107 @@ function plot_cluster(plotdir, voname, indx, sc::GaiaClustering.SCproperties, df
     PyPlot.plt[:savefig](figname)
     if showplot PyPlot.plt[:show]() end
 end
+
+
+### plot the stats of the DBSCAN parameters from the MCMC
+function plot_dbscanfull_mcmc(plotdir, voname, mc::mcfull , showplot = true)
+    PyPlot.plt[:figure](figsize=(12.0,13.0))
+
+    nbins = 50
+    PyPlot.plt[:subplot](3, 3, 1  )
+    h = PyPlot.plt[:hist](mc.eps,nbins, alpha=0.75)
+    PyPlot.plt[:xlabel]("ϵ")
+    PyPlot.plt[:grid](true)
+    
+    nbins = 20
+    PyPlot.plt[:subplot](3, 3, 2 )
+    h = PyPlot.plt[:hist](mc.mne,nbins, alpha=0.75)
+    PyPlot.plt[:xlabel]("min_neighbor")  
+    PyPlot.plt[:grid](true)
+    
+    nbins = 20
+    PyPlot.plt[:subplot](3, 3, 3 )
+    h = PyPlot.plt[:hist](mc.mcl,nbins, alpha=0.75)
+    PyPlot.plt[:xlabel]("min_cluster") 
+    PyPlot.plt[:grid](true)
+    
+    nbins = 50
+    PyPlot.plt[:subplot](3, 3, 4 )
+    h = PyPlot.plt[:hist](mc.w3d,nbins, alpha=0.75)
+    PyPlot.plt[:xlabel]("W3d") 
+    PyPlot.plt[:grid](true)  
+    
+    nbins = 50
+    PyPlot.plt[:subplot](3, 3, 5 )
+    h = PyPlot.plt[:hist](mc.wvel,nbins, alpha=0.75)
+    PyPlot.plt[:xlabel]("Wvel") 
+    PyPlot.plt[:grid](true)
+    
+    nbins = 50
+    PyPlot.plt[:subplot](3, 3, 6 )
+    h = PyPlot.plt[:hist](mc.whrd,nbins, alpha=0.75)
+    PyPlot.plt[:xlabel]("Whrd") 
+    PyPlot.plt[:grid](true)   
+    
+    
+    #######
+    nbins = 50
+    PyPlot.plt[:subplot](3, 3, 7 )
+    PyPlot.plt[:axis]("on")
+    PyPlot.plt[:axis]("on")
+    h = PyPlot.plt[:hist](mc.qn,nbins, color = "g", alpha=0.75)
+    PyPlot.plt[:xlabel]("Qn")     
+    PyPlot.plt[:grid](true)
+    
+    nbins = 50
+    PyPlot.plt[:subplot](3, 3, 8 )
+    h = PyPlot.plt[:hist](mc.qc,nbins, color="g", alpha=0.75)
+    PyPlot.plt[:xlabel]("Qc") 
+    PyPlot.plt[:grid](true)
+
+        ### text 
+
+    PyPlot.plt[:subplot](3, 3, 9)
+    PyPlot.plt[:axis]("off")
+    ## text to display
+        text =[]
+        push!(text, "VOT: "*voname)
+        vtext  = mean(mc.eps)
+        v2text = std(mc.eps)
+        txt = "ϵ : $vtext +/- $v2text "
+        push!(text,txt)
+        vtext  = mean(mc.mne)
+        v2text = std(mc.mne)
+        txt = "min_neigh : $vtext +/- $v2text " 
+        push!(text,txt)
+        vtext  = mean(mc.mcl)
+        v2text = std(mc.mcl)
+        txt = "min_clus : $vtext +/- $v2text "  
+        push!(text,txt)
+        vtext  = mean(mc.w3d)
+        v2text = std(mc.w3d)
+        txt = "W3d : $vtext +/- $v2text "  
+        push!(text,txt)   
+        vtext  = mean(mc.wvel)
+        v2text = std(mc.wvel)
+        txt = "Wvel : $vtext +/- $v2text "  
+        push!(text,txt)    
+        vtext  = mean(mc.whrd)
+        v2text = std(mc.whrd)
+        txt = "Whrd : $vtext +/- $v2text "  
+        push!(text,txt)     
+        vtext  = mean(mc.qn)
+        v2text = std(mc.qn)
+        txt = "Qn : $vtext +/- $v2text "
+        push!(text,txt)
+        vtext  = mean(mc.qc)
+        v2text = std(mc.qc)
+        txt = "Qc : $vtext +/- $v2text "
+        push!(text,txt)
+        show_text(-0.01,0.0, text)   
+    
+    PyPlot.plt[:xlabel]("Qc") 
+    figname = plotdir*"/"*voname*"-dbscanMCMC-full.png"
+    PyPlot.plt[:savefig](figname)
+    if showplot PyPlot.plt[:show]() end
+end
