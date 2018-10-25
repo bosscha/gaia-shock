@@ -194,8 +194,8 @@ function ministats(niter::Int, df::GaiaClustering.Df, dfcart::GaiaClustering.Df,
     return(0)
 end
 
-##########################################
-#### MCMC full for dbscan
+##############################################
+#### MCMC FULL for dbscan
 ######
 function getDfcartnorm(dfcart::GaiaClustering.Df, mc::modelfull) 
     blck       = [[1,2,3],[4,5], [6,7,8]]
