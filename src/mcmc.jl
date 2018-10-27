@@ -168,6 +168,18 @@ function abc_mcmc_dbscan(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, param
                         push!(mci.qc , qres)
                         push!(mci.qn,  nstars)
                     end
+                else
+                    nchain += 1
+                    if (nchain%500 == 0) println("### chain:",nchain) end
+                    if nchain > nburn && !burndone println("### burnout done...") ; nchain = 0 ; burndone = true end
+                    if nchain > niter loopAgain = false end
+                    if burndone    
+                        push!(mci.eps, mi.eps)
+                        push!(mci.mne, mi.min_nei)
+                        push!(mci.mcl, mi.min_cl)
+                        push!(mci.qc , qres)
+                        push!(mci.qn,  nstars)
+                    end                    
                 end
             end
         end
@@ -270,6 +282,21 @@ function abc_mcmc_dbscan_full(dfcart::GaiaClustering.Df, params::abcfull)
                 if α > rand()
                     mi = micurrent
                     probi = probcurrent
+                    nchain += 1
+                    if (nchain%500 == 0) println("### chain:",nchain) end
+                    if nchain > nburn && !burndone println("### burnout done...") ; nchain = 0 ; burndone = true end
+                    if nchain > niter loopAgain = false end
+                    if burndone
+                        push!(mci.eps, mi.eps)
+                        push!(mci.mne, mi.min_nei)
+                        push!(mci.mcl, mi.min_cl)
+                        push!(mci.w3d, mi.w3d)
+                        push!(mci.wvel, mi.wvel)
+                        push!(mci.whrd, mi.whrd)
+                        push!(mci.qc , qres)
+                        push!(mci.qn,  nstars)
+                    end
+                else
                     nchain += 1
                     if (nchain%500 == 0) println("### chain:",nchain) end
                     if nchain > nburn && !burndone println("### burnout done...") ; nchain = 0 ; burndone = true end
@@ -412,8 +439,8 @@ function check_qminqstar_full(dfcart::GaiaClustering.Df,
                 end
             end
             if notfound 
-                new_minq *= 0.95
-                new_minstars = trunc(Int, 0.95 * new_minstars)
+                new_minq *= 0.9
+                new_minstars = trunc(Int, 0.9 * new_minstars)
             end
             
             if new_minstars == 0
