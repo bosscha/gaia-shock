@@ -35,6 +35,7 @@
             
   <div class="section" id="gaia-data">
 <h1>GAIA data<a class="headerlink" href="#gaia-data" title="Permalink to this headline">¶</a></h1>
+<p>This section explains how to load and tomanipulate the GAIA data from a source name or sky coordinates</p>
 <div class="section" id="server">
 <h2>Server<a class="headerlink" href="#server" title="Permalink to this headline">¶</a></h2>
 </div>
@@ -43,11 +44,14 @@
 </div>
 <div class="section" id="use">
 <h2>Use<a class="headerlink" href="#use" title="Permalink to this headline">¶</a></h2>
-<p>Module: <em>gaia_utils</em></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">gaia_utils</span> <span class="kn">as</span> <span class="nn">gU</span>
+<p>Module: <strong>gaia_utils</strong></p>
+<div class="literal-block-wrapper docutils container" id="id1">
+<div class="code-block-caption"><span class="caption-text">Example with gaia-utils and class source</span><a class="headerlink" href="#id1" title="Permalink to this code">¶</a></div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span> <span class="kn">import</span> <span class="nn">gaia_utils</span> <span class="kn">as</span> <span class="nn">gU</span>
 
-<span class="n">s</span> <span class="o">=</span> <span class="n">gU</span><span class="o">.</span><span class="n">source</span><span class="p">(</span><span class="s2">&quot;NGC 2516&quot;</span><span class="p">)</span>  <span class="c1"># instantiate the class source</span>
+ <span class="n">s</span> <span class="o">=</span> <span class="n">gU</span><span class="o">.</span><span class="n">source</span><span class="p">(</span><span class="s2">&quot;NGC 2516&quot;</span><span class="p">)</span>  <span class="c1"># instantiate the class source with an object name</span>
 </pre></div>
+</div>
 </div>
 <p>Module: <em>gaia_utils</em></p>
 </div>
@@ -82,7 +86,6 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="clustering.html">Clustering selection</a></li>
 <li class="toctree-l1"><a class="reference internal" href="analysis.html">Analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="julia.html">Julia</a></li>
 </ul>
 
 <div class="relations">

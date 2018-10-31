@@ -2,7 +2,7 @@
 GAIA data
 ************
 
-This section explains how to load and manipulate the GAIA data from a source name or sky coordinates
+This section explains how to load and tomanipulate the GAIA data from a source name or sky coordinates
 
 
 Server

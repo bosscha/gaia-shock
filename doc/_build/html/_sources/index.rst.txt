@@ -15,13 +15,13 @@ Welcome to GAIA-shock's documentation!
    GAIAdata
    clustering
    analysis
-   julia
+
 
 Scope of the project
 ====================
 
 The project is meant to provide the scripts necessary to deal with the stellar cluster data read from GAIA archive and the analysis methods.
-The scripts are mainly written in python using external libraries like numpy, astropy, scikit-learn, etc.
+The scripts are mainly written in python using external libraries like numpy, astropy, scikit-learn and in Julia using various modules (Clusterings, Stats, etc)
 
 
 Indices and tables
