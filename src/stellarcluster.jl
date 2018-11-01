@@ -326,23 +326,6 @@ function get_properties_SC(indx, df::GaiaClustering.Df, dfcart::GaiaClustering.D
     
 end
 
-####
-#### !!! TESTING !!!!
-####
-####
-
-
-##  proj :
-##  spatial2d : y,z (id 2,3)
-##  spatial3d : x,y,z (id 1,2,3)
-##  velocity  : vrad,vdec (id 4,5)
-##  HRD       : Diagram HR (id 6,7)
-##
-## labels : labels of the clusters##
-##
-## !!! works with dfcart !!! (cartesian and normalized)
-
-## We add here a probability on the dispersion in space and velocity
 
 function metric2(s::GaiaClustering.Df, labels ,proj = "spatial2d", APERTURE = 1.0 , 
         MAXAPERTURE = 15.0, NBOOTSTRAP = 50 , MAXDISP2D = 10.,  MAXDISP3D = 50. , MAXDISPVEL = 4.)

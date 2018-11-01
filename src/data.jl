@@ -69,6 +69,7 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250], vdec
     parallax_error = zeros(ngaia)
     pmra_error     = zeros(ngaia)
     pmdec_error    = zeros(ngaia)
+    radialvel      = zeros(ngaia)
     
     for i in 1:ngaia
         lgal[i]     = convert(Float64,gaia[i]["l"])
@@ -90,6 +91,7 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250], vdec
         rp[i]       = convert(Float64,gaia[i]["phot_rp_mean_mag"])
         bp[i]       = convert(Float64,gaia[i]["phot_bp_mean_mag"])
         
+        radialvel[i] = convert(Float64,gaia[i]["radial_velocity"])
         
     end
     
@@ -115,7 +117,7 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250], vdec
     
     ## Df of the filtered dat
     ndata = length(distance[ifinal])
-    s = Df(ndata, zeros(8,ndata), zeros(10,ndata) , zeros(8,ndata) )
+    s = Df(ndata, zeros(8,ndata), zeros(11,ndata) , zeros(8,ndata) )
     
     s.data[1,:] = lgal[ifinal]
     s.data[2,:] = bgal[ifinal]
@@ -137,6 +139,7 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250], vdec
     s.raw[8,:] = gbar
     s.raw[9,:] = rp[ifinal]
     s.raw[10,:] = bp[ifinal] 
+    s.raw[11,:] = radialvel[ifinal]
  
     
     ## Errors ..
