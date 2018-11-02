@@ -12,4 +12,3 @@ Pkg.add("CSV")
 Pkg.add("PyPlot")
 
 println("## Package installation for GaiaClustering done...")
-

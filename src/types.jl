@@ -87,13 +87,20 @@ end
 struct SCproperties
     nstars::Int
     distance::Float64
+    ra::Float64
+    dec::Float64
     l::Float64
     b::Float64
+    parallax::Float64
+    pmra::Float64
+    pmdec::Float64
     vra::Float64
     vdec::Float64
+    vrad::Float64
     xdisp::Float64
     ydisp::Float64
     zdisp::Float64
     vradisp::Float64
     vdecdisp::Float64
+    vraddisp::Float64
 end

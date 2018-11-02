@@ -1,10 +1,5 @@
-"""
-functions and types to analyze stellar clusters using GAIA data
-
-Author: s.leon @ ALMA
-
-"""
-
+### functions to analyze stellar clusters
+###
 ### HR diagram metric using Delaunay tessalation to estimate density in the HRD 
 ###
 ## The tesselation algorithm works with coordinates in range [1,2]
@@ -313,6 +308,8 @@ function get_properties_SC(indx, df::GaiaClustering.Df, dfcart::GaiaClustering.D
     distance = mean(df.data[3,indx])
     l        = mean(df.data[1,indx])
     b        = mean(df.data[2,indx])
+    ra       = mean(df.raw[1,indx])
+    dec      = mean(df.raw[2,indx])
     vra      = mean(df.data[4,indx])
     vdec     = mean(df.data[5,indx])
     xdisp    = std(dfcart.data[1,indx])
@@ -320,8 +317,24 @@ function get_properties_SC(indx, df::GaiaClustering.Df, dfcart::GaiaClustering.D
     zdisp    = std(dfcart.data[3,indx])
     vradisp  = std(df.data[4,indx])
     vdecdisp = std(df.data[5,indx])
+    parallax = mean(df.raw[5,indx])
+    pmra     = mean(df.raw[6,indx])
+    pmdec    = mean(df.raw[7,indx])
     
-    sc = SCproperties(nstars , distance, l , b , vra , vdec ,  xdisp , ydisp , zdisp , vradisp, vdecdisp)
+    vrad     = 0.
+    vraddisp = 0.
+    indvrad = isnotnan(df.raw[11,indx])
+    
+    if length(indvrad) >  1 
+        vrad = mean(df.raw[11,indx[indvrad]])
+        vraddisp = std(df.raw[11,indx[indvrad]])
+    elseif length(indvrad) == 1
+        vrad     = mean(df.raw[11,indx[indvrad]])
+        vraddisp = 0.
+    end
+    
+    sc = SCproperties(nstars , distance, ra , dec , l , b , parallax, pmra, pmdec, vra , vdec , vrad, xdisp ,
+        ydisp , zdisp , vradisp, vdecdisp, vraddisp)
     return(sc)
     
 end

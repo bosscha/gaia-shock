@@ -40,4 +40,8 @@ theta_full , thetaiter_full , getDfcartnorm
 include("plots.jl")
 export show_text , plot_dbscan_mcmc , plot_cluster , plot_dbscanfull_mcmc
 
+## utils methods
+include("utils.jl")
+export isnotnan
+
 end
