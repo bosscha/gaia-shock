@@ -8,6 +8,7 @@ Pkg.add("Clustering")
 Pkg.add("Statistics")
 Pkg.add("Distributions")
 Pkg.add("Random")
+Pkg.add("CSV")
 
 println("## Package installation for GaiaClustering done...")
 
