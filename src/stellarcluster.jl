@@ -194,6 +194,51 @@ end
 ## WARNING: the default values for APERTURE
 ## Check the metric(2) function used...
 
+function find_clusters(df::GaiaClustering.Df, dfcart::GaiaClustering.Df , m::GaiaClustering.model, 
+    aperture2d = 1.5, maxaperture2d = 15, aperturev = 3.0, maxaperturev = 20, nboot = 30)
+    let 
+        labels = clusters(df.data , m.eps , 20, m.min_nei, m.min_cl)
+        if length(labels) == 0
+            return(0, 0)
+        end
+        
+    ### metrics of the clusters
+        q2d = metric2(dfcart, labels, "spatial2d" , aperture2d, maxaperture2d, nboot)
+        q3d = metric2(dfcart, labels, "spatial3d" , aperture2d, maxaperture2d, nboot)     #### Added 
+        qv  = metric2(dfcart, labels, "velocity" , aperturev, maxaperturev, nboot)
+        qp, qa = metric2(dfcart, labels, "HRD" )
+    
+        nlab = []
+        for ilab in labels
+            push!(nlab,length(ilab))
+        end
+    
+    
+    #### metric for the number of stars in the cluster
+        qn = []
+        for nl in nlab
+            push!(qn,log10(nl))
+        end
+    
+        qc = 0.
+        qstar = 0
+        for i in 1:length(nlab)
+            k1 = q2d[i][1]
+            k1bis = q3d[i][1]
+            k2 = qv[i][1]
+            k3 = qa[i][1]
+            k4 = qn[i]
+            ############### Composite metric ###
+            qq = (2k1 + k1bis + 3k2 + k3 + k4) / 8.0
+            ###############
+            if qq > qc 
+                qc = qq
+                qstar = nlab[i]
+            end
+        end
+        return(qc, qstar)
+    end
+end
 
 function find_clusters(df::GaiaClustering.Df, dfcart::GaiaClustering.Df , m::GaiaClustering.modelfull, 
     aperture2d = 1.5, maxaperture2d = 15, aperturev = 3.0, maxaperturev = 20, nboot = 30)
