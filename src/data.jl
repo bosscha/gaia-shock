@@ -70,7 +70,12 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250], vdec
     pmra_error     = zeros(ngaia)
     pmdec_error    = zeros(ngaia)
     radialvel      = zeros(ngaia)
-    
+    ## Galactic proper motion and velocities
+    pml = zeros(ngaia)
+    pmb = zeros(ngaia)
+    vl = zeros(ngaia)
+    vb = zeros(ngaia)
+        
     for i in 1:ngaia
         lgal[i]     = convert(Float64,gaia[i]["l"])
         bgal[i]     = convert(Float64,gaia[i]["b"])
@@ -82,6 +87,13 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250], vdec
         pmdec[i]    = convert(Float64,gaia[i]["pmdec"])
         vra[i]      = 4.74e-3 * pmra[i]  * distance[i]
         vdec[i]     = 4.74e-3 * pmdec[i] * distance[i]
+        
+        muG = PM_equatorial2galactic(pmra[i],pmdec[i]  , ra[i] , dec[i] , lgal[i])
+        pml[i] = muG[1]
+        pmb[i] = muG[2]
+        vb[i]  = 4.74e-3 * pml[i]  * distance[i]
+        vl[i]  = 4.74e-3 * pmb[i]  * distance[i]
+        
         ### errors.
         parallax_error[i]  = convert(Float64,gaia[i]["parallax_error"])
         pmra_error[i]  = convert(Float64,gaia[i]["pmra_error"])
@@ -117,13 +129,13 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250], vdec
     
     ## Df of the filtered dat
     ndata = length(distance[ifinal])
-    s = Df(ndata, zeros(8,ndata), zeros(11,ndata) , zeros(8,ndata) )
+    s = Df(ndata, zeros(8,ndata), zeros(13,ndata) , zeros(8,ndata) )
     
     s.data[1,:] = lgal[ifinal]
     s.data[2,:] = bgal[ifinal]
     s.data[3,:] = distance[ifinal]
-    s.data[4,:] = vra[ifinal]
-    s.data[5,:] = vdec[ifinal]
+    s.data[4,:] = vl[ifinal]
+    s.data[5,:] = vb[ifinal]
     s.data[6,:] = gbar
     s.data[7,:] = g[ifinal] .- rp[ifinal]
     s.data[8,:] = bp[ifinal] .- g[ifinal]
@@ -136,10 +148,12 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250], vdec
     s.raw[5,:] = parallax[ifinal]
     s.raw[6,:] = pmra[ifinal]
     s.raw[7,:] = pmdec[ifinal]
-    s.raw[8,:] = gbar
-    s.raw[9,:] = rp[ifinal]
-    s.raw[10,:] = bp[ifinal] 
-    s.raw[11,:] = radialvel[ifinal]
+    s.raw[8,:] = pml[ifinal]
+    s.raw[9,:] = pmb[ifinal]   
+    s.raw[10,:] = gbar
+    s.raw[11,:] = rp[ifinal]
+    s.raw[12,:] = bp[ifinal] 
+    s.raw[13,:] = radialvel[ifinal]
  
     
     ## Errors ..
@@ -151,6 +165,30 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250], vdec
     println("## Stars selected: $ndata")
     
     return(s)
+end
+
+
+## Transform PM from equatorial to galactic system.
+## See Poleski 1997 / arXiv
+## PM,,corr is from Conrad (2015)
+
+function PM_equatorial2galactic(μα , μδ , α , δ , l )
+    ## NGP coordinates
+    αG = 192.85948
+    δG = 27.12825
+    
+    C1 = sind(δG)*cosd(δ) - cosd(δG)*sind(δ)*cosd(α - αG)
+    C2 =  cosd(δG)*sind(α - αG)
+    k = 1 / sqrt(C1^2 + C2^2)
+    A = k * [C1 C2 ; -C2 C1]
+    PMG = A * [μα ; μδ ]
+    
+    ## PM along gal. lat. corrected for differential velocity 
+    ## Oort constants
+    A , B = (14.5 , -13.) ./ 4.74
+    PMG[1] =  PMG[1] - (A*cosd(2l) + B)
+    
+    return(PMG)
 end
 
 ######
@@ -175,6 +213,7 @@ function add_cartesian(s::Df, centering = true)::Df
     
     return(dfresult)    
 end
+
 
 ######
 function  normalization_PerBlock(s::Df, block , weightblock, norm , density = false , verbose = true)

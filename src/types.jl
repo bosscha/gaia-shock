@@ -93,14 +93,16 @@ struct SCproperties
     b::Float64
     parallax::Float64
     pmra::Float64
-    pmdec::Float64
-    vra::Float64
-    vdec::Float64
+    pmdec::Float64   
+    pml::Float64
+    pmb::Float64
+    vl::Float64
+    vb::Float64
     vrad::Float64
     xdisp::Float64
     ydisp::Float64
     zdisp::Float64
-    vradisp::Float64
-    vdecdisp::Float64
+    vldisp::Float64
+    vbdisp::Float64
     vraddisp::Float64
 end

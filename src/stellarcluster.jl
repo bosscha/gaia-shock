@@ -240,6 +240,7 @@ function find_clusters(df::GaiaClustering.Df, dfcart::GaiaClustering.Df , m::Gai
     end
 end
 
+## broadcasting modelfull ..
 function find_clusters(df::GaiaClustering.Df, dfcart::GaiaClustering.Df , m::GaiaClustering.modelfull, 
     aperture2d = 1.5, maxaperture2d = 15, aperturev = 3.0, maxaperturev = 20, nboot = 30)
     let 
@@ -310,31 +311,33 @@ function get_properties_SC(indx, df::GaiaClustering.Df, dfcart::GaiaClustering.D
     b        = mean(df.data[2,indx])
     ra       = mean(df.raw[1,indx])
     dec      = mean(df.raw[2,indx])
-    vra      = mean(df.data[4,indx])
-    vdec     = mean(df.data[5,indx])
+    vl       = mean(df.data[4,indx])
+    vb       = mean(df.data[5,indx])
     xdisp    = std(dfcart.data[1,indx])
     ydisp    = std(dfcart.data[2,indx])
     zdisp    = std(dfcart.data[3,indx])
-    vradisp  = std(df.data[4,indx])
-    vdecdisp = std(df.data[5,indx])
+    vldisp   = std(df.data[4,indx])
+    vbdisp   = std(df.data[5,indx])
     parallax = mean(df.raw[5,indx])
     pmra     = mean(df.raw[6,indx])
-    pmdec    = mean(df.raw[7,indx])
+    pmdec    = mean(df.raw[7,indx])   
+    pml      = mean(df.raw[8,indx])
+    pmb      = mean(df.raw[9,indx])
     
     vrad     = 0.
     vraddisp = 0.
-    indvrad = isnotnan(df.raw[11,indx])
+    indvrad = isnotnan(df.raw[13,indx])
     
     if length(indvrad) >  1 
-        vrad = mean(df.raw[11,indx[indvrad]])
-        vraddisp = std(df.raw[11,indx[indvrad]])
+        vrad = mean(df.raw[13,indx[indvrad]])
+        vraddisp = std(df.raw[13,indx[indvrad]])
     elseif length(indvrad) == 1
-        vrad     = mean(df.raw[11,indx[indvrad]])
+        vrad     = mean(df.raw[13,indx[indvrad]])
         vraddisp = 0.
     end
     
-    sc = SCproperties(nstars , distance, ra , dec , l , b , parallax, pmra, pmdec, vra , vdec , vrad, xdisp ,
-        ydisp , zdisp , vradisp, vdecdisp, vraddisp)
+    sc = SCproperties(nstars , distance, ra , dec , l , b , parallax, pmra , pmdec , pml, pmb, vl , vb, vrad, xdisp ,
+        ydisp , zdisp , vldisp, vbdisp, vraddisp)
     return(sc)
     
 end
