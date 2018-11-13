@@ -8,11 +8,11 @@
 module GaiaClustering
 
 using PyCall
-using DataFrames
+using DataFrames , Formatting
 
 using Clustering
-
 using Statistics , Distributions ,Random
+
 
 import PyPlot
 
@@ -21,7 +21,7 @@ include("types.jl")
 
 ## GAIA function to deal with data
 include("data.jl")
-export read_votable , filter_data , add_cartesian , normalization_PerBlock , copy1
+export read_votable , filter_data , add_cartesian , normalization_PerBlock , copy1 
 
 ## Geometry functions (Voronoi, correlation2d)
 include("geometry.jl")

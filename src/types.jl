@@ -106,3 +106,13 @@ struct SCproperties
     vbdisp::Float64
     vraddisp::Float64
 end
+
+## 2MASS  type
+mutable struct twomass
+    J::Array{Float64}
+    Jerr::Array{Float64}
+    H::Array{Float64}
+    Herr::Array{Float64}
+    K::Array{Float64}
+    Kerr::Array{Float64}
+end

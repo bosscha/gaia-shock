@@ -88,22 +88,23 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250], vdec
         vra[i]      = 4.74e-3 * pmra[i]  * distance[i]
         vdec[i]     = 4.74e-3 * pmdec[i] * distance[i]
         
+        ## Galactic Proper motions
         muG = PM_equatorial2galactic(pmra[i],pmdec[i]  , ra[i] , dec[i] , lgal[i])
         pml[i] = muG[1]
         pmb[i] = muG[2]
-        vb[i]  = 4.74e-3 * pml[i]  * distance[i]
-        vl[i]  = 4.74e-3 * pmb[i]  * distance[i]
+        vl[i]  = 4.74e-3 * pml[i]  * distance[i]
+        vb[i]  = 4.74e-3 * pmb[i]  * distance[i]
         
         ### errors.
         parallax_error[i]  = convert(Float64,gaia[i]["parallax_error"])
         pmra_error[i]  = convert(Float64,gaia[i]["pmra_error"])
         pmdec_error[i] = convert(Float64,gaia[i]["pmdec_error"])
+        rvel           = convert(Float64,gaia[i]["radial_velocity"])
+        radialvel[i]   = RVEL_corr(rvel , distance[i] , lgal[i])
         
         g[i]        = convert(Float64,gaia[i]["phot_g_mean_mag"])
         rp[i]       = convert(Float64,gaia[i]["phot_rp_mean_mag"])
         bp[i]       = convert(Float64,gaia[i]["phot_bp_mean_mag"])
-        
-        radialvel[i] = convert(Float64,gaia[i]["radial_velocity"])
         
     end
     
@@ -187,8 +188,18 @@ function PM_equatorial2galactic(μα , μδ , α , δ , l )
     ## Oort constants
     A , B = (14.5 , -13.) ./ 4.74
     PMG[1] =  PMG[1] - (A*cosd(2l) + B)
-    
     return(PMG)
+end
+
+
+### Correction of the radial velocity 
+### Conrad (3025)
+
+function RVEL_corr(rvel , distance , l)
+  ## Oort's constant
+  A = 14.5
+  rv = rvel - A * 1e-3 * distance * sind(2l)
+  return(rv)
 end
 
 ######
@@ -275,5 +286,4 @@ function normalizationVector(norm, density, arr)
         
     return(vecNorm)
 end
-
 
