@@ -13,7 +13,6 @@ using DataFrames , Formatting
 using Clustering
 using Statistics , Distributions ,Random
 
-
 import PyPlot
 
 ## include all the types
