@@ -11,5 +11,6 @@ Pkg.add("Random")
 Pkg.add("CSV")
 Pkg.add("PyPlot")
 Pkg.add("Formatting")
+Pkg.add("Query")
 
 println("## Package installation for GaiaClustering done...")
