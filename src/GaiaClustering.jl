@@ -20,7 +20,8 @@ include("types.jl")
 
 ## GAIA function to deal with data
 include("data.jl")
-export read_votable , filter_data , add_cartesian , normalization_PerBlock , copy1 
+export read_votable , filter_data , add_cartesian , normalization_PerBlock , copy1 ,
+  subsetDf 
 
 ## Geometry functions (Voronoi, correlation2d)
 include("geometry.jl")

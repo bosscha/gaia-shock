@@ -290,3 +290,13 @@ function normalizationVector(norm, density, arr)
     return(vecNorm)
 end
 
+######
+function subsetDf(df::Df, indx)::Df
+###### 
+
+  ndat = length(indx)
+  subset = Df(ndat, df.data[:,indx], df.raw[:,indx], df.err[:,indx])
+  
+    return(subset)
+end
+  
