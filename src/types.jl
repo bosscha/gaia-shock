@@ -1,4 +1,4 @@
-## definition of the different 
+## definition of the different types and constant
 
 
 DEG2RAD =  π / 180.

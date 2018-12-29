@@ -13,6 +13,11 @@ using DataFrames , Formatting
 using Clustering
 using Statistics , Distributions ,Random
 
+## For wavelet in imaging
+import Interpolations 
+
+using Images , Base
+
 import PyPlot
 
 ## include all the types
@@ -39,6 +44,10 @@ theta_full , thetaiter_full , getDfcartnorm
 ## plotting functions
 include("plots.jl")
 export show_text , plot_dbscan_mcmc , plot_cluster , plot_dbscanfull_mcmc
+
+## imaging functions
+include("imaging.jl")
+export atrous , addWav , thresholdingWav , noiseWav
 
 ## utils methods
 include("utils.jl")
