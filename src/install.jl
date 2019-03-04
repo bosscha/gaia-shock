@@ -12,5 +12,7 @@ Pkg.add("CSV")
 Pkg.add("PyPlot")
 Pkg.add("Formatting")
 Pkg.add("Query")
+Pkg.add("TSne")
+Pkg.add("Printf")
 
 println("## Package installation for GaiaClustering done...")
