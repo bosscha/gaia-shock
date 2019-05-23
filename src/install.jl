@@ -14,5 +14,7 @@ Pkg.add("Formatting")
 Pkg.add("Query")
 Pkg.add("TSne")
 Pkg.add("Printf")
+Pkg.add("Interpolations")
+Pkg.add("Images")
 
 println("## Package installation for GaiaClustering done...")
