@@ -194,6 +194,23 @@ function PM_equatorial2galactic(μα , μδ , α , δ , l )
     return(PMG)
 end
 
+## Compute the X,Y,Z galactic coordinates (centered on the Galactic Center)
+## See Ellsworth-Bowers et al. (2013)
+## Rgal was updated from Anderson et al. (2018)
+## xg,yg,zg in pc
+
+function galXYZ(l,b,distance)
+    Rgal= 8.34e3
+    zsun= 25
+    θ= asin(zsun/Rgal)
+    
+    xg= Rgal*cos(θ)-distance*(cosd(l)cosd(b)cos(θ)+sind(b)sin(θ))
+    yg= -distance*sind(l)cosd(b)
+    zg= Rgal*sin(θ)-distance*(cosd(l)cosd(b)sin(θ)-sind(b)cos(θ))
+    
+    return(xg,yg,zg)
+end
+
 
 ### Correction of the radial velocity 
 ### Conrad (3025)
@@ -204,6 +221,8 @@ function RVEL_corr(rvel , distance , l)
   rv = rvel - A * 1e-3 * distance * sind(2l)
   return(rv)
 end
+
+
 
 ######
 function add_cartesian(s::Df, centering = true)::Df

@@ -26,7 +26,7 @@ include("types.jl")
 ## GAIA function to deal with data
 include("data.jl")
 export read_votable , filter_data , add_cartesian , normalization_PerBlock , copy1 ,
-  subsetDf 
+  subsetDf , galXYZ , PM_equatorial2galactic
 
 ## Geometry functions (Voronoi, correlation2d)
 include("geometry.jl")
