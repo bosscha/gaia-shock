@@ -222,6 +222,36 @@ function RVEL_corr(rvel , distance , l)
   return(rv)
 end
 
+### compute galactic U V W from idlastro gal_uvw.pro
+##
+## ra, dec: degrees
+## distance; pc
+## pmra,pmdec: milliarcsec/yr
+## vrad: km/s
+
+## UVW: km/s
+#      U - Velocity (km/s) positive toward the Galactic *anti*center
+#      V - Velocity (km/s) positive in the direction of Galactic rotation
+#      W - Velocity (km/s) positive toward the North Galactic Pole
+#
+function galUVW(ra, dec, distance, pmra, pmdec, vrad ; LSR_vel=[-8.5 ; 13.38 ; 6.49])
+    k = 4.74047     #Equivalent of 1 A.U/yr in km/s   
+    
+    T=  [0.0548756   0.873437  0.483835 ;
+          0.494109   -0.44483   0.746982 ;
+         -0.867666   -0.198076  0.455984]
+
+    A1= [ cosd(ra) sind(ra) 0 ; sind(ra) -cosd(ra) 0 ; 0 0 -1]
+    A2= [ cosd(dec) 0 -sind(dec) ; 0 -1 0 ; -sind(dec) 0 -cosd(dec)]
+    vec1 = vrad
+    vec2 = k*pmra*1e-3*distance
+    vec3 = k*pmdec*1e-3*distance
+    v= [vec1 ; vec2 ; vec3]
+    
+    uvw= T*A1*A2*v + LSR_vel
+         
+    return(uvw)
+end
 
 
 ######

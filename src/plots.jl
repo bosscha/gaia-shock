@@ -7,7 +7,7 @@ function show_text(posx,pys, text, ywidth = 1.)
     posy = pys
     dy = ywidth / length(text)
     for t in text
-        PyPlot.plt[:text](posx,posy,t)
+        PyPlot.plt.text(posx,posy,t)
         posy += dy
     end
 end
