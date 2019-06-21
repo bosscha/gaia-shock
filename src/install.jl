@@ -16,5 +16,8 @@ Pkg.add("TSne")
 Pkg.add("Printf")
 Pkg.add("Interpolations")
 Pkg.add("Images")
+Pkg.add("LightGraphs")
+Pkg.add("SimpleWeightedGraphs")
+Pkg.add("Distances")
 
 println("## Package installation for GaiaClustering done...")

@@ -12,6 +12,7 @@ using DataFrames , Formatting
 
 using Clustering
 using Statistics , Distributions ,Random
+using Distances, LightGraphs, SimpleWeightedGraphs
 
 ## For wavelet in imaging
 import Interpolations 
@@ -52,5 +53,11 @@ export atrous , addWav , thresholdingWav , noiseWav
 ## utils methods
 include("utils.jl")
 export isnotnan
+
+## Mass segregation and stellar clustering
+include("massSegregation.jl")
+export mst_graph, lambda_mst, sample_size, kappa_ms, select_massivestars, get_kappaMS , 
+  get_Q
+
 
 end
