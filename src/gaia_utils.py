@@ -116,7 +116,7 @@ class source:
         self.data = job.get_results()
 
         if dump:
-            filename = job.get_output_file()
+            filename = job.outputFile
             filedst = "%s-%3.1fdeg.vot"%(self.name, radius)
             shutil.move(filename,filedst)
             print("## %s created"%(filedst))
