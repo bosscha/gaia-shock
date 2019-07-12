@@ -54,6 +54,7 @@ end
 
 
 ### Voronoi tesselation using the scipy function
+###
 function voronoi(pts, verbose = false)
     let
         ndat = length(pts)
@@ -75,7 +76,6 @@ function voronoi(pts, verbose = false)
         reg = vor[:regions]
         pt  = vor[:point_region]
     
-        # println("reg:",length(reg))
         for i in 1:ndat
             region  =  reg[pt[i]+1]
             peri[i] =  voronoi_perimeter(ver,region)
