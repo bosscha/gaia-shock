@@ -1,6 +1,5 @@
 ## MCMC functions for gaia.
 ## 
-## still in testing...
 ##
 
 ### generate eps, min_neightbor and min_cluster
