@@ -19,5 +19,6 @@ Pkg.add("Images")
 Pkg.add("LightGraphs")
 Pkg.add("SimpleWeightedGraphs")
 Pkg.add("Distances")
+Pkg.add("Glob")
 
 println("## Package installation for GaiaClustering done...")
