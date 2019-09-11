@@ -116,3 +116,43 @@ mutable struct twomass
     K::Array{Float64}
     Kerr::Array{Float64}
 end
+
+### Spatial Structure Types
+##
+## position from the gravity centered
+struct sc2dcentered
+    nxy::Int
+    xx::Array{Float64}
+    yy::Array{Float64}
+    radius::Array{Float64}
+    dens::Array{Float64}
+    nbin::Int
+    radbin::Array{Float64}
+    densbin::Array{Float64}
+    densbinerr::Array{Float64}
+end
+
+## prior model / mcmc
+mutable struct mcmcCauchy
+    Cmean::Float64
+    Cdisp::Float64
+    smean::Float64
+    sdisp::Float64
+    mmean::Float64
+    mdisp::Float64
+    nburnin::Int
+    niter::Int
+end
+
+mutable struct modelCauchy
+    C::Float64
+    s::Float64
+    m::Float64 
+end
+
+mutable struct mcCauchy
+    C::Array{Float64}
+    s::Array{Float64}
+    m::Array{Float64}
+end
+

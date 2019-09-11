@@ -1,6 +1,5 @@
 ## Methods and types about stellar clusters.
 ## 
-##
 ## Julia 1.0 compliant
 ## 
 ## Use the astropy python package to read a votable.
@@ -19,7 +18,8 @@ import Interpolations
 
 using Images , Base
 
-import PyPlot
+import PyPlot, StatsBase , CSV
+import Distances
 
 ## include all the types
 include("types.jl")
@@ -59,5 +59,8 @@ include("massSegregation.jl")
 export mst_graph, lambda_mst, sample_size, kappa_ms, select_massivestars, get_kappaMS , 
   get_Q
 
+ ## Spatial structure parameters
+include("spatialStructure.jl")
+export spatialParameter, density2D , density3D , locdens2d , locdens3d
 
 end
