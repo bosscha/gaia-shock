@@ -61,6 +61,6 @@ export mst_graph, lambda_mst, sample_size, kappa_ms, select_massivestars, get_ka
 
  ## Spatial structure parameters
 include("spatialStructure.jl")
-export spatialParameter, density2D , density3D , locdens2d , locdens3d
+export spatialParameter, density2D , density3D , locdens2d , locdens3d, model_rad, fdens1
 
 end

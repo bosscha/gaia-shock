@@ -8,6 +8,7 @@ function spatialParameter(ocfile, ntest=10 , nbin=20, niter=10000 ,verbose=true)
     let 
         solC= []; sols= []; solm= []
         ηBest= 1e9 ; θBest= 0 
+        fitfound= false
     
         oc= CSV.read(ocfile, delim= ";")
         if verbose println("## file $ocfile read...") end
@@ -23,13 +24,15 @@ function spatialParameter(ocfile, ntest=10 , nbin=20, niter=10000 ,verbose=true)
         # rad_3d, loc_3d= locdens3d(oc.X,oc.Y, oc.Z, nloc)    
 
         oc2d= sc2dcentered(length(oc.Y), oc.Y, oc.Z, rad_2d, loc_2d , nbin , r2d, ρ2d, err2d )
-
+        
+        println(oc2d.densbin)
+        # println(oc2d.densbinerr)
         if verbose println("## Density profiles computed...") end
     
         ## prior estimation
         ##
-         prior, priorDisp= priorGuess(r2d, ρ2d)
-         
+        prior, priorDisp= priorGuess(r2d, ρ2d)
+        
         if verbose
             println("## Prior Guess:")
             println(prior)
@@ -43,14 +46,13 @@ function spatialParameter(ocfile, ntest=10 , nbin=20, niter=10000 ,verbose=true)
         nburnin= 5000
         pinit= mcmcCauchy(C_mean, C_disp, s_mean, s_disp, m_mean, m_disp, nburnin, niter)
 
-        ## AFC < 0.1 to be considered as not correlated...
         ## if true it takes the mean as first step, otherwise random??
 
         if verbose println("## Running mcmc 2D fitting") end
 
         for i in 1:ntest        
             mci ,  θbest , ηbest = main_mcmc(oc2d, pinit, likelihood2dbin, false, verbose)
-
+            
             lags= collect(1:1000)
             acfC= StatsBase.autocor(mci.C, lags)[end]
             acfs= StatsBase.autocor(mci.s, lags)[end]
@@ -63,25 +65,36 @@ function spatialParameter(ocfile, ntest=10 , nbin=20, niter=10000 ,verbose=true)
                 println("## ACF(C,s,m): $acfC , $acfs , $acfm")
             end
             
-            if abs(acfC) < 0.1 && abs(acfs) < 0.1 && abs(acfm) < 0.1
-                push!(solC,abs(θbest.C))
-                push!(sols,abs(θbest.s))
-                push!(solm,abs(θbest.m))
+            ## AFC < 0.1 to be considered as not correlated...
+            if abs(acfC) < 0.1 && abs(acfs) < 0.1 && abs(acfm) < 0.1              
+              push!(solC,abs(θbest.C))
+              push!(sols,abs(θbest.s))
+              push!(solm,abs(θbest.m))
+                  
                 if ηbest < ηBest
+                    fitfound= true
                     ηBest= ηbest
                     θBest= θbest
                 end
             end
         end
         
-        θerr= modelCauchy(std(solC),std(sols),std(solm))
+        if !fitfound
+          θBest= modelCauchy(1,1,1)
+        end
+        if length(solC) > 1
+          θerr= modelCauchy(std(solC),std(sols),std(solm))
+        else
+          θerr= modelCauchy(1,1,1)
+        end
 
         if θBest.C<0 || θBest.s<0 || θBest.m<0
             θBest.C= abs(θBest.C) 
             θBest.s= abs(θBest.s)
             θBest.m= abs(θBest.m)
         end
-        return(θBest, θerr)
+        println("## OC fitting done.")
+        return(θBest, θerr, fitfound)
     end
 end
 
@@ -131,6 +144,7 @@ function density2D(x , y , nbin=10)
     rmax= maximum(r)
     dr= rmax/nbin
     r0=0
+    
     for i in 1:nbin
         r1= i*dr
         indr= (r .> r0) .& (r .<= r1)
@@ -143,7 +157,7 @@ function density2D(x , y , nbin=10)
         end
         
         push!(ρ, dens)
-        push!(radius, (r1+r0)/2)
+        push!(radius, (r0+r1)/2)
         push!(err, errDensity)
         r0= r1
     end
@@ -347,4 +361,74 @@ function likelihood2dbinlog(θ::modelCauchy, oc::sc2dcentered)
     p = min(1, exp(-χ2))
 
     return(p)
+end
+
+
+## Model iterations...
+
+function theta(mcmc::mcmcCauchy, oc::sc2dcentered, likelihood::Function, firstvalue::Bool)
+    pC  = Normal(mcmc.Cmean, mcmc.Cdisp)
+    pm  = Normal(mcmc.mmean, mcmc.mdisp)
+    ps  = Normal(mcmc.smean, mcmc.sdisp)
+    
+    if firstvalue
+        C= mcmc.Cmean 
+        s= mcmc.smean
+        m= mcmc.mmean
+    else
+        C = rand(pC)
+        s = rand(ps)
+        m = rand(pm) 
+    end
+       
+    pdfC = pdf(pC,C)   
+    pdfm = pdf(pm, m)  
+    pdfs = pdf(ps, s)
+        
+    θ= modelCauchy(C, s, m)
+    
+    pdfC = pdf(pC , C)
+    pdfm = pdf(pm, m)
+    pdfs = pdf(ps, s)
+    ptotal = pdfC*pdfm*pdfs*likelihood(θ, oc)
+    
+    return(θ, ptotal) 
+end
+
+## next iteration
+function thetaiter(θi::modelCauchy, mcmc::mcmcCauchy, oc::sc2dcentered, likelihood::Function)
+    pC  = Normal(mcmc.Cmean, mcmc.Cdisp)
+    pm  = Normal(mcmc.mmean, mcmc.mdisp)
+    ps  = Normal(mcmc.smean, mcmc.sdisp)
+    
+    C_rw= Normal(θi.C, 0.5)
+    s_rw= Normal(θi.s  , 0.5)
+    m_rw= Normal(θi.m , 0.5)
+
+    new_C = 0.
+    new_m = 0
+    new_s = 0
+        
+    new_C  = rand(C_rw)
+    new_m =  rand(m_rw)     
+    new_s =  rand(s_rw)
+    
+    θ= modelCauchy(new_C, new_s, new_m)
+   
+    pdfC = pdf(pC , new_C)
+    pdfm = pdf(pm, new_m)
+    pdfs = pdf(ps, new_s)
+    ptotal = pdfC*pdfm*pdfs*likelihood(θ, oc)
+    
+    return(θ, ptotal)
+end
+
+function model_rad(radius, θ, densModel::Function)
+    ρfit= [] 
+    for i in 1:length(radius)
+        ρ= densModel(radius[i], θ)
+        push!(ρfit, ρ)
+    end
+    
+    return(ρfit)
 end
