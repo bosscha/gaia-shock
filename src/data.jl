@@ -1,23 +1,23 @@
 ## from module gaiaClustering
 ## Functions to deal with GAIA data and to normalize
-## 
+##
 
 ############
 ## Query the GAIA data towards the coord with a radius conesearch
 #####
 function query_gaia(coord, radius, dump = false)
-#####    
+#####
     return(0)
-    
+
 end
 
-    
+
 function copy(s::Df)::Df
     c = Df(s.ndata, zeros(length(s.data[:,1]),s.ndata),zeros(length(s.raw[:,1]),s.ndata), zeros(length(s.err[:,1]),s.ndata))
     c.data[:,:] = s.data[:,:]
     c.raw[:,:]  = s.raw[:,:]
     c.err[:,:]  = s.err[:,:]
-    
+
     return(c)
 end
 
@@ -27,7 +27,7 @@ function copy1(s::Df)::Df
     c.data[:,:] = s.data[:,:]
     c.raw[:,:]  = s.raw[:,:]
     c.err[:,:]  = s.err[:,:]
-    
+
     return(c)
 end
 
@@ -37,13 +37,13 @@ end
 function read_votable(voname::String)
 ######
     warnings = pyimport("warnings")
-    warnings[:filterwarnings]("ignore")
+    warnings.filterwarnings("ignore")
     votable = pyimport("astropy.io.votable")
-    vot = votable[:parse](voname)
-    data = vot[:get_first_table]() 
-    
+    vot = votable.parse(voname)
+    data = vot.get_first_table()
+
     println("## Votable $voname read")
-    
+
     return(data["array"]["data"])
 end
 
@@ -52,20 +52,20 @@ end
 function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250], vdec_range = [-250.,250], mag_range =[-1e9, 1e9])::Df
 ########
     ngaia = length(gaia)
-    
+
     lgal = zeros(ngaia)
-    bgal = zeros(ngaia) 
+    bgal = zeros(ngaia)
     ra = zeros(ngaia)
     dec= zeros(ngaia)
-    distance = zeros(ngaia)  
+    distance = zeros(ngaia)
     pmra = zeros(ngaia)
-    pmdec = zeros(ngaia)    
+    pmdec = zeros(ngaia)
     parallax = zeros(ngaia)
     vra = zeros(ngaia)
-    vdec = zeros(ngaia)    
+    vdec = zeros(ngaia)
     g = zeros(ngaia)
-    rp = zeros(ngaia)     
-    bp = zeros(ngaia) 
+    rp = zeros(ngaia)
+    bp = zeros(ngaia)
     parallax_error = zeros(ngaia)
     pmra_error     = zeros(ngaia)
     pmdec_error    = zeros(ngaia)
@@ -75,7 +75,10 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250], vdec
     pmb = zeros(ngaia)
     vl = zeros(ngaia)
     vb = zeros(ngaia)
-        
+
+    ## Extinction A_G
+    ag= zeros(ngaia)
+
     for i in 1:ngaia
         lgal[i]     = convert(Float64,gaia[i]["l"])
         bgal[i]     = convert(Float64,gaia[i]["b"])
@@ -87,29 +90,30 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250], vdec
         pmdec[i]    = convert(Float64,gaia[i]["pmdec"])
         vra[i]      = 4.74e-3 * pmra[i]  * distance[i]
         vdec[i]     = 4.74e-3 * pmdec[i] * distance[i]
-        
+
         ## Galactic Proper motions
         muG = PM_equatorial2galactic(pmra[i],pmdec[i]  , ra[i] , dec[i] , lgal[i])
         pml[i] = muG[1]
         pmb[i] = muG[2]
         vl[i]  = 4.74e-3 * pml[i]  * distance[i]
         vb[i]  = 4.74e-3 * pmb[i]  * distance[i]
-        
+
         radialvel[i]   = convert(Float64,gaia[i]["radial_velocity"])
-        
+
         ### errors.
         parallax_error[i]  = convert(Float64,gaia[i]["parallax_error"])
         pmra_error[i]  = convert(Float64,gaia[i]["pmra_error"])
         pmdec_error[i] = convert(Float64,gaia[i]["pmdec_error"])
 
-        
-        
         g[i]        = convert(Float64,gaia[i]["phot_g_mean_mag"])
         rp[i]       = convert(Float64,gaia[i]["phot_rp_mean_mag"])
         bp[i]       = convert(Float64,gaia[i]["phot_bp_mean_mag"])
-        
+
+        #extinction
+        ag[i]       = convert(Float64,gaia[i]["a_g_val"])
+
     end
-    
+
     ## Filtering ...
     i1 =  distance .> dist_range[1]
     i2 =  distance .< dist_range[2]
@@ -123,17 +127,17 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250], vdec
     i10 = rp  .< mag_range[2]
     i11  = bp  .> mag_range[1]
     i12  = bp  .< mag_range[2]
-     
-    ifinal = i1 .& i2 .& i3 .& i4 .& i5 .& i6 .& i7 .& i8 .& i9 .& i10 .& i11 .& i12 
-    
+
+    ifinal = i1 .& i2 .& i3 .& i4 .& i5 .& i6 .& i7 .& i8 .& i9 .& i10 .& i11 .& i12
+
     ## G magnitude
      # gbar =  g[ifinal] - 5. * log10.(distance[ifinal]) + 17.
     gbar =  g[ifinal] - 5 .* log10.(distance[ifinal]) .+ 17.
-    
+
     ## Df of the filtered dat
     ndata = length(distance[ifinal])
-    s = Df(ndata, zeros(8,ndata), zeros(13,ndata) , zeros(8,ndata) )
-    
+    s = Df(ndata, zeros(8,ndata), zeros(14,ndata) , zeros(8,ndata) )
+
     s.data[1,:] = lgal[ifinal]
     s.data[2,:] = bgal[ifinal]
     s.data[3,:] = distance[ifinal]
@@ -142,8 +146,8 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250], vdec
     s.data[6,:] = gbar
     s.data[7,:] = g[ifinal] .- rp[ifinal]
     s.data[8,:] = bp[ifinal] .- g[ifinal]
-    
-    
+
+
     s.raw[1,:] = ra[ifinal]
     s.raw[2,:] = dec[ifinal]
     s.raw[3,:] = lgal[ifinal]
@@ -152,21 +156,22 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250], vdec
     s.raw[6,:] = pmra[ifinal]
     s.raw[7,:] = pmdec[ifinal]
     s.raw[8,:] = pml[ifinal]
-    s.raw[9,:] = pmb[ifinal]   
+    s.raw[9,:] = pmb[ifinal]
     s.raw[10,:] = gbar
     s.raw[11,:] = rp[ifinal]
-    s.raw[12,:] = bp[ifinal] 
+    s.raw[12,:] = bp[ifinal]
     s.raw[13,:] = radialvel[ifinal]
- 
-    
+    s.raw[14,:] = ag[ifinal]
+
+
     ## Errors ..
     s.err[1,:] = parallax_error[ifinal]
     s.err[4,:] = pmra_error[ifinal]
     s.err[5,:] = pmdec_error[ifinal]
-    
+
     println("## Filtering done ...")
     println("## Stars selected: $ndata")
-    
+
     return(s)
 end
 
@@ -179,18 +184,18 @@ function PM_equatorial2galactic(μα , μδ , α , δ , l )
     ## NGP coordinates
     αG = 192.85948
     δG = 27.12825
-    
+
     C1 = sind(δG)*cosd(δ) - cosd(δG)*sind(δ)*cosd(α - αG)
     C2 =  cosd(δG)*sind(α - αG)
     k = 1 / sqrt(C1^2 + C2^2)
     A = k * [C1 C2 ; -C2 C1]
     PMG = A * [μα ; μδ ]
-    
-    ## PM along gal. lat. corrected for differential velocity 
+
+    ## PM along gal. lat. corrected for differential velocity
     ## Oort constants. Not applied.
     #A , B = (14.5 , -13.) ./ 4.74
     # PMG[1] =  PMG[1] - (A*cosd(2l) + B)
-    
+
     return(PMG)
 end
 
@@ -203,16 +208,16 @@ function galXYZ(l,b,distance)
     Rgal= 8.34e3
     zsun= 25
     θ= asin(zsun/Rgal)
-    
+
     xg= Rgal*cos(θ)-distance*(cosd(l)cosd(b)cos(θ)+sind(b)sin(θ))
     yg= -distance*sind(l)cosd(b)
     zg= Rgal*sin(θ)-distance*(cosd(l)cosd(b)sin(θ)-sind(b)cos(θ))
-    
+
     return(xg,yg,zg)
 end
 
 
-### Correction of the radial velocity 
+### Correction of the radial velocity
 ### Conrad (3025)
 
 function RVEL_corr(rvel , distance , l)
@@ -235,8 +240,8 @@ end
 #      W - Velocity (km/s) positive toward the North Galactic Pole
 #
 function galUVW(ra, dec, distance, pmra, pmdec, vrad ; LSR_vel=[-8.5 ; 13.38 ; 6.49])
-    k = 4.74047     #Equivalent of 1 A.U/yr in km/s   
-    
+    k = 4.74047     #Equivalent of 1 A.U/yr in km/s
+
     T=  [0.0548756   0.873437  0.483835 ;
           0.494109   -0.44483   0.746982 ;
          -0.867666   -0.198076  0.455984]
@@ -247,45 +252,45 @@ function galUVW(ra, dec, distance, pmra, pmdec, vrad ; LSR_vel=[-8.5 ; 13.38 ; 6
     vec2 = k*pmra*1e-3*distance
     vec3 = k*pmdec*1e-3*distance
     v= [vec1 ; vec2 ; vec3]
-    
+
     uvw= T*A1*A2*v + LSR_vel
-         
+
     return(uvw)
 end
 
 
 ######
 function add_cartesian(s::Df, centering = true)::Df
-######    
+######
     dfresult = copy(s)
     off = zeros(2)
-    
+
     if centering
         off[1] = mean(s.data[1,:])
         off[2] = mean(s.data[2,:])
     end
-    
+
     lgal = DEG2RAD .* (s.data[1,:] .- off[1])
     bgal = DEG2RAD .* (s.data[2,:] .- off[2])
-    
+
     dfresult.data[1,:] = s.data[3,:] .* cos.(bgal) .* cos.(lgal)
     dfresult.data[2,:] = s.data[3,:] .* cos.(bgal) .* sin.(lgal)
     dfresult.data[3,:] = s.data[3,:] .* sin.(bgal)
-    
+
     println("## Cartesian transformation done ...")
-    
-    return(dfresult)    
+
+    return(dfresult)
 end
 
 
 ######
 function  normalization_PerBlock(s::Df, block , weightblock, norm , density = false , verbose = true)
-######   
+######
     dfresult = copy(s)
     ndf = size(s.data)
     scale8d = zeros(ndf[1])
     vector8d = 0.
-    
+
     ind = 1
     for aw in zip(block,weightblock)
         weight = aw[2]
@@ -298,54 +303,53 @@ function  normalization_PerBlock(s::Df, block , weightblock, norm , density = fa
             ind += 1
         end
     end
-    
+
     vector8d = sqrt(vector8d)
     scale8d[:] = scale8d[:] ./ vector8d
     dfresult.data[:,:] = dfresult.data[:,:] ./ vector8d
-    
+
     if verbose
         println("## Normalization $norm done...")
         println("### [1pc,1pc,1pc,1km/s,1km/s,1mag,1mag,1mag] equivalent to $scale8d")
         println("##")
     end
-            
+
     return(dfresult , scale8d)
 end
 
 ######
 function normalizationVector(norm, density, arr)
-######        
+######
     vecNorm = [0.0, 1.0]
-        
+
     if norm == "identity"
         vecNorm = [0.0, 1.0]
-            
+
         elseif norm == "normal"
             stdArr = std(arr)
             meanArr = mean(arr)
             vecNorm  = [meanArr , stdArr]
-            
+
         elseif norm == "minmax"
             minarr  = minimum(vcat(arr...))
             maxarr  = maximum(vcat(arr...))
             vecNorm = [minarr, maxarr-minarr]
-            
+
     end
-            
+
     if density
         vecNorm[2] = vecNorm[2] * length(arr)
     end
-        
+
     return(vecNorm)
 end
 
 ######
 function subsetDf(df::Df, indx)::Df
-###### 
+######
 
   ndat = length(indx)
   subset = Df(ndat, df.data[:,indx], df.raw[:,indx], df.err[:,indx])
-  
+
     return(subset)
 end
-  
