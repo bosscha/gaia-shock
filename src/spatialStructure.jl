@@ -52,7 +52,7 @@ function spatialParameter(ocfile, ntest=10 , nbin=20, niter=10000 ,verbose=true,
         for i in 1:ntest
             mci ,  θbest , ηbest = main_mcmc(oc2d, pinit, likelihood2dbin, false, verbose)
 
-            lags= collect(1:1000)
+            lags= collect(1:niter)
             acfC= StatsBase.autocor(mci.C, lags)[end]
             acfs= StatsBase.autocor(mci.s, lags)[end]
             acfm= StatsBase.autocor(mci.m, lags)[end]
@@ -65,7 +65,7 @@ function spatialParameter(ocfile, ntest=10 , nbin=20, niter=10000 ,verbose=true,
             end
 
             ## AFC < 0.1 to be considered as not correlated...
-            if abs(acfC) < 0.1 && abs(acfs) < 0.1 && abs(acfm) < 0.1
+            if abs(acfC) < 0.1 && abs(acfs) < 0.1 && abs(acfm) < 0.1 && θbest != 0
               push!(solC,abs(θbest.C))
               push!(sols,abs(θbest.s))
               push!(solm,abs(θbest.m))
@@ -255,11 +255,10 @@ end
 ## firstvalue: true(set to mean), false(random from prior)
 function main_mcmc(oc::sc2dcentered, mcmc::mcmcCauchy, likelihood::Function, firstvalue=false , verbose=true)
     let
+        Random.seed!()
         mci = mcCauchy(zeros(Float64,0),zeros(Float64,0),zeros(Float64,0))
         mi, probi = theta(mcmc, oc, likelihood, firstvalue)
         if verbose println("## Init done...") end
-        Random.seed!()
-
 
         niter = mcmc.niter
         nburn = mcmc.nburnin
