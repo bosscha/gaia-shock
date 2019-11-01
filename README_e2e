@@ -1,0 +1,12 @@
+Instructions to run the end-to-end (e2e) standalone scripts without the jupyter notebooks.
+
+The scripts are in $GAIA_ROOT/e2e
+
+The working directory defined currently for the products of the e2e are in $GAIA_ROOT/e2e_products
+Directories to be created:
+$GAIA_ROOT/e2e_products/plotsSelect  (plots from the selection check)
+
+Scripts by order of execution:
+1. check_sampleOCdr2.py : from a list to check the GAIA data towards the targets
+2.
+3,
