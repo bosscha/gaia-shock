@@ -118,7 +118,7 @@ end
 function check_mcmc(votname, fileres)
     try
         res = CSV.read(fileres, delim=";")
-        if votname in res[:votname]
+        if votname in res.votname
             return(true, true)
         else
             return(false , true)
@@ -163,7 +163,6 @@ function main(filelist,fileres, fileSCres)
         # vot = readlist_votable(filelist)
         # println("## $filelist read")
         s= size(filelist)
-        println(s)
 
         for i in 1:s[1]
             votname = filelist[i]
