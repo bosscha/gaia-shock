@@ -4,7 +4,7 @@
 using DataFrames
 using CSV, Glob
 using Statistics
-
+import DataFrames
 
 rootdir =  ENV["GAIA_ROOT"]
 
@@ -109,8 +109,7 @@ function dbscanmcmcfull_updt!(ismcmc, fileres, mc ,votname)
             qcm=qcm,qcd=qcd, qnm=qnm,qnd=qnd,
             w3dm=w3dm,w3dd=w3dd,wvelm=wvelm,wveld=wveld,whrdm=whrdm,whrdd=whrdd)
         println("### add DBSCAN/MCMC FULL results ...")
-        println(res)
-        println(newrow)
+
         append!(res,newrow)
         CSV.write(fileres,res,delim=';')
         return(newrow)
