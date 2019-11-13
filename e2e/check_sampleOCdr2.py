@@ -6,7 +6,6 @@
 # To search for specific data in DR2. <br>
 # Note that gaia-on-tap is by default for DR1 <br>
 
-
 import sys, os
 rootdir = os.environ.get("GAIA_ROOT")
 

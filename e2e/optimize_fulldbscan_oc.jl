@@ -17,7 +17,6 @@ votdir  = "$rootdir/e2e_products/votable"
 plotdir = "$rootdir/e2e_products/plotsSelect"
 
 
-
 ## load a liist of votable and update the file if done
 ## add results
 ##
