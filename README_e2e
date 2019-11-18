@@ -7,10 +7,11 @@ The working directory defined currently for the products of the e2e are in $GAIA
 Directories:
 $GAIA_ROOT/e2e_products/plotsSelect  (plots from the selection process)
 $GAIA_ROOT/e2e_products/votables     (GAIA votable for the clusters)
+$GAIA_ROOT/e2e_products/oc           (OC star data in .csv)
 
 Scripts by order of execution:
-1. check_sampleOCdr2.py : from a list only to check the GAIA data towards the targets
-2. get_allVotable.py    : get all the GAIA votable from the selected list
+1. check_sampleOCdr2.py      : from a list only to check the GAIA data towards the targets
+2. get_allVotable.py         : get all the GAIA votable from the selected list
 3. optimize_fulldbscan_oc.jl : compute the optimum DBSCAN parameters for the oc extraction. Output 2 csv file with DBSCAN and SC parameters
-4. ... get the oc within the threshold for the DBSCAN parameters.
-5. ... extract the oc with the DBSCAN parameters.
+4. filter_mcmc.jl            : filter the oc within the threshold for the DBSCAN parameters.
+5. extract_allOC.jl          : extract the final OC stars using the selected DBSCAN parameters.
