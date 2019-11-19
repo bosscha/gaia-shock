@@ -9,7 +9,7 @@ $GAIA_ROOT/e2e_products/plotsSelect  (plots from the selection process)
 $GAIA_ROOT/e2e_products/votables     (GAIA votable for the clusters)
 $GAIA_ROOT/e2e_products/oc           (OC star data in .csv)
 
-Scripts by order of execution:
+EXTRACTION (scripts by order of execution):
 1. check_sampleOCdr2.py      : from a list only to check the GAIA data towards the targets
 2. get_allVotable.py         : get all the GAIA votable from the selected list
 3. optimize_fulldbscan_oc.jl : compute the optimum DBSCAN parameters for the oc extraction. Output 2 csv file with DBSCAN and SC parameters

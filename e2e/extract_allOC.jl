@@ -41,7 +41,7 @@ end
 function _check_extraction(votname, fileres)
     try
         res = CSV.read(fileres, delim=";")
-        if votname in res[:votname]
+        if votname in res.votname
             return(true)
         else
             return(false)
@@ -105,9 +105,9 @@ function main(paramfile, fileres)
         s=size(spl)
 
         for i in 1:s[1]
-            votname = spl[:votname][i]
+            votname = spl.votname[i]
             println("## Starting with $votname")
-            wght= [spl[:w3dm][i],spl[:wvelm][i] ,spl[:whrdm][i]]
+            wght= [spl.w3dm[i],spl.wvelm[i] ,spl.whrdm[i]]
             println(wght)
 
             found= _check_extraction(votname, fileres)
