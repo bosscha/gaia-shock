@@ -25,8 +25,7 @@ fileparams= "votlist.finalSample_metric0.020.csv"
 
 ###########################################################################
 function getdata(filevot, wghtblck)
-    voname = filevot
-
+    voname     = filevot
     data       = read_votable(voname)
     df         = filter_data(data)
     dfcart     = add_cartesian(df)

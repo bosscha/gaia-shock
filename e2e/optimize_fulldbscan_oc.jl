@@ -153,21 +153,46 @@ function SCparameters_updt(fileres,sc::GaiaClustering.SCproperties,votname)
     end
 end
 
+## check for blacklist
+##
+function read_blacklist(blackname)
+
+    if isfile(blackname)
+        df= CSV.read(blackname, delim=";")
+        blacklist= df.votname
+    else
+        blacklist= [""]
+    end
+
+    return(blacklist)
+end
 #######################
 ## Main loop
 ##
-
 function main(filelist,fileres, fileSCres)
     let
         println("## Starting main loop ..")
-        # vot = readlist_votable(filelist)
-        # println("## $filelist read")
+        println("## It can be very long but will be resumed to the last reduced file.")
+
+        # read a possible votname blacklist
+        blackname= "blacklist-oc.csv"
+        blacklist= read_blacklist(blackname)
+
         s= size(filelist)
 
         for i in 1:s[1]
             votname = filelist[i]
 
             mcmcfound , ismcmcfile = check_mcmc(votname, fileres)
+
+            ## test blacklist
+            if votname in blacklist
+                println("##")
+                println("## $votname in blacklist...")
+                println("##")
+                mcmcfound= true
+            end
+
             if !mcmcfound
                 println("## Starting with $votname")
                 df , dfcart , dfcartnorm = getdata(votdir*"/"*votname)
