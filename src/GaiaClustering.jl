@@ -1,7 +1,7 @@
 ## Methods and types about stellar clusters.
-## 
+##
 ## Julia 1.0 compliant
-## 
+##
 ## Use the astropy python package to read a votable.
 
 module GaiaClustering
@@ -14,7 +14,7 @@ using Statistics , Distributions ,Random
 using Distances, LightGraphs, SimpleWeightedGraphs
 
 ## For wavelet in imaging
-import Interpolations 
+import Interpolations
 
 using Images , Base
 
@@ -39,7 +39,7 @@ export metric , clusters , find_clusters , find_cluster_label, get_properties_SC
 
 ## MCMC for gaia
 include("mcmc.jl")
-export theta , thetaiter , abc_mcmc_dbscan, ministats , abc_mcmc_dbscan_full , ministats_full , 
+export theta , thetaiter , abc_mcmc_dbscan, ministats , abc_mcmc_dbscan_full , ministats_full ,
 theta_full , thetaiter_full , getDfcartnorm
 
 ## plotting functions
@@ -52,11 +52,11 @@ export atrous , addWav , thresholdingWav , noiseWav
 
 ## utils methods
 include("utils.jl")
-export isnotnan
+export isnotnan , read_blacklist
 
 ## Mass segregation and stellar clustering
 include("massSegregation.jl")
-export mst_graph, lambda_mst, sample_size, kappa_ms, select_massivestars, get_kappaMS , 
+export mst_graph, lambda_mst, sample_size, kappa_ms, select_massivestars, get_kappaMS ,
   get_Q
 
  ## Spatial structure parameters

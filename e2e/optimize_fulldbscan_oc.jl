@@ -155,7 +155,7 @@ end
 
 ## check for blacklist
 ##
-function read_blacklist(blackname)
+function _read_blacklist(blackname)
 
     if isfile(blackname)
         df= CSV.read(blackname, delim=";")

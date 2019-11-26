@@ -15,3 +15,6 @@ EXTRACTION (scripts by order of execution):
 3. optimize_fulldbscan_oc.jl : compute the optimum DBSCAN parameters for the oc extraction. Output 2 csv file with DBSCAN and SC parameters
 4. filter_mcmc.jl            : filter the oc within the threshold for the DBSCAN parameters.
 5. extract_allOC.jl          : extract the final OC stars using the selected DBSCAN parameters.
+
+FILES:
+blacklist-oc.csv (in $GAIA_ROOT/e2e_products) votfile blacklisted 
