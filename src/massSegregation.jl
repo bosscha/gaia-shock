@@ -6,27 +6,30 @@
 ## ind: subset to select the x,y
 ## dtyp= "2d" or "3d"
 ##
+
+##!! WARNING !! 2d is for the projection YZ since X is the distance with GAIA
+##
 function mst_graph(ind,x,y,z=[] , dtyp="2d")
     nxy= length(ind)
     if dtyp == "2d"
         A= Array{Float64}(undef,2,nxy)
     elseif dtyp == "3d"
-       A= Array{Float64}(undef,3,nxy) 
+       A= Array{Float64}(undef,3,nxy)
     end
-    
+
     for i in 1:nxy
         if dtyp == "2d"
-            A[:,i]= [x[ind[i]] y[ind[i]]]
+            A[:,i]= [y[ind[i]] z[ind[i]]]
         elseif dtyp == "3d"
             A[:,i]= [x[ind[i]] y[ind[i]] z[ind[i]]]
         end
     end
-    
+
     d= Euclidean()
     p= pairwise(d, A, A, dims=2)
 
-    
-    src= Array{Int}(undef,0) 
+
+    src= Array{Int}(undef,0)
     dst= Array{Int}(undef,0)
     wgt= Array{Float64}(undef,0)
 
@@ -35,14 +38,14 @@ function mst_graph(ind,x,y,z=[] , dtyp="2d")
             if i != j
                 push!(src,i)
                 push!(dst,j)
-                push!(wgt,p[i,j]) 
+                push!(wgt,p[i,j])
             end
         end
     end
-    
+
     G= SimpleWeightedGraph(src, dst, wgt)
     kr= kruskal_mst(G, G.weights)
-    
+
     return(kr)
 end
 
@@ -52,7 +55,7 @@ end
 function lambda_mst(edges, dtyp="ari")
     nedg= length(edges)
     ltot= 0
-    
+
     for w in edges
         if dtyp== "ari"
             ltot+= w.weight
@@ -60,7 +63,7 @@ function lambda_mst(edges, dtyp="ari")
             ltot+= log(w.weight)
         end
     end
-    
+
     if dtyp== "ari"
         λmst= ltot/nedg
     elseif dtyp== "geo"
@@ -84,7 +87,7 @@ end
 function kappa_ms(indMass, x, y , z, nrandom=1, dtyp="2d", daver= "geo")
     npop= length(indMass)
     ntot= length(x)
-    
+
     ## Massive stars
     krMass= mst_graph(indMass, x,y,z , dtyp)
     λMass= lambda_mst(krMass,daver)
@@ -101,10 +104,10 @@ function kappa_ms(indMass, x, y , z, nrandom=1, dtyp="2d", daver= "geo")
     end
     λMean= mean(λArr)
     σκ= std(κArr)
-    
+
     ## ratio (log) of the reference over massive ones
     κms= log(λMean/λMass)
-    
+
     return(κms , σκ)
 end
 
@@ -116,7 +119,7 @@ function select_massivestars(mag, percentile=15 , reverse=false)
     nstar= length(mag)
     isort= sortperm(mag, rev=reverse)
     nselect= convert(Int, floor(nstar*percentile/100))
-      
+
     return(isort[1:nselect])
 end
 
@@ -147,14 +150,14 @@ end
 ### !!!!!!! Normalization to be checked on λ , Cartwright & 2004
 function get_Q(X, Y , Z)
     nxyz= length(X)
-    A= Array{Float64}(undef,3,nxyz) 
+    A= Array{Float64}(undef,3,nxyz)
     for i in 1:nxyz
             A[:,i]= [X[i] Y[i] Z[i]]
     end
-    
+
     d= Euclidean()
     p= pairwise(d, A, A, dims=2)
-    
+
     src= Array{Int}(undef,0)
     dst= Array{Int}(undef,0)
     wgt= Array{Float64}(undef,0)
@@ -164,14 +167,14 @@ function get_Q(X, Y , Z)
             if i != j
                 push!(src,i)
                 push!(dst,j)
-                push!(wgt,p[i,j]) 
+                push!(wgt,p[i,j])
             end
         end
     end
-    
+
     G= SimpleWeightedGraph(src, dst, wgt)
     kr= kruskal_mst(G, G.weights)
-    
+
     ## compute the mean (arithmtic) edge of MST and of star separation. We do not apply other normalization
     λmst= 0
     for w in kr
@@ -180,10 +183,10 @@ function get_Q(X, Y , Z)
     ## not the original normalization of Cartwright!
     k= (4π / 3 / nxyz )^(1/3)
     λmst /= k*length(kr)
-    
+
     npair= nxyz*(nxyz-1)/2
     sbar= sum(p) / npair
-    
+
     Q= λmst / sbar
     return(Q)
 end
