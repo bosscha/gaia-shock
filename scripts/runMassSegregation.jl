@@ -20,7 +20,7 @@ let
 ## Mass Segregation parameters#############################################
 DTYPE= "2d"                 ## projection 2D/3D
 DAVER= "geo"               ## average calculation: geo/ari
-PERCMASSIVE= 15             ## percentile on the mag for massive/light stars
+PERCMASSIVE= 20             ## percentile on the mag for massive/light stars
 
 OUTFILE= "votlist-massSegregation.csv"
 ###########################################################################
@@ -29,24 +29,33 @@ function plot_massSegregation(oc, figname, perc, kappa2d, kappa2derr)
     imass= select_massivestars(oc.gbar, perc, false)
     ilight= select_massivestars(oc.gbar, perc, true)
 
-    fig= PyPlot.figure(figsize=(7,7))
+    xg= sum(oc.Y)/length(oc.Y) ;  yg= sum(oc.Z)/length(oc.Z)
+    XX= oc.Y .- xg ; YY= oc.Z .- yg
+    xmin= minimum(XX) ; xmax= maximum(XX)
+    ymin= minimum(YY) ; ymax= maximum(YY)
+    dl= max(xmax-xmin,ymax-ymin)*1.05 ; x2= (xmin+xmax)/2 ; y2= (ymin+ymax)/2
 
+    fig= PyPlot.figure(figsize=(7,7))
     ax= PyPlot.subplot(111)
     PyPlot.grid("on")
-    xmin= minimum(oc.Y) ; xmax= maximum(oc.Y)
-    ymin= minimum(oc.Z) ; ymax= maximum(oc.Z)
 
-    circle = PyPlot.plt.Circle((median(oc.Y),median(oc.Z)), 2, color="b", fill=false)
+    rr= sqrt.((XX .* XX) .+ (YY .* YY))
+    siglight= std(rr[ilight]) ; sigmass= std(rr[imass])
+
+    circle = PyPlot.plt.Circle((0,0), siglight, color="b", fill=false, linestyle="--")
+    ax.add_artist(circle)
+    circle = PyPlot.plt.Circle((0,0), sigmass, color="r", fill=false, linestyle="--")
     ax.add_artist(circle)
 
     PyPlot.title(figname[1:end-20])
     PyPlot.xlabel("Y(pc)") ; PyPlot.ylabel("Z(pc)")
-    PyPlot.xlim([xmin,xmax]) ; PyPlot.ylim([ymin,ymax])
-    PyPlot.plt.plot(oc.Y[imass], oc.Z[imass],"or",label="massive")
-    PyPlot.plt.plot(oc.Y[ilight], oc.Z[ilight],"ob",label="light")
+    PyPlot.xlim([x2-dl/2,x2+dl/2]) ; PyPlot.ylim([y2-dl/2,y2+dl/2])
+
+    PyPlot.plt.plot(XX[imass], YY[imass],"or",label="massive")
+    PyPlot.plt.plot(XX[ilight], YY[ilight],"ob",label="light")
     PyPlot.legend()
     txt= @sprintf("kappa: %3.2f(%3.2f)",kappa2d,kappa2derr)
-    PyPlot.text(xmin+(xmax-xmin)*0.05,ymin+(ymax-ymin)*0.05,txt)
+    PyPlot.text(x2-dl*0.45,y2-dl*0.45,txt)
     PyPlot.savefig(figname)
 end
 ## main loop
