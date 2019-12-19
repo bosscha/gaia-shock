@@ -24,6 +24,8 @@ PERCMASSIVE= 20             ## percentile on the mag for massive/light stars
 
 OUTFILE= "votlist-massSegregation.csv"
 ###########################################################################
+@printf("## Compute the mass segregation parameters\n")
+@printf("##\n")
 ############################functions #####################################
 function plot_massSegregation(oc, figname, perc, kappa2d, kappa2derr)
     imass= select_massivestars(oc.gbar, perc, false)
@@ -51,6 +53,7 @@ function plot_massSegregation(oc, figname, perc, kappa2d, kappa2derr)
     PyPlot.xlabel("Y(pc)") ; PyPlot.ylabel("Z(pc)")
     PyPlot.xlim([x2-dl/2,x2+dl/2]) ; PyPlot.ylim([y2-dl/2,y2+dl/2])
 
+    PyPlot.plt.plot(XX, YY,".k", ms= 3.0, label="all")
     PyPlot.plt.plot(XX[imass], YY[imass],"or",label="massive")
     PyPlot.plt.plot(XX[ilight], YY[ilight],"ob",label="light")
     PyPlot.legend()
@@ -65,6 +68,7 @@ end
 
     ilabel= []
     Κms2d= Array{Float64,1}(undef,0) ; Κms3d = Array{Float64,1}(undef,0) ; k3=  Array{Float64,1}(undef,0)
+    Q=  Array{Float64,1}(undef,0)
     errΚms2d= Array{Float64,1}(undef,0) ; errΚms3d= Array{Float64,1}(undef,0) ; errk3= Array{Float64,1}(undef,0)
     votname= Array{String,1}(undef,0)
 
@@ -90,6 +94,9 @@ end
         push!(k3, y)
         push!(errk3, yerr)
 
+        y= get_Q(oc[:X], oc[:Y] , oc[:Z])
+        push!(Q, y)
+
         cd(plotdir)
         figname= @sprintf("%s-massSegregation.png", f[1:end-7])
         plot_massSegregation(oc, figname, PERCMASSIVE, Κms2d[end],errΚms2d[end])
@@ -101,16 +108,13 @@ end
     df.kappa2d= Κms2d ; df.kappa2derr= errΚms2d
     df.kappa3d= Κms3d ; df.kappa3derr= errΚms3d
     df.kappavel= k3 ; df.kappavelerr= errk3
+    df.Q= Q
 
     CSV.write(OUTFILE, df, delim=";")
     println(df)
 
-println(median(Κms2d))
-println(std(Κms2d))
-println(median(Κms3d))
-println(std(Κms3d))
-println(median(k3))
-println(std(k3))
-
-
+    @printf("### kappa2d median: %3.3f(%3.3f)\n",median(Κms2d),std(Κms2d))
+    @printf("### kappa3d median: %3.3f(%3.3f)\n",median(Κms3d),std(Κms3d))
+    @printf("### kappa_vel median: %3.3f(%3.3f)\n",median(k3),std(k3))
+    @printf("### Q(clustering) median: %3.3f(%3.3f)\n",median(Q),std(Q))
 end
