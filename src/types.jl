@@ -2,6 +2,7 @@
 
 
 DEG2RAD =  π / 180.
+Grav    = 4.30091e-3          ## Gravitational constant in km/s, pc, Msun
 
 ## Gaia data struct.
 mutable struct Df
@@ -66,7 +67,7 @@ end
 struct abcfull
     minQ::Float64
     minstars::Int
-    forcedminstars::Int    
+    forcedminstars::Int
     epsmean::Float64
     epsdisp::Float64
     min_nei::Int
@@ -93,7 +94,7 @@ struct SCproperties
     b::Float64
     parallax::Float64
     pmra::Float64
-    pmdec::Float64   
+    pmdec::Float64
     pml::Float64
     pmb::Float64
     vl::Float64
@@ -147,7 +148,7 @@ end
 mutable struct modelCauchy
     C::Float64
     s::Float64
-    m::Float64 
+    m::Float64
 end
 
 mutable struct mcCauchy
@@ -155,4 +156,3 @@ mutable struct mcCauchy
     s::Array{Float64}
     m::Array{Float64}
 end
-
