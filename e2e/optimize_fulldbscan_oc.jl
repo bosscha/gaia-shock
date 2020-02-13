@@ -22,7 +22,7 @@ plotdir = "$rootdir/e2e_products/plotsSelect"
 ##
 
 function readlist_votable(filelist::String)
-    vot = CSV.read(filelist)
+    vot = DataFrames.copy(CSV.read(filelist))
     return(vot)
 end
 
@@ -103,7 +103,7 @@ function dbscanmcmcfull_updt!(ismcmc, fileres, mc ,votname)
         initmcmc = true
         return(res)
     else
-        res = CSV.read(fileres, delim=";")
+        res = DataFrames.copy(CSV.read(fileres, delim=";"))
         newrow = DataFrame(votname=votname,epsm = epsm, epsd=epsd, mneim=mneim,mneid=mneid,mclm=mclm,mcld=mcld,
             qcm=qcm,qcd=qcd, qnm=qnm,qnd=qnd,
             w3dm=w3dm,w3dd=w3dd,wvelm=wvelm,wveld=wveld,whrdm=whrdm,whrdd=whrdd)
@@ -117,7 +117,7 @@ end
 
 function check_mcmc(votname, fileres)
     try
-        res = CSV.read(fileres, delim=";")
+        res = DataFrames.copy(CSV.read(fileres, delim=";"))
         if votname in res.votname
             return(true, true)
         else
@@ -133,7 +133,7 @@ end
 ####
 function SCparameters_updt(fileres,sc::GaiaClustering.SCproperties,votname)
     try
-        res = CSV.read(fileres, delim=";")
+        res = DataFrames.copy(CSV.read(fileres, delim=";"))
         newrow = DataFrame(votname=votname)
         newrow = DataFrame(votname=votname,nstars=sc.nstars,distance=sc.distance,l=sc.l,b=sc.b,
             vl=sc.vl,vb=sc.vb,vrad=sc.vrad , xdisp=sc.xdisp,ydisp=sc.ydisp,zdisp=sc.zdisp,
@@ -158,7 +158,7 @@ end
 function _read_blacklist(blackname)
 
     if isfile(blackname)
-        df= CSV.read(blackname, delim=";")
+        df= DataFrames.copy(CSV.read(blackname, delim=";"))
         blacklist= df.votname
     else
         blacklist= [""]
