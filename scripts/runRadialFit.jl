@@ -77,7 +77,7 @@ end
 
 ## main loop
     cd(ocdir)
-    files= glob("*csv")
+    files= glob("*-oc.csv")
     cd(wdir)
 
     df = DataFrames.DataFrame(votname= String[], C= Float64[], Cerr= Float64[], s= Float64[], serr= Float64[], m= Float64[],

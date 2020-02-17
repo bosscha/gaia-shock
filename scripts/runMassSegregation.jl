@@ -63,7 +63,7 @@ function plot_massSegregation(oc, figname, perc, kappa2d, kappa2derr)
 end
 ## main loop
     cd(ocdir)
-    files= glob("*csv")
+    files= glob("*-oc.csv")
     cd(wdir)
 
     ilabel= []
