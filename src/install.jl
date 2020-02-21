@@ -21,5 +21,6 @@ Pkg.add("SimpleWeightedGraphs")
 Pkg.add("Distances")
 Pkg.add("Glob")
 Pkg.add("StatsBase")
+Pkg.add("FFTW")
 
 println("## Package installation for GaiaClustering done...")
