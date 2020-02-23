@@ -23,7 +23,7 @@ import Distances
 
 ## include all the types
 include("types.jl")
-export modelCauchy , Grav
+export modelCauchy , Grav , abcfull , mcfull, modelfull
 
 ## GAIA function to deal with data
 include("data.jl")
