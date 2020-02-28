@@ -1,5 +1,12 @@
 ## Main loop to extract in e2e the DBSCAN parameters.
 ## The list of votable is selected directly from the directory
+##
+## That version is to run in parallel the optimization
+
+## OPTIONS
+# -s : first centile to consider in the vot files (0-100)
+# -e : last centile to consider in the vot files (0-100)
+# -o : root for the out file of the results
 
 using DataFrames
 using CSV, Glob
@@ -57,12 +64,12 @@ function mcmc_params()
     whrdmean  = 2.0
     whrddisp  = 1.0
 ## MCMC parameters
-    nburnout  = 500
-    niter     = 3000
+    nburnout  = 50
+    niter     = 300
 ##
     pinit = GaiaClustering.abcfull(minQ, minstars, forcedminstars, epsmean, epsdisp, min_nei, min_cl, ncoredisp, w3dmean, w3ddisp ,
     wvelmean, wveldisp, whrdmean, whrddisp, nburnout , niter)
-    return(pinit)
+     return(pinit)
 end
 
 
@@ -239,7 +246,51 @@ function main(filelist,fileres, fileSCres)
 end
 
 ###############################################################################
-cd(votdir)
-votlist= glob("*.vot")
-cd(wdir)
-main(votlist,"votlist-mcmc_full.csv", "votlist-SCproperties_full.csv")
+let
+    cd(votdir)
+    votlist= glob("*.vot")
+    cd(wdir)
+
+    istart= 0 ; iend= 100
+    file_mcmc= "votlist-mcmc_full"
+
+    for i in 1:length(ARGS)
+        if ARGS[i] == "-s"
+            istart= parse(Int, ARGS[i+1])
+        end
+        if ARGS[i] == "-e"
+            iend= parse(Int, ARGS[i+1])
+        end
+        if ARGS[i] == "-o"
+            file_mcmc= ARGS[i+1]
+        end
+    end
+
+    if istart < 0 istart= 0 end
+    if iend > 100 iend= 100 end
+
+################
+    filemcmcout= "$file_mcmc-$istart-$iend.csv"
+    fileSCpropout= "$file_mcmc-SCproperties-$istart-$iend.csv"
+
+    nfile= length(votlist)
+    i1= convert(Int,floor(nfile*istart/100))
+    if i1== 0 i1= 1 end
+
+    if iend < 100
+        i2= convert(Int,floor(nfile*iend/100)-1)
+    else
+        i2= convert(Int,floor(nfile*iend/100))
+    end
+
+    println("## DBSCAN optimization starting $i1")
+    println("## DBSCAN optimization emdomg $i2")
+    println("## File out: $filemcmcout")
+    println("## File SC properties: $fileSCpropout")
+
+    votsublist= votlist[i1:i2]
+
+    main(votsublist,filemcmcout ,fileSCpropout )
+
+    println("##\n## END of split optimization...\n##")
+end

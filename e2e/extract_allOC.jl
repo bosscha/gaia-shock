@@ -37,7 +37,7 @@ function getdata(filevot, wghtblck)
 end
 
 ## Check if OC was extracted
-function _check_extraction(votname, fileres)
+function check_extraction(votname, fileres)
     try
         res = CSV.read(fileres, delim=";")
         if votname in res.votname
@@ -51,7 +51,7 @@ function _check_extraction(votname, fileres)
     end
 end
 
-function _extraction_updt(fileres, votname)
+function extraction_updt(fileres, votname)
     try
         res = CSV.read(fileres, delim=";")
         newrow = DataFrame(votname=votname)
@@ -66,7 +66,7 @@ end
 
 ## Create the DataFrame to save the cluster...
 ##
-function _export_df(votname, ocdir, df , dfcart, labels , labelmax)
+function export_df(votname, ocdir, df , dfcart, labels , labelmax)
     ra= df.raw[1, labels[labelmax]]
     dec= df.raw[2,labels[labelmax]]
     l= df.data[1, labels[labelmax]]
@@ -109,7 +109,7 @@ function main(paramfile, fileres)
             wght= [spl.w3dm[i],spl.wvelm[i] ,spl.whrdm[i]]
             println(wght)
 
-            found= _check_extraction(votname, fileres)
+            found= check_extraction(votname, fileres)
             if !found
                 df , dfcart , dfcartnorm = getdata(votdir*"/"*votname, wght)
 
@@ -126,8 +126,8 @@ function main(paramfile, fileres)
                 println("### Label solution: $labelmax")
                 println("### N stars: $nmax")
 
-                _export_df(votname, ocdir, df , dfcart, labels , labelmax)
-                _extraction_updt(fileres, votname)
+                export_df(votname, ocdir, df , dfcart, labels , labelmax)
+                extraction_updt(fileres, votname)
             end
         end
     end
