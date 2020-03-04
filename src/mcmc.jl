@@ -70,6 +70,7 @@ function check_qminqstar(df::GaiaClustering.Df, dfcart::GaiaClustering.Df,
         mingoodsolution = 50
 
         println("### Checking the minQ and minStars conditions...")
+        println("### Minimum good solutions $mingoodsolution")
         while notfound
             goodsolutions = 0
             for i in 1:params.nburnout
@@ -80,11 +81,13 @@ function check_qminqstar(df::GaiaClustering.Df, dfcart::GaiaClustering.Df,
                 end
                 if goodsolutions > mingoodsolution
                     notfound = false
+                    return(new_minq, new_minstars)
                 end
             end
             if notfound
                 new_minq *= 0.9
                 new_minstars = trunc(Int, 0.9 * new_minstars)
+                println("### MinQ not reached yet... testing with $new_minq")
             end
 
             if new_minstars == 0
@@ -421,9 +424,11 @@ function check_qminqstar_full(dfcart::GaiaClustering.Df,
         new_minq = minimumQ
         new_minstars = minstars
         notfound = true
-        mingoodsolution = 10
+        mingoodsolution = 50
 
         println("### Checking the minQ and minStars conditions...")
+        println("### Minimum good solutions $mingoodsolution")
+        
         while notfound
             goodsolutions = 0
             for i in 1:params.nburnout
@@ -435,11 +440,13 @@ function check_qminqstar_full(dfcart::GaiaClustering.Df,
                 end
                 if goodsolutions > mingoodsolution
                     notfound = false
+                    return(new_minq, new_minstars)
                 end
             end
             if notfound
-                new_minq *= 0.9
-                new_minstars = trunc(Int, 0.9 * new_minstars)
+                new_minq *= 0.95
+                new_minstars = trunc(Int, 0.95 * new_minstars)
+                println("### MinQ not reached yet... testing with $new_minq")
             end
 
             if new_minstars == 0
