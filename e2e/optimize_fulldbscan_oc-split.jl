@@ -61,8 +61,8 @@ function mcmc_params()
     w3ddisp   = 4.0
     wvelmean  = 5.0
     wveldisp  = 4.0
-    whrdmean  = 2.0
-    whrddisp  = 1.0
+    whrdmean  = 3.0
+    whrddisp  = 3.0
 ## MCMC parameters
     nburnout  = 50
     niter     = 300

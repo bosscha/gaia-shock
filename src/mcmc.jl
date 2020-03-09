@@ -424,14 +424,16 @@ function check_qminqstar_full(dfcart::GaiaClustering.Df,
         new_minq = minimumQ
         new_minstars = minstars
         notfound = true
+
         mingoodsolution = 50
+        niter = 500
 
         println("### Checking the minQ and minStars conditions...")
         println("### Minimum good solutions $mingoodsolution")
-        
+
         while notfound
             goodsolutions = 0
-            for i in 1:params.nburnout
+            for i in 1:niter
                 mi, probi = theta_full(params)
                 dfcartnorm = getDfcartnorm(dfcart , mi)
                 qres , nstars = find_clusters(dfcartnorm, dfcart, mi)
