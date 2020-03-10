@@ -208,7 +208,7 @@ function find_clusters(df::GaiaClustering.Df, dfcart::GaiaClustering.Df , m::Gai
         q2d = metric2(dfcart, labels, "spatial2d" , aperture2d, maxaperture2d, nboot)
         q3d = metric2(dfcart, labels, "spatial3d" , aperture2d, maxaperture2d, nboot)     #### Added
         qv  = metric2(dfcart, labels, "velocity" , aperturev, maxaperturev, nboot)
-        ## qp, qa = metric2(dfcart, labels, "HRD" )
+        qp, qa = metric2(dfcart, labels, "HRD" )
 
         nlab = []
         for ilab in labels
@@ -228,11 +228,11 @@ function find_clusters(df::GaiaClustering.Df, dfcart::GaiaClustering.Df , m::Gai
             k1 = q2d[i][1]
             k1bis = q3d[i][1]
             k2 = qv[i][1]
-            ## k3 = qa[i][1]
+            k3 = qa[i][1]
             k4 = qn[i]
             ############### Composite metric ###
-            ## qq = (2k1 + k1bis + 3k2 + k3 + k4) / 8.0
-            qq = (3k1 + k1bis + 3k2 + k4) / 8.0
+            qq = (2k1 + k1bis + 3k2 + k3 + k4) / 8.0
+            # qq = (3k1 + k1bis + 3k2 + k4) / 8.0
             ###############
             if qq > qc
                 qc = qq
@@ -257,7 +257,7 @@ function find_clusters(df::GaiaClustering.Df, dfcart::GaiaClustering.Df , m::Gai
         q2d = metric2(dfcart, labels, "spatial2d" , aperture2d, maxaperture2d, nboot)
         q3d = metric2(dfcart, labels, "spatial3d" , aperture2d, maxaperture2d, nboot)     #### Added
         qv  = metric2(dfcart, labels, "velocity" , aperturev, maxaperturev, nboot)
-        ## qp, qa = metric2(dfcart, labels, "HRD" )
+        qp, qa = metric2(dfcart, labels, "HRD" )
 
         nlab = []
         for ilab in labels
@@ -277,11 +277,11 @@ function find_clusters(df::GaiaClustering.Df, dfcart::GaiaClustering.Df , m::Gai
             k1 = q2d[i][1]
             k1bis = q3d[i][1]
             k2 = qv[i][1]
-            ##  k3 = qa[i][1]
+            k3 = qa[i][1]
             k4 = qn[i]
             ############### Composite metric ###
-            ## qq = (2k1 + k1bis + 3k2 + k3 + k4) / 8.0
-            qq = (3k1 + k1bis + 3k2 + k4) / 8.0
+            qq = (2k1 + k1bis + 3k2 + k3 + k4) / 8.0
+            # qq = (3k1 + k1bis + 3k2 + k4) / 8.0
             ###############
             if qq > qc
                 qc = qq

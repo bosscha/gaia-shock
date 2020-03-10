@@ -223,6 +223,7 @@ end
 
 function abc_mcmc_dbscan_full(dfcart::GaiaClustering.Df, params::abcfull)
     let
+        Random.seed!()
         println("## ABC/MCMC for DBSCAN FULL (parameters+weighting)...")
         mci = mcfull(zeros(Float64,0),zeros(Int32,0),zeros(Int32,0) , zeros(Float64,0), zeros(Int32,0),
         zeros(Float64,0), zeros(Float64,0), zeros(Float64,0))
