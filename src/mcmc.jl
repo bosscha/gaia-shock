@@ -9,7 +9,7 @@
 function theta(p::GaiaClustering.abc)
     peps         = TruncatedNormal(p.epsmean, p.epsdisp, 0.1 , 1000)
     pminnei      = TruncatedNormal(p.min_nei, p.ncoredisp, 1 , 1000.)
-    pmincl      = TruncatedNormal(p.min_cl, p.ncoredisp, 1 , 1000.)
+    pmincl       = TruncatedNormal(p.min_cl, p.ncoredisp, 1 , 1000.)
 
     e = rand(peps)          ; pe = pdf(peps,e)
     n = trunc(Int,rand(pminnei))  ; pn = pdf(pminnei, n)
@@ -19,7 +19,6 @@ function theta(p::GaiaClustering.abc)
     params = GaiaClustering.model(e, n, c)
     return(params, ptotal)
 end
-
 
 ## iterate with random walk and yield the probability
 ##

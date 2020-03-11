@@ -176,7 +176,7 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250], vdec
     s.raw[7,:] = pmdec[ifinal]
     s.raw[8,:] = pml[ifinal]
     s.raw[9,:] = pmb[ifinal]
-    s.raw[10,:] = gbar
+    s.raw[10,:] = g[ifinal]
     s.raw[11,:] = rp[ifinal]
     s.raw[12,:] = bp[ifinal]
     s.raw[13,:] = radialvel[ifinal]

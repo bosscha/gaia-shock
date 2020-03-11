@@ -1,12 +1,13 @@
 ## Run test with the Julia module gaiaClustering
 ## @02.09.2018
-push!(LOAD_PATH,"/home/stephane/Science/cluster/GAIA/master/src")
 
-using gaiaClustering
 
 ## ... directories
-rootdir = "/home/stephane/Science/cluster/GAIA"
-wdir    = "/home/stephane/Science/cluster/GAIA/products"
+rootdir = ENV["GAIA_ROOT"]
+wdir    = "$rootdir/products"
+
+push!(LOAD_PATH,"$rootdir/master/src")
+using gaiaClustering
 
 cd(wdir)
 
@@ -19,7 +20,7 @@ dfcart     = add_cartesian(df)
 blck       = [[1,2,3],[4,5], [6,7,8]]
 wghtblck   = [3.,2.,1.5]
 norm = "normal"
-dfcartnorm = normalization_PerBlock(dfcart, blck, wghtblck , norm) 
+dfcartnorm = normalization_PerBlock(dfcart, blck, wghtblck , norm)
 
 
 println("## Test done...")
