@@ -60,7 +60,7 @@ function mcmc_params()
     whrdmean  = 3.0
     whrddisp  = 3.0
 ## MCMC parameters
-    nburnout  = 2000
+    nburnout  = 2000 
     niter     = 15000
 ##
     pinit = GaiaClustering.abcfull(minQ, minstars, forcedminstars, epsmean, epsdisp, min_nei, min_cl, ncoredisp, w3dmean, w3ddisp ,
