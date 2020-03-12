@@ -57,11 +57,11 @@ function mcmc_params()
     w3ddisp   = 4.0
     wvelmean  = 5.0
     wveldisp  = 4.0
-    whrdmean  = 2.0
-    whrddisp  = 1.0
+    whrdmean  = 3.0
+    whrddisp  = 3.0
 ## MCMC parameters
     nburnout  = 2000
-    niter     = 10000
+    niter     = 15000
 ##
     pinit = GaiaClustering.abcfull(minQ, minstars, forcedminstars, epsmean, epsdisp, min_nei, min_cl, ncoredisp, w3dmean, w3ddisp ,
     wvelmean, wveldisp, whrdmean, whrddisp, nburnout , niter)
@@ -235,6 +235,11 @@ function main(filelist,fileres, fileSCres)
                 println("### ",scproperties)
                 plot_cluster(plotdir, votname, labels[labelmax], scproperties,  dfcart , false)
                 SCparameters_updt(fileSCres, scproperties, votname)
+
+                tend= now()
+                println("## Ending at $tend")
+                duration= Dates.value(tend-tstart) / (1000*3600)
+                println("## Duration: $duration hours")
                 println("##\n##")
 
             end

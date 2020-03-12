@@ -9,7 +9,7 @@
 # -o : root for the out file of the results
 
 using DataFrames
-using CSV, Glob
+using CSV, Glob, Dates
 using Statistics
 import DataFrames
 
@@ -64,8 +64,8 @@ function mcmc_params()
     whrdmean  = 3.0
     whrddisp  = 3.0
 ## MCMC parameters
-    nburnout  = 50
-    niter     = 300
+    nburnout  = 2000
+    niter     = 15000
 ##
     pinit = GaiaClustering.abcfull(minQ, minstars, forcedminstars, epsmean, epsdisp, min_nei, min_cl, ncoredisp, w3dmean, w3ddisp ,
     wvelmean, wveldisp, whrdmean, whrddisp, nburnout , niter)
@@ -202,6 +202,9 @@ function main(filelist,fileres, fileSCres)
 
             if !mcmcfound
                 println("## Starting with $votname")
+                tstart= now()
+                println("## Starting at $tstart")
+
                 df , dfcart , dfcartnorm = getdata(votdir*"/"*votname)
 
                 ## MCMC optimization
@@ -236,10 +239,14 @@ function main(filelist,fileres, fileSCres)
                 println("### ",scproperties)
                 plot_cluster(plotdir, votname, labels[labelmax], scproperties,  dfcart , false)
                 SCparameters_updt(fileSCres, scproperties, votname)
+
+                tend= now()
+                println("## Ending at $tend")
+                duration= Dates.value(tend-tstart) / (1000*3600)
+                println("## Duration: $duration hours")
                 println("##\n##")
 
             end
-
         end
     end
     print("## Main loop done.")
