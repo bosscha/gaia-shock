@@ -372,3 +372,33 @@ function subsetDf(df::Df, indx)::Df
 
     return(subset)
 end
+
+
+####
+# Create the DataFrame to save the cluster...
+##
+function export_df(votname, ocdir, df , dfcart, labels , labelmax)
+    ra= df.raw[1, labels[labelmax]]
+    dec= df.raw[2,labels[labelmax]]
+    l= df.data[1, labels[labelmax]]
+    b= df.data[2,labels[labelmax]]
+    d= df.data[3,labels[labelmax]]
+    pmra= df.raw[6, labels[labelmax]]
+    pmdec= df.raw[7, labels[labelmax]]
+    X= dfcart.data[1, labels[labelmax]]
+    Y= dfcart.data[2, labels[labelmax]]
+    Z= dfcart.data[3, labels[labelmax]]
+    vl= df.data[4,labels[labelmax]]
+    vb= df.data[5,labels[labelmax]]
+    vrad= df.raw[13,labels[labelmax]]
+    gbar= df.raw[10,labels[labelmax]]
+    rp= df.raw[11,labels[labelmax]]
+    bp= df.raw[12,labels[labelmax]]
+    ag= df.raw[14,labels[labelmax]]
+
+    oc= DataFrame(ra=ra,dec=dec,l=l,b=b, distance=d,pmra=pmra, pmdec=pmdec, X=X,Y=Y,Z=Z,vl=vl,vb=vb,vrad=vrad,gbar=gbar,rp=rp,bp=bp, ag=ag)
+
+    filename= @sprintf("%s/%s-oc.csv",ocdir, votname[1:end-4])
+    CSV.write(filename,oc,delim=';')
+    @printf("### %s created \n",filename)
+end

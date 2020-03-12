@@ -18,6 +18,7 @@ using GaiaClustering
 wdir    = "$rootdir/products"
 votdir  = "$rootdir/products/votable"
 plotdir = "$rootdir/products/test"
+ocdir   = "$rootdir/products/octest"
 
 
 ## load a liist of votable and update the file if done
@@ -60,7 +61,7 @@ function mcmc_params()
     whrdmean  = 3.0
     whrddisp  = 3.0
 ## MCMC parameters
-    nburnout  = 2000 
+    nburnout  = 2000
     niter     = 15000
 ##
     pinit = GaiaClustering.abcfull(minQ, minstars, forcedminstars, epsmean, epsdisp, min_nei, min_cl, ncoredisp, w3dmean, w3ddisp ,
@@ -180,6 +181,7 @@ function main(filelist,fileres, fileSCres)
         # read a possible votname blacklist
         blackname= "blacklist-oc.csv"
         blacklist= read_blacklist(blackname)
+        println("## blacklist read...")
 
         s= size(filelist)
 
@@ -211,12 +213,12 @@ function main(filelist,fileres, fileSCres)
 
                 ## get the cluster and plot it
                 println("## Extracting the cluster using DBSCAN/WEIGHTING with:")
-                eps = res[:epsm][1]
-                min_nei = trunc(Int,res[:mneim][1] + 0.5)
-                min_cl = trunc(Int,res[:mclm][1] + 0.5)
-                w3d = res[:w3dm][1]
-                wvel = res[:wvelm][1]
-                whrd = res[:whrdm][1]
+                eps = res.epsm[1]
+                min_nei = trunc(Int,res.mneim[1] + 0.5)
+                min_cl = trunc(Int,res.mclm[1] + 0.5)
+                w3d = res.w3dm[1]
+                wvel = res.wvelm[1]
+                whrd = res.whrdm[1]
                 println("### ϵ : $eps")
                 println("### min_neighbor: $min_nei")
                 println("### min_cluster : $min_cl")
@@ -230,6 +232,9 @@ function main(filelist,fileres, fileSCres)
                 labelmax , nmax = find_cluster_label(labels)
                 println("### Label solution: $labelmax")
                 println("### N stars: $nmax")
+
+                println("## Extracting and writing the OC stars...")
+                export_df(votname, ocdir, df , dfcart, labels , labelmax)
 
                 scproperties = get_properties_SC(labels[labelmax] , df, dfcart)
                 println("### ",scproperties)
@@ -255,7 +260,5 @@ println("# Test of the optimization on a subset of targets. Check the code...")
 cd(votdir)
 votlist= glob("NGC*.vot")
 cd(wdir)
-
-
 
 main(votlist,"votlist-test_mcmc_full.csv", "votlist-test_SCproperties_full.csv")

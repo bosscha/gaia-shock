@@ -7,7 +7,7 @@
 module GaiaClustering
 
 using PyCall
-using DataFrames , Formatting
+using DataFrames , Formatting, Printf
 
 using Clustering
 using Statistics , Distributions ,Random
@@ -28,7 +28,7 @@ export modelCauchy , Grav , abcfull , mcfull, modelfull
 ## GAIA function to deal with data
 include("data.jl")
 export read_votable , filter_data , add_cartesian , normalization_PerBlock , copy1 ,
-  subsetDf , galXYZ , PM_equatorial2galactic , galUVW
+  subsetDf , galXYZ , PM_equatorial2galactic , galUVW ,export_df
 
 ## Geometry functions (Voronoi, correlation2d)
 include("geometry.jl")

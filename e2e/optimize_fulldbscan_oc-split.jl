@@ -22,7 +22,7 @@ using GaiaClustering
 wdir    = "$rootdir/e2e_products"
 votdir  = "$rootdir/e2e_products/votable"
 plotdir = "$rootdir/e2e_products/plotsSelect"
-
+ocdir   = "$rootdir/e2e_products/ocfull"
 
 ## load a liist of votable and update the file if done
 ## add results
@@ -184,6 +184,7 @@ function main(filelist,fileres, fileSCres)
         # read a possible votname blacklist
         blackname= "blacklist-oc.csv"
         blacklist= read_blacklist(blackname)
+        println("## blacklist read...")
 
         s= size(filelist)
 
@@ -215,12 +216,12 @@ function main(filelist,fileres, fileSCres)
 
                 ## get the cluster and plot it
                 println("## Extracting the cluster using DBSCAN/WEIGHTING with:")
-                eps = res[:epsm][1]
-                min_nei = trunc(Int,res[:mneim][1] + 0.5)
-                min_cl = trunc(Int,res[:mclm][1] + 0.5)
-                w3d = res[:w3dm][1]
-                wvel = res[:wvelm][1]
-                whrd = res[:whrdm][1]
+                eps = res.epsm[1]
+                min_nei = trunc(Int,res.mneim[1] + 0.5)
+                min_cl = trunc(Int,res.mclm[1] + 0.5)
+                w3d = res.w3dm[1]
+                wvel = res.wvelm[1]
+                whrd = res.whrdm[1]
                 println("### ϵ : $eps")
                 println("### min_neighbor: $min_nei")
                 println("### min_cluster : $min_cl")
@@ -235,6 +236,9 @@ function main(filelist,fileres, fileSCres)
                 println("### Label solution: $labelmax")
                 println("### N stars: $nmax")
 
+                println("## Extracting and writing the OC stars...")
+                export_df(votname, ocdir, df , dfcart, labels , labelmax)
+                
                 scproperties = get_properties_SC(labels[labelmax] , df, dfcart)
                 println("### ",scproperties)
                 plot_cluster(plotdir, votname, labels[labelmax], scproperties,  dfcart , false)
