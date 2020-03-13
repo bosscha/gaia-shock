@@ -285,7 +285,7 @@ function abc_mcmc_dbscan_full(dfcart::GaiaClustering.Df, params::abcfull)
                     mi = micurrent
                     probi = probcurrent
                     nchain += 1
-                    if (nchain%500 == 0) println("### chain:",nchain) end
+                    if (nchain%1000 == 0) println("### chain:",nchain) end
                     if nchain > nburn && !burndone println("### burnout done...") ; nchain = 0 ; burndone = true end
                     if nchain > niter loopAgain = false end
                     if burndone
@@ -300,7 +300,7 @@ function abc_mcmc_dbscan_full(dfcart::GaiaClustering.Df, params::abcfull)
                     end
                 else
                     nchain += 1
-                    if (nchain%500 == 0) println("### chain:",nchain) end
+                    if (nchain%1000 == 0) println("### chain:",nchain) end
                     if nchain > nburn && !burndone println("### burnout done...") ; nchain = 0 ; burndone = true end
                     if nchain > niter loopAgain = false end
                     if burndone
