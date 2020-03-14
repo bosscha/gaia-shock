@@ -295,6 +295,7 @@ end
 ## label from the dbscan labels with maximum stars
 function find_cluster_label(labels)
     let
+    println("## Selecting best cluster based on Nmax...")
     i = 1 ; nmax = 0 ; ilabel = 0
         for ilab in labels
             nlab = length(ilab)
@@ -305,6 +306,49 @@ function find_cluster_label(labels)
             i += 1
         end
     return(ilabel, nmax)
+    end
+end
+
+## label with higher Qc is selected
+function find_cluster_label2(labels, df::GaiaClustering.Df, dfcart::GaiaClustering.Df ,
+    aperture2d = 1.5, maxaperture2d = 15, aperturev = 3.0, maxaperturev = 20, nboot = 30)
+    let
+        println("## Selecting best cluster based on Qc..")
+        ### metrics of the clusters
+        q2d = metric2(dfcart, labels, "spatial2d" , aperture2d, maxaperture2d, nboot)
+        q3d = metric2(dfcart, labels, "spatial3d" , aperture2d, maxaperture2d, nboot)     #### Added
+        qv  = metric2(dfcart, labels, "velocity" , aperturev, maxaperturev, nboot)
+        qp, qa = metric2(dfcart, labels, "HRD" )
+
+        nlab = []
+        for ilab in labels
+            push!(nlab,length(ilab))
+        end
+
+        #### metric for the number of stars in the cluster
+        qn = []
+        for nl in nlab
+            push!(qn,log10(nl))
+        end
+
+        qc= []
+        for i in 1:length(nlab)
+            k1 = q2d[i][1]
+            k1bis = q3d[i][1]
+            k2 = qv[i][1]
+            k3 = qa[i][1]
+            k4 = qn[i]
+            ############### Composite metric ###
+            qq = (2k1 + k1bis + 3k2 + k3 + k4) / 8.0
+            # qq = (3k1 + k1bis + 3k2 + k4) / 8.0
+            ###############
+            push!(qc,qq)
+        end
+
+        println("## Qc: $qc")
+        bestlabel= findmax(qc)[2]
+
+        return(bestlabel, nlab[bestlabel])
     end
 end
 
