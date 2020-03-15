@@ -179,7 +179,7 @@ function main(filelist,fileres, fileSCres)
         println("## It can be very long but will be resumed to the last reduced file.")
 
         # read a possible votname blacklist
-        blackname= "blacklist-oc.csv"
+        blackname= "blacklist-test.csv"
         blacklist= read_blacklist(blackname)
         println("## blacklist read...")
 
