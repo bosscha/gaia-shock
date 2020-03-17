@@ -190,11 +190,14 @@ end
 
 function plot_cluster(plotdir, voname, indx, sc::GaiaClustering.SCproperties, df::GaiaClustering.Df, showplot = true , cmap = "gist_stern")
 
-    PyPlot.plt.figure(figsize=(13.0,12.0))
+    println("### Cluster plot is centered in Y,Z...")
 
+    PyPlot.plt.figure(figsize=(13.0,12.0))
     PyPlot.plt.subplot(3, 3, 1 , xlim = [-20,20] , ylim = [-20,20])
-    xx = df.data[2,indx]
-    yy = df.data[3,indx]
+
+    xx = df.data[2,indx] .- mean(df.data[2,indx])
+    yy = df.data[3,indx] .- mean(df.data[3,indx])
+
     PyPlot.plt.scatter(xx, yy , s = 1.0 )
     PyPlot.plt.xlabel("Y (pc)")
     PyPlot.plt.ylabel("Z (pc)")
@@ -202,14 +205,14 @@ function plot_cluster(plotdir, voname, indx, sc::GaiaClustering.SCproperties, df
 
     PyPlot.plt.subplot(3, 3, 2 , ylim = [-20,20])
     xx = df.data[1,indx]
-    yy = df.data[3,indx]
+    yy = df.data[3,indx] .- mean(df.data[3,indx])
     PyPlot.plt.scatter(xx, yy , s = 1.0 )
     PyPlot.plt.xlabel("X (pc)")
     PyPlot.plt.ylabel("Z (pc)")
     PyPlot.plt.grid(true)
 
     PyPlot.plt.subplot(3, 3, 4 , xlim = [-20,20])
-    xx = df.data[2,indx]
+    xx = df.data[2,indx] .- mean(df.data[2,indx])
     yy = df.data[1,indx]
     PyPlot.plt.scatter(xx, yy , s = 1.0 )
     PyPlot.plt.xlabel("Y (pc)")
