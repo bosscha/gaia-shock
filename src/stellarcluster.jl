@@ -432,8 +432,6 @@ function metric2(s::GaiaClustering.Df, labels ,proj = "spatial2d", APERTURE = 1.
             ydisp = std(slab[2,:])
             zdisp = std(slab[3,:])
             prob2d = pdf(p2d,sqrt(ydisp^2+zdisp^2)) / pdf(p2d,0.)
-            # println("## disp $(sqrt(ydisp^2+zdisp^2))")
-            # println("## prob2d $prob2d")
         elseif proj == "spatial3d"
             xx = slab[1,:]
             yy = slab[2,:]
@@ -451,7 +449,6 @@ function metric2(s::GaiaClustering.Df, labels ,proj = "spatial2d", APERTURE = 1.
             ydisp = std(slab[2,:])
             zdisp = std(slab[3,:])
             prob3d = pdf(p3d,sqrt(xdisp^2+ydisp^2+zdisp^2)) / pdf(p3d,0.)
-            # println("## prob3d $prob3d")
         elseif proj == "velocity"
             vx = slab[4,:]
             vy = slab[5,:]
@@ -464,8 +461,6 @@ function metric2(s::GaiaClustering.Df, labels ,proj = "spatial2d", APERTURE = 1.
             vxdisp = std(slab[4,:])
             vydisp = std(slab[5,:])
             probvel = pdf(pvel,sqrt(vxdisp^2+vydisp^2)) / pdf(pvel,0.)
-            #println("## vdisp $vxdisp $vydisp")
-            #println("## probvel $probvel")
         end
 
         qc = zeros(NBOOTSTRAP)
