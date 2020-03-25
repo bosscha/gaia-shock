@@ -57,12 +57,12 @@ function mcmc_params()
     min_nei   = 10
     min_cl    = 15
     ncoredisp = 10
-    w3dmean   = 5.0
+    w3dmean   = 6.0
     w3ddisp   = 4.0
-    wvelmean  = 5.0
+    wvelmean  = 6.0
     wveldisp  = 4.0
-    whrdmean  = 3.0
-    whrddisp  = 3.0
+    whrdmean  = 2.0
+    whrddisp  = 1.5
 ## MCMC parameters
     nburnout  = 2000
     niter     = 15000
@@ -238,7 +238,7 @@ function main(filelist,fileres, fileSCres)
 
                 println("## Extracting and writing the OC stars...")
                 export_df(votname, ocdir, df , dfcart, labels , labelmax)
-                
+
                 scproperties = get_properties_SC(labels[labelmax] , df, dfcart)
                 println("### ",scproperties)
                 plot_cluster(plotdir, votname, labels[labelmax], scproperties,  dfcart , false)

@@ -50,12 +50,12 @@ function mcmc_params()
     min_nei   = 10
     min_cl    = 15
     ncoredisp = 10
-    w3dmean   = 5.0
+    w3dmean   = 6.0
     w3ddisp   = 4.0
-    wvelmean  = 5.0
+    wvelmean  = 6.0
     wveldisp  = 4.0
-    whrdmean  = 3.0
-    whrddisp  = 3.0
+    whrdmean  = 2.0
+    whrddisp  = 1.5
 ## MCMC parameters
     nburnout  = 2000
     niter     = 15000
