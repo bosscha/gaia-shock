@@ -197,7 +197,8 @@ end
 ## Note 2.3.2020: the HRD metric is discarded and the weight scaling is down 6
 
 function find_clusters(df::GaiaClustering.Df, dfcart::GaiaClustering.Df , m::GaiaClustering.model,
-    aperture2d = 1.5, maxaperture2d = 15, aperturev = 3.0, maxaperturev = 20, nboot = 30)
+    aperture2d = 1.5, maxaperture2d = 15, aperturev = 3.0, maxaperturev = 20, nboot = 30 ,
+    aperture3d = 5., maxaperture3d = 50)
     let
         labels = clusters(df.data , m.eps , 20, m.min_nei, m.min_cl)
         if length(labels) == 0
@@ -206,7 +207,7 @@ function find_clusters(df::GaiaClustering.Df, dfcart::GaiaClustering.Df , m::Gai
 
     ### metrics of the clusters
         q2d = metric2(dfcart, labels, "spatial2d" , aperture2d, maxaperture2d, nboot)
-        q3d = metric2(dfcart, labels, "spatial3d" , aperture2d, maxaperture2d, nboot)     #### Added
+        q3d = metric2(dfcart, labels, "spatial3d" , aperture3d, maxaperture3d, nboot)     #### Added
         qv  = metric2(dfcart, labels, "velocity" , aperturev, maxaperturev, nboot)
         qp, qa = metric2(dfcart, labels, "HRD" )
 
@@ -246,7 +247,8 @@ end
 ## broadcasting modelfull ..
 ##
 function find_clusters(df::GaiaClustering.Df, dfcart::GaiaClustering.Df , m::GaiaClustering.modelfull,
-    aperture2d = 1.5, maxaperture2d = 15, aperturev = 3.0, maxaperturev = 20, nboot = 30)
+    aperture2d = 1.5, maxaperture2d = 15, aperturev = 3.0, maxaperturev = 20, nboot = 50,
+    aperture3d = 5., maxaperture3d = 50)
     let
         labels = clusters(df.data , m.eps , 20, m.min_nei, m.min_cl)
         if length(labels) == 0
@@ -255,7 +257,7 @@ function find_clusters(df::GaiaClustering.Df, dfcart::GaiaClustering.Df , m::Gai
 
     ### metrics of the clusters
         q2d = metric2(dfcart, labels, "spatial2d" , aperture2d, maxaperture2d, nboot)
-        q3d = metric2(dfcart, labels, "spatial3d" , aperture2d, maxaperture2d, nboot)     #### Added
+        q3d = metric2(dfcart, labels, "spatial3d" , aperture3d, maxaperture3d, nboot)     #### Added
         qv  = metric2(dfcart, labels, "velocity" , aperturev, maxaperturev, nboot)
         qp, qa = metric2(dfcart, labels, "HRD" )
 
@@ -391,9 +393,9 @@ function get_properties_SC(indx, df::GaiaClustering.Df, dfcart::GaiaClustering.D
 
 end
 
-
+## some of the parameters are changed in find_clusters..
 function metric2(s::GaiaClustering.Df, labels ,proj = "spatial2d", APERTURE = 1.0 ,
-        MAXAPERTURE = 15.0, NBOOTSTRAP = 50 , MAXDISP2D = 10.,  MAXDISP3D = 50. , MAXDISPVEL = 4.)
+        MAXAPERTURE = 15.0, NBOOTSTRAP = 50 , MAXDISP2D = 10.,  MAXDISP3D = 30. , MAXDISPVEL = 4.)
 
     ### probabilities of the dispersion..
     p2d  = Normal(0., MAXDISP2D)
