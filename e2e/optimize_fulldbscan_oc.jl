@@ -13,9 +13,9 @@ using GaiaClustering
 
 ## directory
 wdir    = "$rootdir/e2e_products"
-votdir  = "$rootdir/e2e_products/votable"
-plotdir = "$rootdir/e2e_products/plotsSelect"
-ocdir   = "$rootdir/e2e_products/ocfull"
+votdir  = "$wdir/votable"
+plotdir = "$wdir/plotsSelect"
+ocdir   = "$wdir/ocfull"
 
 ## load a liist of votable and update the file if done
 ## add results
