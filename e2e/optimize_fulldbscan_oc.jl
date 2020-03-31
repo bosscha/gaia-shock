@@ -173,6 +173,8 @@ function main(filelist,fileres, fileSCres)
     let
         println("## Starting main loop ..")
         println("## It can be very long but will be resumed to the last reduced file.")
+        wd= pwd()
+        println("## Working directory: $wd")
 
         # read a possible votname blacklist
         blackname= "blacklist-oc.csv"
