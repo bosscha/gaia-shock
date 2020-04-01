@@ -197,8 +197,8 @@ end
 ## Note 2.3.2020: the HRD metric is discarded and the weight scaling is down 6
 
 function find_clusters(df::GaiaClustering.Df, dfcart::GaiaClustering.Df , m::GaiaClustering.model,
-    aperture2d = 1.5, maxaperture2d = 15, aperturev = 3.0, maxaperturev = 20, nboot = 30 ,
-    aperture3d = 5., maxaperture3d = 50)
+    aperture2d = 1.5, maxaperture2d = 15, aperturev = 3.0, maxaperturev = 20, nboot = 50 ,
+    aperture3d = 3., maxaperture3d = 20)
     let
         labels = clusters(df.data , m.eps , 20, m.min_nei, m.min_cl)
         if length(labels) == 0
@@ -248,7 +248,7 @@ end
 ##
 function find_clusters(df::GaiaClustering.Df, dfcart::GaiaClustering.Df , m::GaiaClustering.modelfull,
     aperture2d = 1.5, maxaperture2d = 15, aperturev = 3.0, maxaperturev = 20, nboot = 50,
-    aperture3d = 5., maxaperture3d = 50)
+    aperture3d = 3., maxaperture3d = 20)
     let
         labels = clusters(df.data , m.eps , 20, m.min_nei, m.min_cl)
         if length(labels) == 0

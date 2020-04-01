@@ -426,7 +426,7 @@ function check_qminqstar_full(dfcart::GaiaClustering.Df,
         notfound = true
 
         ## standard sofar 50
-        mingoodsolution = 50
+        mingoodsolution = 10
         niter = 500
 
         println("### Checking the minQ and minStars conditions...")
