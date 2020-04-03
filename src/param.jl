@@ -75,3 +75,8 @@ function set_default_params()
     nboot         = 50          # bootstrap number
 
 end
+
+###
+## Read a .ext file with some of the parameters set (others are default)
+function read_params(filename)
+end
