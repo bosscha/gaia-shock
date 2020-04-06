@@ -239,6 +239,9 @@ function abc_mcmc_dbscan_full(dfcart::GaiaClustering.Df, params::abcfull)
         niter = params.niter
         nburn = params.nburnout
 
+        maxstars= 10000
+        println("## !! Testing with maxstars!! $maxstars")
+        
         println("### Minimum Q : $minimumQ")
         println("### Minimum nstars : $minstars")
         minimumQ , minstars = check_qminqstar_full(dfcart, params, minimumQ, minstars)
@@ -253,7 +256,7 @@ function abc_mcmc_dbscan_full(dfcart::GaiaClustering.Df, params::abcfull)
             mi, probi = theta_full(params)
             dfcartnorm = getDfcartnorm(dfcart , mi)
             qres , nstars = find_clusters(dfcartnorm, dfcart, mi)
-            if qres > minimumQ && nstars >= minstars
+            if qres > minimumQ && nstars >= minstars && nstars <= maxstars
                 println("### init done ...")
                 initial = false
                 push!(mci.eps, mi.eps)
@@ -278,7 +281,7 @@ function abc_mcmc_dbscan_full(dfcart::GaiaClustering.Df, params::abcfull)
             dfcartnorm = getDfcartnorm(dfcart , micurrent)
             qres , nstars = find_clusters(dfcartnorm, dfcart, micurrent)
 
-            if qres > minimumQ && nstars >= minstars
+            if qres > minimumQ && nstars >= minstars && nstars <= maxstars
             ### Metropolis-Hasting
                 α = probcurrent / probi
                 if α > rand()
