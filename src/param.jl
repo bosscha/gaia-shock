@@ -11,6 +11,7 @@ mutable struct extractParam
 
     minQ::Float64
     minstars::Int
+    maxstars::Int
     forcedminstars::Int
     mingoodsolution::Int
     niterqminq::Int
@@ -44,6 +45,7 @@ function set_default_params()
     ##
     minQ    = 2.7
     minstars = 40
+    maxstars = 10000
     forcedminstars = 30
     mingoodsolution = 10        # minimum good solution for Q in check_qminqstar
     niterqminq = 500            # check_qminqstar..
