@@ -239,7 +239,7 @@ function abc_mcmc_dbscan_full(dfcart::GaiaClustering.Df, params::abcfull)
         niter = params.niter
         nburn = params.nburnout
 
-        maxstars= 10000
+        maxstars= 5000
 
         println("### Minimum Q : $minimumQ")
         println("### Minimum nstars : $minstars")
