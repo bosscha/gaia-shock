@@ -29,6 +29,8 @@ mutable struct extractParam
     wveldisp::Float64
     whrdmean::Float64
     whrddisp::Float64
+
+    labels::String
 end
 
 ## return the default parameters
@@ -76,6 +78,7 @@ function set_default_params()
     maxaperturev  = 20
     nboot         = 50          # bootstrap number
 
+    labels        = "Qc"        # method to get labels: Qc|Qn
 end
 
 ###

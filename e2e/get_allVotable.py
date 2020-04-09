@@ -28,15 +28,18 @@ import gaia_utils as gu
 
 
 ## directory
-wdir    = "%s/e2e_products/votable"%(rootdir)
+wdir    = "%s/e2e_products/votable-TEST"%(rootdir)
 datadir = "%s/e2e_products"%(rootdir)
 
 os.chdir(wdir)
 
 #### Input Parameters########################################################
 #### from check_sampleOCdr2.py
-filelist = datadir + "/"+"BrowseTargets.18292.1530479692.gaia.selected.txt"
-fileoutGaia = datadir + "/"+"BrowseTargets.18292.1530479692.gaia.votable.txt"
+# filelist = datadir + "/"+"BrowseTargets.18292.1530479692.gaia.selected.txt"
+# fileoutGaia = datadir + "/"+"BrowseTargets.18292.1530479692.gaia.votable.txt"
+filelist = datadir + "/"+"sc-list-2020.csv"
+fileoutGaia = datadir + "/"+"sc-list-2020.gaia.votable.csv"
+
 
 RADIUS   = 1.0
 
