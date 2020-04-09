@@ -40,7 +40,6 @@ os.chdir(wdir)
 filelist = datadir + "/"+"sc-list-2020.csv"
 fileoutGaia = datadir + "/"+"sc-list-2020.gaia.votable.csv"
 
-
 RADIUS   = 1.0
 
 ## read the cluster list from HEASARC
@@ -100,7 +99,7 @@ for index, row in df_cluster.iloc[lastrow:].iterrows():
     print("Cluster: %s"%(clustername))
     print("Distance: %3.1f pc"%(row['distance']))
 
-    radius = max(10 * float(row['cluster_radius']) , 2.0) ## minimum  2 degree
+    radius = max(10 * float(row['cluster_radius']) , 2.0)   ## minimum  2 degree
     radius = min(45.0, radius)                              ## maximum 45 degree
     print("Field radius: %3.1f deg"%(radius))
     rasplit = row['ra'].split(' ')
@@ -111,11 +110,14 @@ for index, row in df_cluster.iloc[lastrow:].iterrows():
 
     cluster = gu.source(clustername)
 
-    # filename = get_data(c.ra.deg, c.dec.deg,radius= RADIUS)
-
     filename = cluster.query(radius, coordCluster = [c.ra.deg,c.dec.deg], errtol = 0.2, dump = True)
+    gaia = gu.gaiaSet(cluster.data)
+    selected = gaia.isHomogeneous(tol = 0.05)
 
-    filedst = "%s-%3.1fdeg.vot"%(clustername, radius)
-    shutil.move(filename,filedst)
-
-    write_SCgaia(fileoutGaia,row)
+    if selected:
+        filedst = "%s-%3.1fdeg.vot"%(clustername, radius)
+        shutil.move(filename,filedst)
+        write_SCgaia(fileoutGaia,row)
+        print("## Selected")
+    else:
+        print("## Not selected")
