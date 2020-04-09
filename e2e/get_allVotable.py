@@ -100,8 +100,8 @@ for index, row in df_cluster.iloc[lastrow:].iterrows():
     print("Cluster: %s"%(clustername))
     print("Distance: %3.1f pc"%(row['distance']))
 
-    radius = max(10 * float(row['cluster_radius']) , 1.0) ## minimum  1 degree
-    radius = min(45, radius)                              ## maximum 45 degree
+    radius = max(10 * float(row['cluster_radius']) , 2.0) ## minimum  2 degree
+    radius = min(45.0, radius)                              ## maximum 45 degree
     print("Field radius: %3.1f deg"%(radius))
     rasplit = row['ra'].split(' ')
     decsplit = row['dec'].split(' ')
