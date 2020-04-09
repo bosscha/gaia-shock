@@ -120,4 +120,5 @@ for index, row in df_cluster.iloc[lastrow:].iterrows():
         write_SCgaia(fileoutGaia,row)
         print("## Selected")
     else:
+        os.remove(filename)
         print("## Not selected")
