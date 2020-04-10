@@ -114,7 +114,7 @@ for index, row in df_cluster.iloc[lastrow:].iterrows():
 
     filename = cluster.query(radius, coordCluster = [c.ra.deg,c.dec.deg], errtol = 0.2, dump = True)
     gaia = gu.gaiaSet(cluster.data)
-    selected = gaia.isHomogeneous(tol = 0.1)
+    selected = gaia.isHomogeneous(tol = 0.5)
 
     if selected:
         totalSelected += 1
