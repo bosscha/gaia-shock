@@ -92,6 +92,8 @@ print(df_cluster.columns)
 lastSC , lastrow = find_lastSC(fileoutGaia, filelist, df_cluster)
 
 print(lastSC)
+totalSelected= 0
+totalDiscarded= 0
 
 for index, row in df_cluster.iloc[lastrow:].iterrows():
     clustername = row['name'].strip()
@@ -115,10 +117,14 @@ for index, row in df_cluster.iloc[lastrow:].iterrows():
     selected = gaia.isHomogeneous(tol = 0.1)
 
     if selected:
+        totalSelected += 1
         filedst = "%s-%3.1fdeg.vot"%(clustername, radius)
         shutil.move(filename,filedst)
         write_SCgaia(fileoutGaia,row)
         print("## Selected")
     else:
+        totalDiscarded += 1
         os.remove(filename)
         print("## Not selected")
+
+    print("## Total Selected %d - Discarded %d "%(totalSelected, totalDiscarded))
