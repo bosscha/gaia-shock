@@ -112,7 +112,7 @@ for index, row in df_cluster.iloc[lastrow:].iterrows():
 
     filename = cluster.query(radius, coordCluster = [c.ra.deg,c.dec.deg], errtol = 0.2, dump = True)
     gaia = gu.gaiaSet(cluster.data)
-    selected = gaia.isHomogeneous(tol = 0.05)
+    selected = gaia.isHomogeneous(tol = 0.1)
 
     if selected:
         filedst = "%s-%3.1fdeg.vot"%(clustername, radius)
