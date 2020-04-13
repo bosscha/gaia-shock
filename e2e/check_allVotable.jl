@@ -14,7 +14,7 @@ sns= pyimport("seaborn")
 rootdir = ENV["GAIA_ROOT"]
 wdir    = "$rootdir/e2e_products"
 votdir  = "$wdir/votable-TEST"
-plotdir = "$wdir/plot-data-TEST"
+plotdir = "$wdir/plots-TEST"
 
 push!(LOAD_PATH,"$rootdir/master/src")
 using GaiaClustering

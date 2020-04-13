@@ -40,7 +40,7 @@ function set_default_params()
     rootdir =  ENV["GAIA_ROOT"]
     wdir    = "$rootdir/e2e_products"
     votdir  = "$wdir/votable"
-    plotdir = "$wdir/plotsSelect"
+    plotdir = "$wdir/plots-select"
     ocdir   = "$wdir/ocfull"
 
     ## MCMC
