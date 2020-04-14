@@ -1,0 +1,47 @@
+## default parameters for extraction (MCMC+DBSCAN)
+##
+
+## Directories
+##
+# rootdir                                 ## ENV["GAIA_ROOT"]
+# wdir      "$rootdir/e2e_products"
+# votdir    "$wdir/votable"
+# plotdir   "$wdir/plotsSelect"
+# ocdir     "$wdir/ocfull"
+
+## MCMC
+##
+minQ            2.7
+minstars        40
+forcedminstars  30
+mingoodsolution 10                      ## minimum good solution for Q in check_qminqstar
+niterqminq      500                     ## check_qminqstar..
+
+nburnout        2000                    ## burn-in iterations
+niter           15000                   ## MCMC iterations
+
+## prior settings
+##
+epsmean         2.5                     ## epsilon mean
+epsdisp         1.5                     ## epsilon dispersion
+min_nei          10                     ## min_nei mean
+min_cl          15                      ## min_cl mean
+ncoredisp       10                      ## dispersion for min_nei and min_cl
+w3dmean         6.0                     ## 2D/3D weight  mean
+w3ddisp         4.0                     ## 2D/3D weight  dispersion
+wvelmean        6.0                     ## velocity weight  mean
+wveldisp        4.0                     ## velocity weight  dispersion
+whrdmean        2.0                     ## CMD weight mean
+whrddisp        1.5                     ## CMD weight dispersion
+
+## Metrics Q
+##
+aperture2d      1.5
+maxaperture2d   15.0
+aperture3d      3.0
+maxaperture3d   20
+aperturev       3.0
+maxaperturev    20.0
+nboot           50.0
+
+labels          Qc                      ## metric Qn|Qc

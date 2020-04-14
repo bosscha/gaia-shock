@@ -175,15 +175,16 @@ function main(filelist,fileres, fileSCres)
         println("## It can be very long but will be resumed to the last reduced file.")
         wd= pwd()
         println("## Working directory: $wd")
+        nfile= size(filelist)[1]
+        println("## $nfile to analyze...")
+        totalTime= 0.
 
         # read a possible votname blacklist
         blackname= "blacklist-oc.csv"
         blacklist= read_blacklist(blackname)
         println("## blacklist read...")
 
-        s= size(filelist)
-
-        for i in 1:s[1]
+        for i in 1:nfile
             votname = filelist[i]
 
             mcmcfound , ismcmcfile = check_mcmc(votname, fileres)
@@ -242,7 +243,11 @@ function main(filelist,fileres, fileSCres)
                 tend= now()
                 println("## Ending at $tend")
                 duration= Dates.value(tend-tstart) / (1000*3600)
+                totalTime += duration
+                meanTime= totalTime / i
+                ETA= meanTime * (nfile-i) / 24
                 println("## Duration: $duration hours")
+                println("## ETA: $ETA days")
                 println("##\n##")
 
             end
