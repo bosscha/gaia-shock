@@ -194,11 +194,31 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250], vdec
     return(s)
 end
 
+function equatorial2galactic(α , δ)
+    ## NGP coordinates
+    αG = 192.85948
+    δG = 27.12825
+    lascend= 33.0
+
+    b= asind(cosd(δ)*cosd(δG)*cosd(α-αG)+sind(δ)*sind(δG))
+
+    x= cosd(δ)*cosd(δG)*sind(α-αG)
+    y= sind(δ)-sind(b)*sind(δG)
+    l= atand(y,x) + lascend
+    println(x)
+    println(y)
+
+    if x>=0 && y<=0  l += 360.0 end
+    if y<=0 && x<0   l += 360.0 end
+    #if y<0  && x>=0  l += 180.0 end
+
+    return([l,b])
+end
+
 
 ## Transform PM from equatorial to galactic system.
 ## See Poleski 1997 / arXiv
 ## PM,,corr is from Conrad (2015)
-
 function PM_equatorial2galactic(μα , μδ , α , δ , l )
     ## NGP coordinates
     αG = 192.85948

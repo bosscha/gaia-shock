@@ -19,7 +19,7 @@ wdir    = "$rootdir/products"
 votdir  = "$rootdir/products/votable"
 plotdir = "$rootdir/products/test"
 ocdir   = "$rootdir/products/octest"
-
+sclist  = "$rootdir/e2e_products/"
 
 ## load a liist of votable and update the file if done
 ## add results
@@ -180,7 +180,7 @@ function main(filelist,fileres, fileSCres)
         wd= pwd()
         println("## Working directory: $wd")
         nfile= size(filelist)[1]
-        println("## $nfile to analyze...")
+        println("## $nfile files to analyze...")
         totalTime= 0.
 
         # read a possible votname blacklist
@@ -234,8 +234,8 @@ function main(filelist,fileres, fileSCres)
                 mres = GaiaClustering.modelfull(eps,min_nei,min_cl,w3d,wvel,whrd)
                 dfcartnorm = getDfcartnorm(dfcart, mres)
                 labels = clusters(dfcartnorm.data ,eps  , 20, min_nei, min_cl)
-                labelmax , nmax = find_cluster_label(labels)
-                # labelmax , nmax = find_cluster_label2(labels, df, dfcart)
+                #labelmax , nmax = find_cluster_label(labels)
+                labelmax , nmax = find_cluster_label2(labels, df, dfcart)
                 println("### Label solution: $labelmax")
                 println("### N stars: $nmax")
 
@@ -268,7 +268,7 @@ end
 println("# Test of the optimization on a subset of targets. Check the code...")
 
 cd(votdir)
-votlist= glob("NGC*.vot")
+votlist= glob("Ber*.vot")
 cd(wdir)
 
 main(votlist,"votlist-test_mcmc_full.csv", "votlist-test_SCproperties_full.csv")

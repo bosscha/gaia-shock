@@ -183,7 +183,7 @@ function main(filelist,fileres, fileSCres)
         wd= pwd()
         println("## Working directory: $wd")
         nfile= size(filelist)[1]
-        println("## $nfile to analyze...")
+        println("## $nfile files to analyze...")
         totalTime= 0.
 
         # read a possible votname blacklist
@@ -301,8 +301,7 @@ let
         i2= convert(Int,floor(nfile*iend/100))
     end
 
-    println("## DBSCAN optimization starting $i1")
-    println("## DBSCAN optimization emdomg $i2")
+    println("## DBSCAN optimization starting")
     println("## File out: $filemcmcout")
     println("## File SC properties: $fileSCpropout")
 

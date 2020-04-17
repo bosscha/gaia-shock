@@ -176,7 +176,7 @@ function main(filelist,fileres, fileSCres)
         wd= pwd()
         println("## Working directory: $wd")
         nfile= size(filelist)[1]
-        println("## $nfile to analyze...")
+        println("## $nfile files to analyze...")
         totalTime= 0.
 
         # read a possible votname blacklist

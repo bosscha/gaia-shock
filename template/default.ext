@@ -11,11 +11,11 @@
 
 ## MCMC
 ##
-minQ            2.7
-minstars        40
-forcedminstars  30
+minQ            2.7                     ## minimum Qc metric in MCMC
+minstars        40                      ## minimum stars in solutions
+forcedminstars  30                      ## minimum stars forced if not reached
 mingoodsolution 10                      ## minimum good solution for Q in check_qminqstar
-niterqminq      500                     ## check_qminqstar..
+niterqminq      500                     ## iterions for check_qminqstar
 
 nburnout        2000                    ## burn-in iterations
 niter           15000                   ## MCMC iterations
@@ -44,4 +44,4 @@ aperturev       3.0
 maxaperturev    20.0
 nboot           50.0
 
-labels          Qc                      ## metric Qn|Qc
+labels          Qc                      ## metric method (Qn|Qc) for label solutions
