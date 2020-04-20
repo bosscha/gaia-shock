@@ -6,7 +6,7 @@
 
 module GaiaClustering
 
-using PyCall
+using PyCall , PyPlot
 using DataFrames , Formatting, Printf
 
 using Clustering
@@ -18,8 +18,7 @@ import Interpolations
 
 using Images , Base
 
-import PyPlot, StatsBase , CSV
-import Distances
+import  StatsBase , CSV,  Distances
 
 ## include all the types
 include("types.jl")
