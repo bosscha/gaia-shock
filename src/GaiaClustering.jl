@@ -46,7 +46,7 @@ theta_full , thetaiter_full , getDfcartnorm , check_qminqstar_full
 
 ## plotting functions
 include("plots.jl")
-export show_text , plot_dbscan_mcmc , plot_cluster , plot_dbscanfull_mcmc
+export show_text , plot_dbscan_mcmc , plot_cluster , plot_dbscanfull_mcmc , plot_cluster2
 
 ## imaging functions
 include("imaging.jl")

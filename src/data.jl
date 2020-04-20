@@ -198,7 +198,7 @@ function equatorial2galactic(α , δ)
     ## NGP coordinates
     αG = 192.85948
     δG = 27.12825
-    lascend= 33.0
+    lascend= 32.93
 
     b= asind(cosd(δ)*cosd(δG)*cosd(α-αG)+sind(δ)*sind(δG))
 
@@ -209,8 +209,8 @@ function equatorial2galactic(α , δ)
     println(y)
 
     if x>=0 && y<=0  l += 360.0 end
-    if y<=0 && x<0   l += 360.0 end
-    #if y<0  && x>=0  l += 180.0 end
+    if x<=0 && y<0   l += 360.0 end
+    #if x<0  && y>=0  l -= 180.0 end
 
     return([l,b])
 end

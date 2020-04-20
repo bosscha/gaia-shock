@@ -268,3 +268,86 @@ function plot_cluster(plotdir, voname, indx, sc::GaiaClustering.SCproperties, df
     PyPlot.plt.savefig(figname)
     if showplot PyPlot.plt.show() end
 end
+
+function plot_cluster2(plotdir, voname, indx, sc::GaiaClustering.SCproperties, df::GaiaClustering.Df, showplot = true , cmap = "gist_stern")
+
+    println("### Cluster plot is centered in Y,Z...")
+
+    PyPlot.plt.figure(figsize=(13.0,12.0))
+    PyPlot.plt.subplot(3, 3, 1 , xlim = [-20,20] , ylim = [-20,20])
+
+    xx = df.data[2,indx] .- mean(df.data[2,indx])
+    yy = df.data[3,indx] .- mean(df.data[3,indx])
+
+    PyPlot.plt.scatter(xx, yy , s = 1.0 )
+    PyPlot.plt.xlabel("Y (pc)")
+    PyPlot.plt.ylabel("Z (pc)")
+    PyPlot.plt.grid(true)
+
+    PyPlot.plt.subplot(3, 3, 2 , ylim = [-20,20])
+    xx = df.data[1,indx]
+    yy = df.data[3,indx] .- mean(df.data[3,indx])
+    PyPlot.plt.scatter(xx, yy , s = 1.0 )
+    PyPlot.plt.xlabel("X (pc)")
+    PyPlot.plt.ylabel("Z (pc)")
+    PyPlot.plt.grid(true)
+
+    PyPlot.plt.subplot(3, 3, 4 , xlim = [-20,20])
+    xx = df.data[2,indx] .- mean(df.data[2,indx])
+    yy = df.data[1,indx]
+    PyPlot.plt.scatter(xx, yy , s = 1.0 )
+    PyPlot.plt.xlabel("Y (pc)")
+    PyPlot.plt.ylabel("X (pc)")
+    PyPlot.plt.grid(true)
+
+    PyPlot.plt.subplot(3, 3, 3 )
+    xx = df.data[1,indx]
+    yy = df.raw[13,indx]
+    PyPlot.plt.scatter(xx, yy , s = 1.0 )
+    PyPlot.plt.xlabel("X(pc)")
+    PyPlot.plt.ylabel("Vrad (km/s)")
+    PyPlot.plt.grid(true)
+
+    PyPlot.plt.subplot(3, 3, 5)
+    PyPlot.plt.axis("off")
+    ## text to display
+    text =[]
+    v = sc.nstars ; txt = "N stars   : $v" ; push!(text,txt)
+    v = fmt("3.1f",sc.distance) ; txt = "Distance  : $v (pc)" ; push!(text,txt)
+    v1 = fmt("3.3f",sc.l) ; v2 = fmt("3.3f",sc.b) ;
+    txt = "l , b       : $v1 , $v2  (degree)" ; push!(text,txt)
+    v1 = fmt("3.3f",sc.ra) ; v2 = fmt("3.3f",sc.dec) ;
+    txt = "RA , Dec : $v1 , $v2  (degree)" ; push!(text,txt)
+    v1 = fmt("3.3f",sc.vl) ; v2 = fmt("3.3f",sc.vb) ;
+    txt = "vl , vb     : $v1 , $v2  (km/s)" ; push!(text,txt)
+    v = fmt("3.2f",sc.vrad) ; txt = "Vradial   : $v (km/s)"; push!(text,txt)
+    v = fmt("3.2f",sc.xdisp) ; txt = "X disp.   : $v (pc)" ; push!(text,txt)
+    v = fmt("3.2f",sc.ydisp) ; txt = "Y disp.   : $v (pc)" ; push!(text,txt)
+    v = fmt("3.2f",sc.zdisp) ; txt = "Z disp.   : $v (pc)" ; push!(text,txt)
+    v = fmt("3.2f",sc.vldisp) ; txt = "Vl disp. : $v (km/s)" ; push!(text,txt)
+    v = fmt("3.2f",sc.vbdisp) ; txt = "Vb disp.: $v (km/s)" ; push!(text,txt)
+    v = fmt("3.2f",sc.vraddisp) ; txt = "Vradial disp.: $v (km/s)" ; push!(text,txt)
+    show_text(-0.01,0.0, text , 1.0)
+
+    PyPlot.plt.subplot(3, 3, 7 )
+    PyPlot.plt.axis("on")
+    xx = df.data[7,indx]
+    yy = -df.data[6,indx]
+    PyPlot.plt.scatter(xx, yy , s = 1.0 )
+    PyPlot.plt.xlabel("G-Rp")
+    PyPlot.plt.ylabel("G")
+    PyPlot.plt.grid(true)
+
+    PyPlot.plt.subplot(3, 3, 8 )
+    xx = df.data[4,indx]
+    yy = df.data[5,indx]
+    PyPlot.plt.scatter(xx, yy , s = 1.0 )
+    PyPlot.plt.xlabel("Vl (km/s)")
+    PyPlot.plt.ylabel("Vb (km/s)")
+    PyPlot.plt.grid(true)
+
+
+    figname = plotdir*"/"*voname*"-cluster.png"
+    PyPlot.plt.savefig(figname)
+    if showplot PyPlot.plt.show() end
+end
