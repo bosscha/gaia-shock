@@ -418,7 +418,7 @@ function export_df(votname, ocdir, df , dfcart, labels , labelmax)
 
     oc= DataFrame(ra=ra,dec=dec,l=l,b=b, distance=d,pmra=pmra, pmdec=pmdec, X=X,Y=Y,Z=Z,vl=vl,vb=vb,vrad=vrad,gbar=gbar,rp=rp,bp=bp, ag=ag)
 
-    filename= @sprintf("%s/%s-oc.csv",ocdir, votname[1:end-4])
+    filename= @sprintf("%s/%s.oc.csv",ocdir, votname[1:end-4])
     CSV.write(filename,oc,delim=';')
     @printf("### %s created \n",filename)
 end
