@@ -192,7 +192,6 @@ function main(filelist,fileres, fileSCres)
 
         for i in 1:nfile
             votname = filelist[i]
-
             mcmcfound , ismcmcfile = check_mcmc(votname, fileres)
 
             ## test blacklist
@@ -239,13 +238,24 @@ function main(filelist,fileres, fileSCres)
                 println("### Label solution: $labelmax")
                 println("### N stars: $nmax")
 
+                ### best solution in terms of Qc...
                 println("## Extracting and writing the OC stars...")
-                export_df(votname, ocdir, df , dfcart, labels , labelmax)
+                export_df("$votname.0", ocdir, df , dfcart, labels , labelmax)
+                scproperties0 = get_properties_SC(labels[labelmax] , df, dfcart)
+                println("### ",scproperties0)
+                plot_cluster2(plotdir, "$votname.0", labels[labelmax], scproperties0,  dfcart , false)
 
-                scproperties = get_properties_SC(labels[labelmax] , df, dfcart)
-                println("### ",scproperties)
-                plot_cluster(plotdir, votname, labels[labelmax], scproperties,  dfcart , false)
-                SCparameters_updt(fileSCres, scproperties, votname)
+                ### all solutions are plotted/exported
+                index=1
+                for ilab in labels
+                    scproperties = get_properties_SC(ilab , df, dfcart)
+                    export_df("$votname.$index", ocdir, df , dfcart, labels , index)
+                    plot_cluster2(plotdir, "$votname.$index", ilab, scproperties,  dfcart , false)
+                    index +=1
+                end
+                ######
+
+                SCparameters_updt(fileSCres, scproperties0, votname)
 
                 tend= now()
                 println("## Ending at $tend")

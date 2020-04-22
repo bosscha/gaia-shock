@@ -315,12 +315,12 @@ function plot_cluster2(plotdir, voname, indx, sc::GaiaClustering.SCproperties, d
     v = sc.nstars ; txt = "N stars   : $v" ; push!(text,txt)
     v = fmt("3.1f",sc.distance) ; txt = "Distance  : $v (pc)" ; push!(text,txt)
     v1 = fmt("3.3f",sc.l) ; v2 = fmt("3.3f",sc.b) ;
-    txt = "l , b       : $v1 , $v2  (degree)" ; push!(text,txt)
+    txt = "l , b         : $v1  ,  $v2  (degree)" ; push!(text,txt)
     v1 = fmt("3.3f",sc.ra) ; v2 = fmt("3.3f",sc.dec) ;
-    txt = "RA , Dec : $v1 , $v2  (degree)" ; push!(text,txt)
+    txt = "RA , Dec  : $v1  ,  $v2  (degree)" ; push!(text,txt)
     v1 = fmt("3.3f",sc.vl) ; v2 = fmt("3.3f",sc.vb) ;
-    txt = "vl , vb     : $v1 , $v2  (km/s)" ; push!(text,txt)
-    v = fmt("3.2f",sc.vrad) ; txt = "Vradial   : $v (km/s)"; push!(text,txt)
+    txt = "vl , vb       : $v1  ,  $v2  (km/s)" ; push!(text,txt)
+    v = fmt("3.2f",sc.vrad) ; txt  = "Vradial   : $v (km/s)"; push!(text,txt)
     v = fmt("3.2f",sc.xdisp) ; txt = "X disp.   : $v (pc)" ; push!(text,txt)
     v = fmt("3.2f",sc.ydisp) ; txt = "Y disp.   : $v (pc)" ; push!(text,txt)
     v = fmt("3.2f",sc.zdisp) ; txt = "Z disp.   : $v (pc)" ; push!(text,txt)

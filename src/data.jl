@@ -215,6 +215,12 @@ function equatorial2galactic(α , δ)
     return([l,b])
 end
 
+## angle between two points on a sphere
+function angle4sphere(long1, lat1, long2, lat2)
+    dLon= long2 - long1
+    cosang= cosd(lat1)*cosd(lat2)*cosd(dLon)+sind(lat1)*sind(lat2)
+    ang= acosd(cosang)
+end
 
 ## Transform PM from equatorial to galactic system.
 ## See Poleski 1997 / arXiv
@@ -418,7 +424,15 @@ function export_df(votname, ocdir, df , dfcart, labels , labelmax)
 
     oc= DataFrame(ra=ra,dec=dec,l=l,b=b, distance=d,pmra=pmra, pmdec=pmdec, X=X,Y=Y,Z=Z,vl=vl,vb=vb,vrad=vrad,gbar=gbar,rp=rp,bp=bp, ag=ag)
 
-    filename= @sprintf("%s/%s.oc.csv",ocdir, votname[1:end-4])
+    name= split(votname,".")
+    infix= ""
+    for iname in name
+        if iname != "vot"
+            infix *= iname*"."
+        end
+    end
+    infix *= "oc.csv"
+    filename= @sprintf("%s/%s",ocdir, infix)
     CSV.write(filename,oc,delim=';')
     @printf("### %s created \n",filename)
 end
