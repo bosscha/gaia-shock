@@ -212,7 +212,7 @@ function equatorial2galactic(α , δ)
     if x<=0 && y<0   l += 360.0 end
     #if x<0  && y>=0  l -= 180.0 end
 
-    return([l,b])
+    return(l,b)
 end
 
 ## angle between two points on a sphere
