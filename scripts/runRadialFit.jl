@@ -10,7 +10,7 @@ import PyPlot , CSV , DataFrames
 
 ## directory
 wdir    = "$rootdir/e2e_products"
-plotdir = "$wdir/plotsIndividuals"
+plotdir = "$wdir/plots-individuals"
 ocdir=    "$wdir/oc"
 
 cd(wdir)

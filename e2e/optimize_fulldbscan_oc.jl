@@ -15,7 +15,7 @@ using GaiaClustering
 wdir    = "$rootdir/e2e_products"
 votdir  = "$wdir/votable"
 plotdir = "$wdir/plotsSelect"
-ocdir   = "$wdir/ocfull"
+ocdir   = "$wdir/oc"
 
 ## load a liist of votable and update the file if done
 ## add results
@@ -232,13 +232,24 @@ function main(filelist,fileres, fileSCres)
                 println("### Label solution: $labelmax")
                 println("### N stars: $nmax")
 
+                ### Best solution...
                 println("## Extracting and writing the OC stars...")
-                export_df(votname, ocdir, df , dfcart, labels , labelmax)
+                export_df("$votname.0", ocdir, df , dfcart, labels , labelmax)
+                scproperties0 = get_properties_SC(labels[labelmax] , df, dfcart)
+                plot_cluster2(plotdir, "$votname.0", labels[labelmax], scproperties0,  dfcart , false)
+                println("### ",scproperties0)
 
-                scproperties = get_properties_SC(labels[labelmax] , df, dfcart)
-                println("### ",scproperties)
-                plot_cluster(plotdir, votname, labels[labelmax], scproperties,  dfcart , false)
-                SCparameters_updt(fileSCres, scproperties, votname)
+                #### all solutions are plotted/exported
+                index=1
+                for ilab in labels
+                    scproperties = get_properties_SC(ilab , df, dfcart)
+                    export_df("$votname.$index", ocdir, df , dfcart, labels , index)
+                    plot_cluster2(plotdir, "$votname.$index", ilab, scproperties,  dfcart , false)
+                    index +=1
+                end
+                ######
+
+                SCparameters_updt(fileSCres, scproperties0, votname)
 
                 tend= now()
                 println("## Ending at $tend")
