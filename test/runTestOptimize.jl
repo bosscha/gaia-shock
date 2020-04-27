@@ -211,7 +211,7 @@ function main(filelist,fileres, fileSCres)
 
                 ## MCMC optimization
                 params = mcmc_params()
-                mc = abc_mcmc_dbscan_full(dfcart, params)
+                mc = abc_mcmc_dbscan_full2(dfcart, params)
                 plot_dbscanfull_mcmc(plotdir, votname, mc , false)
                 res = dbscanmcmcfull_updt!(ismcmcfile, fileres, mc ,votname)
 

@@ -41,7 +41,8 @@ find_cluster_label2
 ## MCMC for gaia
 include("mcmc.jl")
 export theta , thetaiter , abc_mcmc_dbscan, ministats , abc_mcmc_dbscan_full , ministats_full ,
-theta_full , thetaiter_full , getDfcartnorm , check_qminqstar_full
+theta_full , thetaiter_full , getDfcartnorm , check_qminqstar_full, abc_mcmc_dbscan_full2,
+check_qminqstar_full2
 
 ## plotting functions
 include("plots.jl")

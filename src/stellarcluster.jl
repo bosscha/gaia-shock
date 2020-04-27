@@ -247,8 +247,8 @@ end
 ## broadcasting modelfull ..
 ##
 function find_clusters(df::GaiaClustering.Df, dfcart::GaiaClustering.Df , m::GaiaClustering.modelfull,
-    aperture2d = 1.5, maxaperture2d = 15, aperturev = 3.0, maxaperturev = 20, nboot = 50,
-    aperture3d = 3., maxaperture3d = 20)
+    aperture2d = 1.5, maxaperture2d = 8, aperturev = 3.0, maxaperturev = 15, nboot = 50,
+    aperture3d = 3., maxaperture3d = 15)
     let
         labels = clusters(df.data , m.eps , 20, m.min_nei, m.min_cl)
         if length(labels) == 0
@@ -257,7 +257,7 @@ function find_clusters(df::GaiaClustering.Df, dfcart::GaiaClustering.Df , m::Gai
 
     ### metrics of the clusters
         q2d = metric2(dfcart, labels, "spatial2d" , aperture2d, maxaperture2d, nboot)
-        q3d = metric2(dfcart, labels, "spatial3d" , aperture3d, maxaperture3d, nboot)  
+        q3d = metric2(dfcart, labels, "spatial3d" , aperture3d, maxaperture3d, nboot)
         qv  = metric2(dfcart, labels, "velocity" , aperturev, maxaperturev, nboot)
         qp, qa = metric2(dfcart, labels, "HRD" )
 
