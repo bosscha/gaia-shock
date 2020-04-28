@@ -18,7 +18,8 @@ mingoodsolution 10                      ## minimum good solution for Q in check_
 niterqminq      500                     ## iterions for check_qminqstar
 
 nburnout        2000                    ## burn-in iterations
-niter           15000                   ## MCMC iterations
+niter           15000                   ## MCMC iterations (CHAINS)
+maxiters        500000
 
 ## prior settings
 ##

@@ -391,6 +391,7 @@ function abc_mcmc_dbscan_full2(dfcart::GaiaClustering.Df, params::abcfull)
         nchain = 1
         loopAgain = true
         burndone = false
+        tstart= now()
 
         iter= 0
         while loopAgain
@@ -437,7 +438,13 @@ function abc_mcmc_dbscan_full2(dfcart::GaiaClustering.Df, params::abcfull)
             end
 
             iter += 1
-            if (iter%10000 == 0) println("### iteration: $iter") end
+            if (iter%50000 == 0)
+                titer= now()
+                duration= Dates.value(titer-tstart) / (1000*3600)
+                meanTime= duration / nchain
+                eta= meanTime * (niter-nchain)
+                println("### iteration: $iter (ETA:$eta h)") 
+            end
             if iter > maxiter
                 println("### Maximum iteration reached, current solution returned...")
                 return(mci)
