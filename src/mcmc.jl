@@ -347,7 +347,7 @@ function abc_mcmc_dbscan_full2(dfcart::GaiaClustering.Df, params::abcfull)
         nburn = params.nburnout
 
         maxstars= 5000
-        maxiter=  500000    ## twice, for init and normal iteration
+        maxiter=  750000    ## twice, for init and normal iteration
 
         println("### Minimum Q : $minimumQ")
         println("### Minimum nstars : $minstars")
@@ -443,7 +443,7 @@ function abc_mcmc_dbscan_full2(dfcart::GaiaClustering.Df, params::abcfull)
                 duration= Dates.value(titer-tstart) / (1000*3600)
                 meanTime= duration / nchain
                 eta= meanTime * (niter-nchain)
-                println("### iteration: $iter (ETA:$eta h)") 
+                println("### iteration: $iter (ETA:$eta h)")
             end
             if iter > maxiter
                 println("### Maximum iteration reached, current solution returned...")

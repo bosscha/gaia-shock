@@ -247,8 +247,8 @@ end
 ## broadcasting modelfull ..
 ##
 function find_clusters(df::GaiaClustering.Df, dfcart::GaiaClustering.Df , m::GaiaClustering.modelfull,
-    aperture2d = 1.5, maxaperture2d = 8, aperturev = 3.0, maxaperturev = 15, nboot = 50,
-    aperture3d = 3., maxaperture3d = 15)
+    aperture2d = 1.5, maxaperture2d = 15, aperturev = 3.0, maxaperturev = 20, nboot = 50,
+    aperture3d = 3., maxaperture3d = 20)
     let
         labels = clusters(df.data , m.eps , 20, m.min_nei, m.min_cl)
         if length(labels) == 0

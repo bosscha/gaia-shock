@@ -2,7 +2,7 @@
 ##
 
 
-mutable struct extractParam
+mutable struct meta
     rootdir::String
     wdir::String
     votdir::String
