@@ -156,3 +156,47 @@ mutable struct mcCauchy
     s::Array{Float64}
     m::Array{Float64}
 end
+
+
+### METADATA for settings, optimization, etc
+mutable struct meta
+    rootdir::String
+    wdir::String
+    votdir::String
+    plotdir::String
+    ocdir::String
+    votname::String
+
+    minQc::Float64
+    minQn::Int
+    maxQn::Int
+    forcedminstars::Int
+    mingoodsolution::Int
+    niterqminq::Int
+    nburnout::Int
+    nchain::Int
+    maxiter::Int
+
+    epsmean::Float64
+    epsdisp::Float64
+    min_nei::Int
+    min_cl::Int
+    ncoredisp::Int
+    w3dmean::Float64
+    w3ddisp::Float64
+    wvelmean::Float64
+    wveldisp::Float64
+    whrdmean::Float64
+    whrddisp::Float64
+
+    aperture2d::Float64
+    maxaperture2d::Float64
+    aperture3d::Float64
+    maxaperture3d::Float64
+    aperturev::Float64
+    maxaperturev::Float64
+    nboot::Int
+    labels::String
+
+    meta()= new()
+end

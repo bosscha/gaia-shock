@@ -12,15 +12,16 @@
 
 ## MCMC
 ##
-minQ            = 2.7                     ## minimum Qc metric in MCMC
-minstars        = 40                      ## minimum stars in solutions
+minQc           = 2.7                     ## minimum Qc metric in MCMC
+minQn           = 40                      ## minimum Qn metric in MCMC
+maxQn           = 5000                    ## maximum Qn metric in MCMC
 forcedminstars  = 30                      ## minimum stars forced if not reached
 mingoodsolution = 10                      ## minimum good solution for Q in check_qminqstar
 niterqminq      = 500                     ## iterions for check_qminqstar
 
 nburnout        = 2000                    ## burn-in iterations
-niter           = 15000                   ## MCMC iterations (CHAINS)
-maxiters        = 500000
+nchain          = 15000                   ## MCMC chains
+maxiter         = 500000
 
 ## prior settings
 ##

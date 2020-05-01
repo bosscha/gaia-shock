@@ -219,118 +219,15 @@ function getDfcartnorm(dfcart::GaiaClustering.Df, mc::modelfull)
     return(dfcartnorm)
 end
 
-
-function abc_mcmc_dbscan_full(dfcart::GaiaClustering.Df, params::abcfull)
-    let
-        Random.seed!()
-        println("## ABC/MCMC for DBSCAN FULL (parameters+weighting)...")
-        mci = mcfull(zeros(Float64,0),zeros(Int32,0),zeros(Int32,0) , zeros(Float64,0), zeros(Int32,0),
-        zeros(Float64,0), zeros(Float64,0), zeros(Float64,0))
-
-        initial = true
-        th = []
-        mi = modelfull(0.0,0,0, 0., 0., 0.)
-        micurrent = modelfull(0.0,0,0, 0., 0., 0.)
-        probi = 0.
-        probcurrent = 0.
-
-        minimumQ = params.minQ
-        minstars = params.minstars
-        niter = params.niter
-        nburn = params.nburnout
-
-        maxstars= 5000
-
-        println("### Minimum Q : $minimumQ")
-        println("### Minimum nstars : $minstars")
-        println("### Maximum nstars : $maxstars")
-        minimumQ , minstars = check_qminqstar_full(dfcart, params, minimumQ, minstars)
-        println("### Minimum Q : $minimumQ")
-        println("### Minimum nstars : $minstars")
-        if minstars < params.forcedminstars
-            minstars = params.forcedminstars
-            println("### Minimum nstars forced to : $minstars")
-        end
-
-        while initial
-            mi, probi = theta_full(params)
-            dfcartnorm = getDfcartnorm(dfcart , mi)
-            qres , nstars = find_clusters(dfcartnorm, dfcart, mi)
-            if qres > minimumQ && nstars >= minstars && nstars <= maxstars
-                println("### init done ...")
-                initial = false
-                push!(mci.eps, mi.eps)
-                push!(mci.mne, mi.min_nei)
-                push!(mci.mcl, mi.min_cl)
-                push!(mci.w3d, mi.w3d)
-                push!(mci.wvel, mi.wvel)
-                push!(mci.whrd, mi.whrd)
-                push!(mci.qc,  qres)
-                push!(mci.qn,  nstars)
-            end
-        end
-
-        ministats_full(100, dfcart, mi , params)
-
-        nchain = 1
-        loopAgain = true
-        burndone = false
-
-        while loopAgain
-            micurrent, probcurrent = thetaiter_full(mi , params)
-            dfcartnorm = getDfcartnorm(dfcart , micurrent)
-            qres , nstars = find_clusters(dfcartnorm, dfcart, micurrent)
-
-            if qres > minimumQ && nstars >= minstars && nstars <= maxstars
-            ### Metropolis-Hasting
-                α = probcurrent / probi
-                if α > rand()
-                    mi = micurrent
-                    probi = probcurrent
-                    nchain += 1
-                    if (nchain%1000 == 0) println("### chain:",nchain) end
-                    if nchain > nburn && !burndone println("### burnout done...") ; nchain = 0 ; burndone = true end
-                    if nchain > niter loopAgain = false end
-                    if burndone
-                        push!(mci.eps, mi.eps)
-                        push!(mci.mne, mi.min_nei)
-                        push!(mci.mcl, mi.min_cl)
-                        push!(mci.w3d, mi.w3d)
-                        push!(mci.wvel, mi.wvel)
-                        push!(mci.whrd, mi.whrd)
-                        push!(mci.qc , qres)
-                        push!(mci.qn,  nstars)
-                    end
-                else
-                    nchain += 1
-                    if (nchain%1000 == 0) println("### chain:",nchain) end
-                    if nchain > nburn && !burndone println("### burnout done...") ; nchain = 0 ; burndone = true end
-                    if nchain > niter loopAgain = false end
-                    if burndone
-                        push!(mci.eps, mi.eps)
-                        push!(mci.mne, mi.min_nei)
-                        push!(mci.mcl, mi.min_cl)
-                        push!(mci.w3d, mi.w3d)
-                        push!(mci.wvel, mi.wvel)
-                        push!(mci.whrd, mi.whrd)
-                        push!(mci.qc , qres)
-                        push!(mci.qn,  nstars)
-                    end
-                end
-            end
-        end
-        println("## ABC/MCMC FULL done")
-        println("##")
-        return(mci)
-    end
-end
-
-## updt to add maximum iterations
-function abc_mcmc_dbscan_full2(dfcart::GaiaClustering.Df, params::abcfull)
+## optimize dbscan parameters with ABC/MCMC method
+##
+function abc_mcmc_dbscan_full2(dfcart::GaiaClustering.Df, params::GaiaClustering.meta)
     let
         Random.seed!()
         println("## ABC/MCMC for DBSCAN FULL (parameters+weighting)...")
         println("## ABC/MCMC v2")
+        println("## testing with meta")
+
         mci = mcfull(zeros(Float64,0),zeros(Int32,0),zeros(Int32,0) , zeros(Float64,0), zeros(Int32,0),
         zeros(Float64,0), zeros(Float64,0), zeros(Float64,0))
 
@@ -341,25 +238,27 @@ function abc_mcmc_dbscan_full2(dfcart::GaiaClustering.Df, params::abcfull)
         probi = 0.
         probcurrent = 0.
 
-        minimumQ = params.minQ
-        minstars = params.minstars
-        niter = params.niter
-        nburn = params.nburnout
+        minimumQ= params.minQc
+        minstars= params.minQn
+        maxstars= params.maxQn
+        niter= params.nchain             #number of chains
+        nburn= params.nburnout
 
-        maxstars= 5000
-        maxiter=  750000    ## twice, for init and normal iteration
+        maxiter= params.maxiter          ## twice, for init and normal iteration
 
-        println("### Minimum Q : $minimumQ")
-        println("### Minimum nstars : $minstars")
-        println("### Maximum nstars : $maxstars")
+        println("### Chains  : $niter")
+        println("### Burn-in : $nburn")
+        println("### Minimum Qc : $minimumQ")
+        println("### Minimum Qn : $minstars")
+        println("### Maximum Qn : $maxstars")
         println("### Maximum iterations: $maxiter")
 
-        minimumQ , minstars = check_qminqstar_full2(dfcart, params, minimumQ, minstars)
-        println("### Minimum Q : $minimumQ")
-        println("### Minimum nstars : $minstars")
+        minimumQ , minstars = check_qminqstar_full2(dfcart, params)
+        println("### Minimum Qc: $minimumQ")
+        println("### Minimum Qn: $minstars")
         if minstars < params.forcedminstars
             minstars = params.forcedminstars
-            println("### Minimum nstars forced to : $minstars")
+            println("### Minimum Qn forced to : $minstars")
         end
 
         iter= 0
@@ -408,7 +307,7 @@ function abc_mcmc_dbscan_full2(dfcart::GaiaClustering.Df, params::abcfull)
                     nchain += 1
                     if (nchain%1000 == 0) println("### chain:",nchain) end
                     if nchain > nburn && !burndone println("### burnout done...") ; nchain = 0 ; burndone = true end
-                    if nchain > niter loopAgain = false end
+                    if nchain > niter && burndone loopAgain = false end
                     if burndone
                         push!(mci.eps, mi.eps)
                         push!(mci.mne, mi.min_nei)
@@ -423,7 +322,7 @@ function abc_mcmc_dbscan_full2(dfcart::GaiaClustering.Df, params::abcfull)
                     nchain += 1
                     if (nchain%1000 == 0) println("### chain:",nchain) end
                     if nchain > nburn && !burndone println("### burnout done...") ; nchain = 0 ; burndone = true end
-                    if nchain > niter loopAgain = false end
+                    if nchain > niter && burndone loopAgain = false end
                     if burndone
                         push!(mci.eps, mi.eps)
                         push!(mci.mne, mi.min_nei)
@@ -457,7 +356,7 @@ function abc_mcmc_dbscan_full2(dfcart::GaiaClustering.Df, params::abcfull)
 end
 
 ## mini stats over Qc and Qn
-function ministats_full(niter::Int, dfcart::GaiaClustering.Df, mi::modelfull, params::abcfull)
+function ministats_full(niter::Int, dfcart::GaiaClustering.Df, mi::modelfull, params::meta)
     println("### mini stats...")
     qcmini = []
     qnmini = []
@@ -476,7 +375,7 @@ function ministats_full(niter::Int, dfcart::GaiaClustering.Df, mi::modelfull, pa
 end
 
 
-function theta_full(p::abcfull)
+function theta_full(p::meta)
     peps         = truncated(Normal(p.epsmean, p.epsdisp), 0.1 , 1000)
     pminnei      = truncated(Normal(p.min_nei, p.ncoredisp), 1 , 1000.)
     pmincl       = truncated(Normal(p.min_cl, p.ncoredisp), 1 , 1000.)
@@ -499,7 +398,7 @@ end
 
 ## iterate with random walk and yield the probability
 ##
-function thetaiter_full(θi::modelfull , p::abcfull)
+function thetaiter_full(θi::modelfull , p::meta)
     let
         peps         = truncated(Normal(p.epsmean, p.epsdisp), 0.1, 1000)
         pminnei      = truncated(Normal(p.min_nei, p.ncoredisp), 1 , 1000.)
@@ -550,66 +449,21 @@ function thetaiter_full(θi::modelfull , p::abcfull)
     end
 end
 
-#### function to adapt the minimum condition to evaluate the  solution
-###
-function check_qminqstar_full(dfcart::GaiaClustering.Df,
-        params::abcfull, minimumQ, minstars)
-    let
-        new_minq = minimumQ
-        new_minstars = minstars
-        notfound = true
-
-        ## standard sofar 50
-        mingoodsolution = 10
-        niter = 500
-
-        println("### Checking the minQ and minStars conditions...")
-        println("### Minimum good solutions $mingoodsolution")
-
-        while notfound
-            goodsolutions = 0
-            for i in 1:niter
-                mi, probi = theta_full(params)
-                dfcartnorm = getDfcartnorm(dfcart , mi)
-                qres , nstars = find_clusters(dfcartnorm, dfcart, mi)
-                if qres > new_minq && nstars >= new_minstars
-                    goodsolutions += 1
-                end
-                if goodsolutions > mingoodsolution
-                    notfound = false
-                    return(new_minq, new_minstars)
-                end
-            end
-            if notfound
-                new_minq *= 0.95
-                new_minstars = trunc(Int, 0.95 * new_minstars)
-                println("### MinQ not reached yet... testing with $new_minq")
-            end
-
-            if new_minstars == 0
-                println("### Problem with minStars, return(0.5,5)")
-                return(0.5,5)
-            end
-        end
-        return(new_minq, new_minstars)
-    end
-end
-
 ## check maximum iterations
-function check_qminqstar_full2(dfcart::GaiaClustering.Df,
-        params::abcfull, minimumQ, minstars)
+function check_qminqstar_full2(dfcart::GaiaClustering.Df, params::GaiaClustering.meta)
     let
-        new_minq = minimumQ
-        new_minstars = minstars
+        new_minq = params.minQc
+        new_minstars = params.minQn
         notfound = true
 
         ## standard sofar 50
-        mingoodsolution = 10
-        niter = 500
-        maxiter= niter*30   ## cycle numbers * niter
+        mingoodsolution = params.mingoodsolution
+        niter = params.niterqminq
+        maxiter= niter*30       ## cycle numbers * niter
 
-        println("### Checking the minQ and minStars conditions...")
-        println("### Minimum good solutions $mingoodsolution")
+        println("#### Checking the minQc and minQn conditions...")
+        println("#### Minimum good solutions $mingoodsolution")
+        println("#### Number of iterations: $niter, maxiter: $maxiter")
 
         totaliter= 0
         while notfound
@@ -630,18 +484,18 @@ function check_qminqstar_full2(dfcart::GaiaClustering.Df,
             if notfound
                 new_minq *= 0.95
                 new_minstars = trunc(Int, 0.95 * new_minstars)
-                println("### MinQ not reached yet... testing with $new_minq")
+                println("#### MinQ not reached yet... testing with $new_minq")
             end
 
             if new_minstars == 0 || totaliter > maxiter
-                println("### Maximum iteration reached..")
+                println("#### Maximum iteration reached..,")
                 if new_minstars < 5
                     new_minstars= 5
                 end
                 if new_minq < 0.5
                     new_minq= 0.5
                 end
-                println("### Maximum iterations reached.. minimums set to $new_minq, $new_minstars")
+                println("#### Maximum iterations reached.. minimums set to $new_minq, $new_minstars")
                 return(new_minq, new_minstars)
             end
         end

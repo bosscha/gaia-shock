@@ -7,7 +7,7 @@
 module GaiaClustering
 
 using PyCall , PyPlot
-using DataFrames , Formatting, Printf , Dates
+using DataFrames , Formatting, Printf , Dates ,  DelimitedFiles
 
 using Clustering
 using Statistics , Distributions ,Random
@@ -21,7 +21,7 @@ import  StatsBase , CSV,  Distances
 
 ## include all the types
 include("types.jl")
-export modelCauchy , Grav , abcfull , mcfull, modelfull
+export modelCauchy , Grav , abcfull , mcfull, modelfull, meta
 
 ## GAIA function to deal with data
 include("data.jl")
@@ -40,8 +40,8 @@ find_cluster_label2
 
 ## MCMC for gaia
 include("mcmc.jl")
-export theta , thetaiter , abc_mcmc_dbscan, ministats , abc_mcmc_dbscan_full , ministats_full ,
-theta_full , thetaiter_full , getDfcartnorm , check_qminqstar_full, abc_mcmc_dbscan_full2,
+export theta , thetaiter , abc_mcmc_dbscan, ministats  , ministats_full ,
+theta_full , thetaiter_full , getDfcartnorm , abc_mcmc_dbscan_full2,
 check_qminqstar_full2
 
 ## plotting functions
@@ -69,4 +69,11 @@ export spatialParameter, density2D , density3D , locdens2d , locdens3d, model_ra
 include("graph.jl")
 export zagreb_first, zagreb_second
 
+## metadata methods
+include("metadata.jl")
+export set_default_params , read_params , set_param!
+
+## deprecated functions
+include("deprecated.jl")
+export abc_mcmc_dbscan_full , check_qminqstar_full
 end
