@@ -350,7 +350,7 @@ function find_cluster_label2(labels, df::GaiaClustering.Df, dfcart::GaiaClusteri
         println("## Qc: $qc")
         bestlabel= findmax(qc)[2]
 
-        return(bestlabel, nlab[bestlabel])
+        return(bestlabel, nlab[bestlabel], qc[bestlabel])
     end
 end
 
@@ -511,4 +511,48 @@ function metric2(s::GaiaClustering.Df, labels ,proj = "spatial2d", APERTURE = 1.
         push!(Q,(Qc,Q_std))
     end
     return(Q)
+end
+
+
+### get the metrics
+### still a list of label lists...
+##
+function get_metrics(labels, dfcart::GaiaClustering.Df , m::meta)
+    let
+        #### metrics of the clusters
+        q2d = metric2(dfcart, labels, "spatial2d" , m.aperture2d, m.maxaperture2d, m.nboot)
+        q3d = metric2(dfcart, labels, "spatial3d" , m.aperture3d, m.maxaperture3d, m.nboot)
+        qv  = metric2(dfcart, labels, "velocity" ,  m.aperturev, m.maxaperturev, m.nboot)
+        qp, qa = metric2(dfcart, labels, "HRD" )
+
+        nlab = []
+        for ilab in labels
+            push!(nlab,length(ilab))
+        end
+
+        #### metric for the number of stars in the cluster
+        qn = []
+        for nl in nlab
+            push!(qn,log10(nl))
+        end
+
+        qc = 0.
+        qstar = 0
+        for i in 1:length(nlab)
+            k1 = q2d[i][1]
+            k1bis = q3d[i][1]
+            k2 = qv[i][1]
+            k3 = qa[i][1]
+            k4 = qn[i]
+            ############### Composite metric ###
+            qq = (2k1 + k1bis + 3k2 + k3 + k4) / 8.0
+            # qq = (3k1 + k1bis + 3k2 + k4) / 8.0
+            ###############
+            if qq > qc
+                qc = qq
+                qstar = nlab[i]
+            end
+        end
+        return(qc, qstar)
+    end
 end

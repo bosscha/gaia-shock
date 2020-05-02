@@ -226,12 +226,12 @@ function abc_mcmc_dbscan_full2(dfcart::GaiaClustering.Df, params::GaiaClustering
         Random.seed!()
         println("## ABC/MCMC for DBSCAN FULL (parameters+weighting)...")
         println("## ABC/MCMC v2")
-        println("## testing with meta")
 
         mci = mcfull(zeros(Float64,0),zeros(Int32,0),zeros(Int32,0) , zeros(Float64,0), zeros(Int32,0),
         zeros(Float64,0), zeros(Float64,0), zeros(Float64,0))
 
         initial = true
+        completed= false
         th = []
         mi = modelfull(0.0,0,0, 0., 0., 0.)
         micurrent = modelfull(0.0,0,0, 0., 0., 0.)
@@ -281,15 +281,15 @@ function abc_mcmc_dbscan_full2(dfcart::GaiaClustering.Df, params::GaiaClustering
             iter += 1
             if iter > maxiter
                 println("### Maximum iteration reached, no solutions...")
-                return(mci)
+                return(mci, iter, completed)
             end
         end
 
         ministats_full(100, dfcart, mi , params)
 
-        nchain = 1
-        loopAgain = true
-        burndone = false
+        nchain= 1
+        loopAgain= true
+        burndone= false
         tstart= now()
 
         iter= 0
@@ -346,12 +346,13 @@ function abc_mcmc_dbscan_full2(dfcart::GaiaClustering.Df, params::GaiaClustering
             end
             if iter > maxiter
                 println("### Maximum iteration reached, current solution returned...")
-                return(mci)
+                return(mci, iter, completed)
             end
         end
         println("## ABC/MCMC FULL done")
         println("##")
-        return(mci)
+        completed= true
+        return(mci,  iter, completed)
     end
 end
 
