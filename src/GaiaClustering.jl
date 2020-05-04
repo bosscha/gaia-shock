@@ -15,7 +15,8 @@ using Distances, LightGraphs, SimpleWeightedGraphs
 
 ## For wavelet in imaging
 import Interpolations
-using  Images , Base
+# using  Images
+using Base
 import StatsBase , CSV,  Distances
 
 
