@@ -276,6 +276,9 @@ function plot_cluster2(plotdir, voname, indx, sc::GaiaClustering.SCproperties, d
     PyPlot.plt.figure(figsize=(13.0,12.0))
     PyPlot.plt.subplot(3, 3, 1 , xlim = [-20,20] , ylim = [-20,20])
 
+    doff= sqrt(mean(df.data[2,indx])^2+mean(df.data[3,indx])^2)
+    doffdeg= atand(doff/sc.distance)
+
     xx = df.data[2,indx] .- mean(df.data[2,indx])
     yy = df.data[3,indx] .- mean(df.data[3,indx])
 
@@ -318,6 +321,8 @@ function plot_cluster2(plotdir, voname, indx, sc::GaiaClustering.SCproperties, d
     txt = "l , b         : $v1  ,  $v2  (degree)" ; push!(text,txt)
     v1 = fmt("3.3f",sc.ra) ; v2 = fmt("3.3f",sc.dec) ;
     txt = "RA , Dec  : $v1  ,  $v2  (degree)" ; push!(text,txt)
+    v1= fmt("3.3f",doffdeg)
+    txt = "Offset    : $v1 (degree)" ; push!(text,txt)
     v1 = fmt("3.3f",sc.vl) ; v2 = fmt("3.3f",sc.vb) ;
     txt = "vl , vb       : $v1  ,  $v2  (km/s)" ; push!(text,txt)
     v = fmt("3.2f",sc.vrad) ; txt  = "Vradial   : $v (km/s)"; push!(text,txt)
