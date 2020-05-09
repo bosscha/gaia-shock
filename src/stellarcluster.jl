@@ -3,7 +3,7 @@
 ### HR diagram metric using Delaunay tessalation to estimate density in the HRD
 ###
 ## The tesselation algorithm works with coordinates in range [1,2]
-
+#
 function metricHRD(hrdi::Df , label)
 
     QA = []
