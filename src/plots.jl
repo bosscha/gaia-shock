@@ -276,7 +276,7 @@ function plot_cluster2(plotdir, voname, indx, sc::GaiaClustering.SCproperties, d
     PyPlot.plt.figure(figsize=(13.0,12.0))
     PyPlot.plt.subplot(3, 3, 1 , xlim = [-20,20] , ylim = [-20,20])
 
-    doff= sqrt(mean(df.data[2,indx])^2+mean(df.data[3,indx])^2)
+    doff= sqrt(median(df.data[2,indx])^2+median(df.data[3,indx])^2)
     doffdeg= atand(doff/sc.distance)
 
     xx = df.data[2,indx] .- mean(df.data[2,indx])

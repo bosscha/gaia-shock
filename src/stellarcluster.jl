@@ -393,6 +393,48 @@ function get_properties_SC(indx, df::GaiaClustering.Df, dfcart::GaiaClustering.D
 
 end
 
+## compute the properties of the cluster with indices indx
+## new extended version of SCproperties.
+## mean -> median
+function get_properties_SC2(indx, df::GaiaClustering.Df, dfcart::GaiaClustering.Df)::SCproperties2
+    nstars   = length(indx)
+    distance = median(df.data[3,indx])
+    l        = median(df.data[1,indx])
+    b        = median(df.data[2,indx])
+    ra       = median(df.raw[1,indx])
+    dec      = median(df.raw[2,indx])
+    vl       = median(df.data[4,indx])
+    vb       = median(df.data[5,indx])
+    xdisp    = std(dfcart.data[1,indx])
+    ydisp    = std(dfcart.data[2,indx])
+    zdisp    = std(dfcart.data[3,indx])
+    vldisp   = std(df.data[4,indx])
+    vbdisp   = std(df.data[5,indx])
+    parallax = median(df.raw[5,indx])
+    pmra     = median(df.raw[6,indx])
+    pmdec    = median(df.raw[7,indx])
+    pml      = median(df.raw[8,indx])
+    pmb      = median(df.raw[9,indx])
+
+    vrad     = 0.
+    vraddisp = 0.
+    indvrad = isnotnan(df.raw[13,indx])
+
+    if length(indvrad) >  1
+        vrad = mean(df.raw[13,indx[indvrad]])
+        vraddisp = std(df.raw[13,indx[indvrad]])
+    elseif length(indvrad) == 1
+        vrad     = mean(df.raw[13,indx[indvrad]])
+        vraddisp = 0.
+    end
+
+    doff= sqrt(median(dfcart.data[2,indx])^2+median(dfcart.data[3,indx])^2)
+    doffdeg= atand(doff/distance)
+
+    sc = SCproperties2(nstars , distance, ra , dec , l , b , parallax, pmra , pmdec , pml, pmb, vl , vb, vrad, xdisp ,
+        ydisp , zdisp , vldisp, vbdisp, vraddisp, doffdeg)
+    return(sc)
+end
 ## some of the parameters are changed in find_clusters..
 function metric2(s::GaiaClustering.Df, labels ,proj = "spatial2d", APERTURE = 1.0 ,
         MAXAPERTURE = 15.0, NBOOTSTRAP = 50 , MAXDISP2D = 10.,  MAXDISP3D = 30. , MAXDISPVEL = 4.)

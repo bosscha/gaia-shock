@@ -139,7 +139,7 @@ end
 ### update basic parameters of the extracted cluster
 ####
 function SCparameters_updt(fileres,sc::GaiaClustering.SCproperties,votname)
-    try
+    if isfile(fileres)
         res = DataFrames.copy(CSV.read(fileres, delim=";"))
         newrow = DataFrame(votname=votname)
         newrow = DataFrame(votname=votname,nstars=sc.nstars,distance=sc.distance,l=sc.l,b=sc.b,
@@ -149,7 +149,7 @@ function SCparameters_updt(fileres,sc::GaiaClustering.SCproperties,votname)
         append!(res,newrow)
         CSV.write(fileres,res,delim=';')
         return(newrow)
-    catch
+    else
         println("## No $fileres file, it will be created...")
         res = DataFrame(votname=votname,nstars=sc.nstars,distance=sc.distance,l=sc.l,b=sc.b,
             vl=sc.vl,vb=sc.vb,vrad=sc.vrad , xdisp=sc.xdisp,ydisp=sc.ydisp,zdisp=sc.zdisp,
