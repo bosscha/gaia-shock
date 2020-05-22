@@ -439,7 +439,7 @@ function get_properties_SC2(indx, df::GaiaClustering.Df, dfcart::GaiaClustering.
     sc.dec= dec
     sc.l= l
     sc.b= b
-    sc.parallax = parallax
+    sc.parallax= parallax
     sc.pmra= pmra
     sc.pmdec= pmdec
     sc.pml= pml
@@ -453,7 +453,7 @@ function get_properties_SC2(indx, df::GaiaClustering.Df, dfcart::GaiaClustering.
     sc.vldisp= vldisp
     sc.vbdisp= vbdisp
     sc.vraddisp= vraddisp
-    sc.doffdeg= doffdeg
+    sc.offdeg= doffdeg
 
     return(sc)
 end
