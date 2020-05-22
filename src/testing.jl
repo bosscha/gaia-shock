@@ -1,6 +1,6 @@
 ## testing function (for notebooks e.g.)
 
-function __plot_check(dfcart,plotdir)
+function __plot_check(dfcart,plotdir,plotfile)
     cart= DataFrame(X=dfcart.data[1,:], Y=dfcart.data[2,:], Z=dfcart.data[3,:])
 
     println("## check plot subtraction ...")
