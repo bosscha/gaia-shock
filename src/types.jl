@@ -202,7 +202,7 @@ mutable struct meta
 end
 
 ## Basic properties of a SC v2
-struct SCproperties2
+mutable struct SCproperties2
     nstars::Int
     distance::Float64
     ra::Float64
