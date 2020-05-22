@@ -76,4 +76,8 @@ export set_default_params , read_params , set_param!
 ## deprecated functions
 include("deprecated.jl")
 export abc_mcmc_dbscan_full , check_qminqstar_full
+
+## testing functions
+include("testing.jl")
+export __plot_check , __plot_nstars
 end
