@@ -431,8 +431,30 @@ function get_properties_SC2(indx, df::GaiaClustering.Df, dfcart::GaiaClustering.
     doff= sqrt(median(dfcart.data[2,indx])^2+median(dfcart.data[3,indx])^2)
     doffdeg= atand(doff/distance)
 
-    sc = SCproperties2(nstars , distance, ra , dec , l , b , parallax, pmra , pmdec , pml, pmb, vl , vb, vrad, xdisp ,
-        ydisp , zdisp , vldisp, vbdisp, vraddisp, doffdeg)
+    sc = SCproperties2()
+
+    sc.nstars= nstars
+    sc.distance= distance
+    sc.ra= ra
+    sc.dec= dec
+    sc.l= l
+    sc.b= b
+    sc.parallax = parallax
+    sc.pmra= pmra
+    sc.pmdec= pmdec
+    sc.pml= pml
+    sc.pmb= pmb
+    sc.vl= vl
+    sc.vb= vb
+    sc.vrad= vrad
+    sc.xdisp= xdisp
+    sc.ydisp= ydisp
+    sc.zdisp= zdisp
+    sc.vldisp= vldisp
+    sc.vbdisp= vbdisp
+    sc.vraddisp= vraddisp
+    sc.doffdeg= doffdeg
+
     return(sc)
 end
 ## some of the parameters are changed in find_clusters..
