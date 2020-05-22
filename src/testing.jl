@@ -1,6 +1,6 @@
 ## testing function (for notebooks e.g.)
 
-function __plot_check(dfcart)
+function __plot_check(dfcart,plotdir)
     cart= DataFrame(X=dfcart.data[1,:], Y=dfcart.data[2,:], Z=dfcart.data[3,:])
 
     println("## check plot subtraction ...")
@@ -12,11 +12,12 @@ function __plot_check(dfcart)
     PyPlot.plt.ylabel("X (pc)")
     PyPlot.plt.grid(true)
 
+    PyPlot.plt.savefig(plotdir*"/"*plotfile)
     PyPlot.plt.show()
 
 end
 
-function __plot_nstars(nstarh,plotfile="test-stats-votable.png", plotdir)
+function __plot_nstars(nstarh,plotfile="test-stats-votable.png", plotdir= ".")
     println("## plotting distribution...")
     PyPlot.plt.figure(figsize=(9.0,8.0))
     PyPlot.plt.subplot(1, 1, 1 )
