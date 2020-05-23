@@ -232,6 +232,7 @@ function abc_mcmc_dbscan_full2(dfcart::GaiaClustering.Df, params::GaiaClustering
 
         initial = true
         completed= false
+        FLAG= -1            ## everything normal
         th = []
         mi = modelfull(0.0,0,0, 0., 0., 0.)
         micurrent = modelfull(0.0,0,0, 0., 0., 0.)
@@ -281,7 +282,8 @@ function abc_mcmc_dbscan_full2(dfcart::GaiaClustering.Df, params::GaiaClustering
             iter += 1
             if iter > maxiter
                 println("### Maximum iteration reached, no solutions...")
-                return(mci, iter, completed)
+                FLAG= 2      ## init not performed completely
+                return(mci, iter, completed,FLAG)
             end
         end
 
@@ -346,13 +348,15 @@ function abc_mcmc_dbscan_full2(dfcart::GaiaClustering.Df, params::GaiaClustering
             end
             if iter > maxiter
                 println("### Maximum iteration reached, current solution returned...")
-                return(mci, iter, completed)
+                if burdone   FLAG= 3 end    ## nchain not reached before maxiter but burnin done...
+                if !burndone FLAG= 4 end    ## burn-in not performed
+                return(mci, iter, completed, FLAG)
             end
         end
         println("## ABC/MCMC FULL done")
         println("##")
         completed= true
-        return(mci,  iter, completed)
+        return(mci,  iter, completed, FLAG)
     end
 end
 
