@@ -111,7 +111,7 @@ function set_param!(def, parstr,value)
     if parstr == "minstarstop" def.minstarstop= value  end
     if parstr == "minchainreached" def.minchainreached= value  end
     if parstr == "qcmin" def.qcmin= value  end
-    if parstr == "wratiomin" def.wratiomin= vaalue  end
+    if parstr == "wratiomin" def.wratiomin= value  end
 
     if parstr == "epsmean"   def.epsmean= value end
     if parstr == "epsdisp"   def.epsdisp= value end
