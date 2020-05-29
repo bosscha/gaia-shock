@@ -177,6 +177,13 @@ mutable struct meta
     nchain::Int
     maxiter::Int
 
+    cyclemax::Int
+    minstarselection::Int
+    minstarstop::Int
+    minchainreached::Int
+    qcmin::Float64
+    wratiomin::Float64 
+
     epsmean::Float64
     epsdisp::Float64
     min_nei::Int

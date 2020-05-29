@@ -26,6 +26,15 @@ function set_default_params()::meta
     def.nchain    = 15000           # MCMC iterations==number of CHAINS
     def.maxiter   = 500000
 
+    ### Cycle parameters
+    ###
+    def.cyclemax            = 3         ## maximum of cycles
+    def.minstarselection    = 50        ## minimum of stars to select solution in a cycle...
+    def.minstarstop         = 50        ## condition to stop cycling
+    def.minchainreached     = 100       ## minimum chain to analyze solution
+    def.qcmin               = 1.5       ## more condition on Qc to stop cycling after the first pass
+    def.wratiomin           = 0.2       ## minimum ratio btwn w3d and wvel (otherwise not an OC)
+
 
     ## prior settings
     ##
@@ -96,6 +105,13 @@ function set_param!(def, parstr,value)
     if parstr == "nburnout" def.nburnout= value end
     if parstr == "nchain"   def.nchain= value end
     if parstr == "maxiter"  def.maxiter= value end
+
+    if parstr == "cyclemax" def.cyclemax= value  end
+    if parstr == "minstarselection" def.minstarselection= value  end
+    if parstr == "minstarstop" def.minstarstop= value  end
+    if parstr == "minchainreached" def.minchainreached= value  end
+    if parstr == "qcmin" def.qcmin= value  end
+    if parstr == "wratiomin" def.wratiomin= vaalue  end
 
     if parstr == "epsmean"   def.epsmean= value end
     if parstr == "epsdisp"   def.epsdisp= value end

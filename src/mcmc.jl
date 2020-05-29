@@ -348,7 +348,7 @@ function abc_mcmc_dbscan_full2(dfcart::GaiaClustering.Df, params::GaiaClustering
             if iter > maxiter
                 println("### Maximum iteration reached, current solution returned...")
                 if burndone   FLAG= 3 end    ## nchain not reached before maxiter but burnin done...
-                if !burndone FLAG= 4 end    ## burn-in not performed
+                if !burndone  FLAG= 4 end    ## burn-in not performed
                 return(mci, iter, FLAG)
             end
         end

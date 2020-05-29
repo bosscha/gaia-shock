@@ -10,8 +10,8 @@
 # ocdir     = "$wdir/ocfull"
 # votname   = "FSR 0224-2.0deg.vot"
 
-## MCMC
-##
+### MCMC
+###
 minQc           = 2.7                     ## minimum Qc metric in MCMC
 minQn           = 40                      ## minimum Qn metric in MCMC
 maxQn           = 5000                    ## maximum Qn metric in MCMC
@@ -22,6 +22,16 @@ niterqminq      = 500                     ## iterions for check_qminqstar
 nburnout        = 2000                    ## burn-in iterations
 nchain          = 15000                   ## MCMC chains
 maxiter         = 500000
+
+### Cycle parameters
+###
+cyclemax            = 3         ## maximum of cycles
+minstarselection    = 50        ## minimum of stars to select solution in a cycle...
+minstarstop         = 50        ## condition to stop cycling
+minchainreached     = 100       ## minimum chain to analyze solution
+qcmin               = 1.5       ## more condition on Qc to stop cycling after the first pass
+wratiomin           = 0.2       ## minimum ratio btwn w3d and wvel (otherwise not an OC)
+
 
 ## prior settings
 ##
