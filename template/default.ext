@@ -25,8 +25,7 @@ maxiter         = 500000
 
 ### Cycle parameters
 ###
-cyclemax            = 3         ## maximum of cycles
-minstarselection    = 50        ## minimum of stars to select solution in a cycle...
+cyclemax            = 3         ## maximum of cycless
 minstarstop         = 50        ## condition to stop cycling
 minchainreached     = 100       ## minimum chain to analyze solution
 qcmin               = 1.5       ## more condition on Qc to stop cycling after the first pass
