@@ -280,7 +280,7 @@ function abc_mcmc_dbscan_full2(dfcart::GaiaClustering.Df, params::GaiaClustering
             end
             iter += 1
             if iter > maxiter
-                println("### Maximum iteration reached, no solutions...")
+                println("### Maximum iteration reached, no solution for init...")
                 FLAG= 2      ## init not performed completely
                 return(mci, iter,FLAG)
             end
@@ -504,4 +504,39 @@ function check_qminqstar_full2(dfcart::GaiaClustering.Df, params::GaiaClustering
         end
         return(new_minq, new_minstars)
     end
+end
+
+function extraction_mcmc(mc, votname)
+    epsm = median(mc.eps)
+    epsd = std(mc.eps)
+    mneim = median(mc.mne)
+    mneid = std(mc.mne)
+    mclm = median(mc.mcl)
+    mcld = std(mc.mcl)
+    qcm = median(mc.qc)
+    qnm = median(mc.qn)
+    qcd = std(mc.qc)
+    qnd = std(mc.qn)
+    w3dm = median(mc.w3d)
+    w3dd = std(mc.w3d)
+    wvelm = median(mc.wvel)
+    wveld = std(mc.wvel)
+    whrdm = median(mc.whrd)
+    whrdd = std(mc.whrd)
+
+    @printf("## DBSCAN/MCMC stats: \n")
+    @printf("### ϵ : %3.3f +/- %3.3f \n", epsm, epsd)
+    @printf("### min_nei  : %3.1f +/- %3.3f \n", mneim, mneid)
+    @printf("### min_clus  : %3.1f +/- %3.3f \n", mclm, mcld)
+    @printf("### W3d  : %3.3f +/- %3.3f \n", w3dm, w3dd)
+    @printf("### Wvel  : %3.3f +/- %3.3f \n" , wvelm, wveld)
+    @printf("### Whrd  : %3.3f +/- %3.3f \n", whrdm, whrdd)
+    @printf("### Qn  : %3.3f +/- %3.3f \n",qnm, qnd)
+    @printf("### Qc  : %3.3f +/- %3.3f \n",qcm, qcd)
+    @printf("##")
+
+    res = DataFrame(votname=votname, epsm = epsm, epsd=epsd, mneim=mneim,mneid=mneid,mclm=mclm,mcld=mcld,
+            qcm=qcm,qcd=qcd, qnm=qnm,qnd=qnd,
+            w3dm=w3dm,w3dd=w3dd,wvelm=wvelm,wveld=wveld,whrdm=whrdm,whrdd=whrdd)
+    return(res)
 end

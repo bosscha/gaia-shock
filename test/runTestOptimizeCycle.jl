@@ -136,7 +136,7 @@ end
 
 ### update basic parameters of the extracted cluster
 ####
-function SCparameters_updt(fileres,sc::GaiaClustering.SCproperties,votname)
+function SCparameters_updt(fileres,sc::GaiaClustering.SCproperties2,votname)
     try
         res = DataFrames.copy(CSV.read(fileres, delim=";"))
         newrow = DataFrame(votname=votname)
@@ -155,6 +155,42 @@ function SCparameters_updt(fileres,sc::GaiaClustering.SCproperties,votname)
         CSV.write(fileres,res,delim=';')
         initmcmc = true
         return(res)
+    end
+end
+
+## to check if done and record
+## check and updt if votname analyzed. If not done return false
+function updt_votcompleted!(fileres, votname , cycletot=1, onlycheck=true)
+    if  onlycheck
+        if !isfile(fileres)
+            return(0, false)
+        else
+            res = DataFrames.copy(CSV.read(fileres, delim=";"))
+            if votname in res.votname
+                x = @from i in res begin
+                    @where i.votname == votname
+                    @select i
+                    @collect DataFrame
+                end
+                return(x, true)
+            else
+                return(0, false)
+            end
+        end
+    ## UPDTE
+    else
+        if !isfile(fileres)
+            res = DataFrame(votname=votname, cycle=cycletot)
+            CSV.write(fileres,res,delim=';')
+            println("## $fileres created...")
+            return(res,true)
+        else
+            res = DataFrames.copy(CSV.read(fileres, delim=";"))
+            newrow = DataFrame(votname=votname,cycle=cycletot)
+            append!(res,newrow)
+            CSV.write(fileres,res,delim=';')
+            return(res,true)
+        end
     end
 end
 
@@ -193,7 +229,7 @@ function main(filelist,fileres, fileSCres)
 
         for i in 1:nfile
             votname = filelist[i]
-            mcmcfound , ismcmcfile = check_mcmc(votname, fileres)
+            mcmcfound= check_mcmc(fileres, votname, 0, true)
 
             ## test blacklist
             if votname in blacklist
@@ -242,7 +278,7 @@ function main(filelist,fileres, fileSCres)
                 ### best solution in terms of Qc...
                 println("## Extracting and writing the OC stars...")
                 export_df("$votname.0", ocdir, df , dfcart, labels , labelmax)
-                scproperties0 = get_properties_SC(labels[labelmax] , df, dfcart)
+                scproperties0 = get_properties_SC2(labels[labelmax] , df, dfcart)
                 println("### ",scproperties0)
                 plot_cluster2(plotdir, "$votname.0", labels[labelmax], scproperties0,  dfcart , false)
 

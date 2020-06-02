@@ -620,3 +620,147 @@ function get_metrics(labels, dfcart::GaiaClustering.Df , m::meta)
         return(qc, qstar)
     end
 end
+
+#### cycle extraction
+#### namefile: prefix for plotfile
+function cycle_extraction(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, params::GaiaClustering.meta)
+    let
+        println("############### cycle_extraction #########")
+
+        votname= m.votname
+        cyclerun= true ; cycle= 1
+
+        cyclemax= m.cyclemax
+        minstarselection=   m.minstarselection    # minimum of stars to select solution in a cycle...????
+        minstarstop=   m.minstarstop         # condition to stop cycling
+        minchainreached=  m.minchainreached      # minimum chain to analyze solution
+        qcmin=  m.qcmin                # more condition on Qc to stop cycling after the first
+        wratiomin=  m.wratiomin          # minimum ratio btwn w3d and wvel (otherwise not an OC)
+
+        println("##")
+        while cyclerun
+            tstart= now()
+            println("##\n## starting cycle $cycle ...")
+            ## extraction one cycle.. MCMC optimization
+            mc , iter, flag= abc_mcmc_dbscan_full2(dfcart, m)
+            println("## ABC/MCMC flag: $flag")
+            nchain= length(mc.qc)
+            println("## $iter iterations performed...")
+            println("## $nchain chains")
+
+            if flag== -1 || nchain > m.minchainreached
+                println("## optimization completed..")
+                println("## analyzing solutions...")
+                plot_dbscanfull_mcmc(m.plotdir, "$votname.$cycle", mc , false)
+
+                ## get the cluster and plot it
+                println("## extracting the cluster using DBSCAN/WEIGHTING with:")
+                res= extraction_mcmc(mc, votname)
+                eps= res.epsm[1]
+                min_nei= trunc(Int,res.mneim[1] + 0.5)
+                min_cl= trunc(Int,res.mclm[1] + 0.5)
+                w3d= res.w3dm[1]
+                wvel= res.wvelm[1]
+                whrd= res.whrdm[1]
+
+                mres = GaiaClustering.modelfull(eps,min_nei,min_cl,w3d,wvel,whrd)
+                dfcartnorm = getDfcartnorm(dfcart, mres)
+                labels = clusters(dfcartnorm.data ,eps  , 20, min_nei, min_cl)
+                labelmax , nmax, qc = find_cluster_label2(labels, df, dfcart)
+                println("## label $labelmax written to oc...")
+                export_df("$votname.$cycle", m.ocdir, df , dfcart, labels , labelmax)
+
+                scproperties0 = get_properties_SC(labels[labelmax] , df, dfcart)
+                scproperties2 = get_properties_SC2(labels[labelmax] , df, dfcart)
+                plot_cluster2(plotdir, "$votname.$cycle", labels[labelmax], scproperties0,  dfcart , false)
+
+                println("###")
+                println("### Label solution: $labelmax")
+                println("### N stars: $nmax")
+                println("### Qc: $qc")
+                println("###")
+
+                k= score_cycle(qc, nmax, nchain, iter)
+                @printf("## score cycle %d: %3.3f \n",cycle, k)
+
+                println("###")
+                println("### subtracting BEST solution from Df...")
+                dfnew, dfcartnew= remove_stars(df, dfcart, labels[labelmax])
+                df= dfnew
+                dfcart= dfcartnew
+
+                ########################### STOP conditions #########
+                if nmax < m.minstarstop
+                    println("## extraction stopped at cycle $cycle")
+                    println("## nmax too low...")
+                    cyclerun= false
+                end
+                if cycle == m.cyclemax
+                    println("## extraction stopped at cycle $cycle")
+                    println("## cyclemax reached...")
+                    cyclerun= false
+                end
+                if qc < m.qcmin
+                    println("## extraction stopped at cycle $cycle")
+                    println("## Qc too low...")
+                    cyclerun= false
+                end
+                if w3d/wvel < m.wratiomin || wvel/w3d < m.wratiomin
+                    println("## extraction stopped at cycle $cycle")
+                    println("## weight ratio too low...")
+                    cyclerun= false
+                end
+                #####################################################
+
+                ## Time
+                tend= now()
+                duration= Dates.value(tend-tstart) / (1000*1)
+                nstar= size(df.raw)[2]
+                timeperiterstar= duration / (iter*nstar)
+                timeperchainstar= duration / (nchain*nstar)
+                @printf("## Time: \n")
+                @printf("## duration per cycle %3.3f sec \n", duration)
+                @printf("## duration per iteration*star %3.3e sec \n", timeperiterstar)
+                @printf("## duration per chain*star %3.3e sec \n", timeperchainstar)
+                @printf("##\n")
+
+                ## log the results of performances
+                dfout= DataFrame(votname=votname, cycle=cycle, nstar=nstar, qc=qc, nmax=nmax, nchain=nchain, iter=iter,
+                scorecycle=k, duration=duration, timeperiterstar=timeperiterstar ,
+                timeperchainstar= timeperchainstar )
+                # _updt!(filedebug, dfout)
+                cycle += 1
+            else
+                println("## nothing found, stopped...")
+                cyclerun= false
+            end
+        end
+    end
+end
+
+function score_cycle(qc, qn, nchain, iter)
+    k= log10(qc*qn*nchain /iter)
+    return(k)
+end
+
+function remove_stars(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, idx)
+    s0=size(df.data)
+
+    diff= setdiff(1:s0[2],idx)
+    dfdata= df.data[:,setdiff(1:end,idx)]
+    dfraw= df.raw[:,setdiff(1:end,idx)]
+    dferr= df.err[:,setdiff(1:end,idx)]
+
+    dfcartdata= dfcart.data[:,setdiff(1:end,idx)]
+    dfcartraw= dfcart.raw[:,setdiff(1:end,idx)]
+    dfcarterr= dfcart.err[:,setdiff(1:end,idx)]
+
+    s=size(dfdata)
+
+    dfnew= GaiaClustering.Df(s[2],dfdata,dfraw,dferr)
+    dfcartnew= GaiaClustering.Df(s[2],dfcartdata,dfcartraw,dfcarterr)
+
+    nrem= length(idx)
+    println("### $nrem stars removed")
+    return(dfnew, dfcartnew)
+end
