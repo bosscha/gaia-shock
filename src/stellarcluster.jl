@@ -251,8 +251,12 @@ function find_clusters(df::GaiaClustering.Df, dfcart::GaiaClustering.Df , m::Gai
     aperture3d = 3., maxaperture3d = 20)
     let
         labels = clusters(df.data , m.eps , 20, m.min_nei, m.min_cl)
-        if length(labels) == 0
+        nsol= length(labels)
+        if nsol == 0
             return(0, 0)
+        end
+        if nsol > 100
+            println("### Warning... $nsol clusters found in find_clusters ")
         end
 
     ### metrics of the clusters

@@ -388,7 +388,7 @@ function theta_full(p::meta)
 
     e = rand(peps)          ; pe = pdf(peps,e)
     n = trunc(Int,rand(pminnei))  ; pn = pdf(pminnei, n)
-    c = trunc(Int,rand(pmincl))   ; pc = pdf(pmincl, c)
+    c = trunc(Int,rand(pmincl))   ; pc = pdf(pmincl, c)  
     w3 = rand(pw3d)          ; pw3 = pdf(pw3d,w3)
     wv = rand(pwvel)         ; pwv = pdf(pwvel,wv)
     wh = rand(pwhrd)         ; pwh = pdf(pwhrd,wh)
@@ -472,7 +472,10 @@ function check_qminqstar_full2(dfcart::GaiaClustering.Df, params::GaiaClustering
         while notfound
             goodsolutions = 0
             for i in 1:niter
+                println("-- $i")
                 mi, probi = theta_full(params)
+                println(mi)
+                println(probi)
                 dfcartnorm = getDfcartnorm(dfcart , mi)
                 qres , nstars = find_clusters(dfcartnorm, dfcart, mi)
                 if qres > new_minq && nstars >= new_minstars
