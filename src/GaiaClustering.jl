@@ -35,7 +35,7 @@ export voronoi
 
 ## stelllar cluster analysis
 include("stellarcluster.jl")
-export metric , clusters , find_clusters , find_cluster_label, get_properties_SC , metric2 ,
+export metric , clusters , find_clusters2 , find_cluster_label, get_properties_SC , metric2 ,
 find_cluster_label2, get_metrics,  get_properties_SC2
 
 ## MCMC for gaia
@@ -75,7 +75,7 @@ export set_default_params , read_params , set_param!
 
 ## deprecated functions
 include("deprecated.jl")
-export abc_mcmc_dbscan_full , check_qminqstar_full
+export abc_mcmc_dbscan_full , check_qminqstar_full , find_clusters
 
 ## testing functions
 include("testing.jl")

@@ -50,7 +50,8 @@ function set_default_params()::meta
     def.whrdmean  = 2.0
     def.whrddisp  = 1.5
 
-    ## Metrics find_clusters
+    ## Metrics & parameters find_clusters
+    def.clustermax    = 1000
     def.aperture2d    = 1.5
     def.maxaperture2d = 15
     def.aperture3d    = 3
@@ -126,6 +127,7 @@ function set_param!(def, parstr,value)
     if parstr == "whrddisp"  def.whrddisp= value end
 
     ## Metrics find_clusters
+    if parstr == "clustermax"     def.clustermax= value end
     if parstr == "aperture2d"     def.aperture2d= value end
     if parstr == "maxaperture2d"  def.maxaperture2d= value end
     if parstr == "aperture3d"     def.aperture3d= value end

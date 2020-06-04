@@ -182,7 +182,7 @@ mutable struct meta
     minstarstop::Int
     minchainreached::Int
     qcmin::Float64
-    wratiomin::Float64 
+    wratiomin::Float64
 
     epsmean::Float64
     epsdisp::Float64
@@ -196,6 +196,7 @@ mutable struct meta
     whrdmean::Float64
     whrddisp::Float64
 
+    clustermax::Int
     aperture2d::Float64
     maxaperture2d::Float64
     aperture3d::Float64

@@ -265,7 +265,7 @@ function abc_mcmc_dbscan_full2(dfcart::GaiaClustering.Df, params::GaiaClustering
         while initial
             mi, probi = theta_full(params)
             dfcartnorm = getDfcartnorm(dfcart , mi)
-            qres , nstars = find_clusters(dfcartnorm, dfcart, mi)
+            qres , nstars = find_clusters2(dfcartnorm, dfcart, mi, params)
             if qres > minimumQ && nstars >= minstars && nstars <= maxstars
                 println("### init done ...")
                 initial = false
@@ -297,7 +297,7 @@ function abc_mcmc_dbscan_full2(dfcart::GaiaClustering.Df, params::GaiaClustering
         while loopAgain
             micurrent, probcurrent = thetaiter_full(mi , params)
             dfcartnorm = getDfcartnorm(dfcart , micurrent)
-            qres , nstars = find_clusters(dfcartnorm, dfcart, micurrent)
+            qres , nstars = find_clusters2(dfcartnorm, dfcart, micurrent, params)
 
             if qres > minimumQ && nstars >= minstars && nstars <= maxstars
             ### Metropolis-Hasting
@@ -307,7 +307,7 @@ function abc_mcmc_dbscan_full2(dfcart::GaiaClustering.Df, params::GaiaClustering
                     probi = probcurrent
                     nchain += 1
                     if (nchain%1000 == 0) println("### chain:",nchain) end
-                    if nchain > nburn && !burndone println("### burnout done...") ; nchain = 0 ; burndone = true end
+                    if nchain > nburn && !burndone println("### burn-in done...") ; nchain = 0 ; burndone = true end
                     if nchain > niter && burndone loopAgain = false end
                     if burndone
                         push!(mci.eps, mi.eps)
@@ -322,7 +322,7 @@ function abc_mcmc_dbscan_full2(dfcart::GaiaClustering.Df, params::GaiaClustering
                 else
                     nchain += 1
                     if (nchain%1000 == 0) println("### chain:",nchain) end
-                    if nchain > nburn && !burndone println("### burnout done...") ; nchain = 0 ; burndone = true end
+                    if nchain > nburn && !burndone println("### burn-in done...") ; nchain = 0 ; burndone = true end
                     if nchain > niter && burndone loopAgain = false end
                     if burndone
                         push!(mci.eps, mi.eps)
@@ -367,7 +367,7 @@ function ministats_full(niter::Int, dfcart::GaiaClustering.Df, mi::modelfull, pa
         mitest, probtest = thetaiter_full(mi , params)
         dfcartnorm = getDfcartnorm(dfcart , mitest)
 
-        qtest , ntest = find_clusters(dfcartnorm, dfcart, mitest)
+        qtest , ntest = find_clusters2(dfcartnorm, dfcart, mitest, params)
         push!(qcmini,qtest)
         push!(qnmini,ntest)
     end
@@ -388,7 +388,7 @@ function theta_full(p::meta)
 
     e = rand(peps)          ; pe = pdf(peps,e)
     n = trunc(Int,rand(pminnei))  ; pn = pdf(pminnei, n)
-    c = trunc(Int,rand(pmincl))   ; pc = pdf(pmincl, c)  
+    c = trunc(Int,rand(pmincl))   ; pc = pdf(pmincl, c)
     w3 = rand(pw3d)          ; pw3 = pdf(pw3d,w3)
     wv = rand(pwvel)         ; pwv = pdf(pwvel,wv)
     wh = rand(pwhrd)         ; pwh = pdf(pwhrd,wh)
@@ -472,12 +472,12 @@ function check_qminqstar_full2(dfcart::GaiaClustering.Df, params::GaiaClustering
         while notfound
             goodsolutions = 0
             for i in 1:niter
-                println("-- $i")
+                # println("-- $i")
                 mi, probi = theta_full(params)
-                println(mi)
-                println(probi)
+                # println(mi)
+                # println(probi)
                 dfcartnorm = getDfcartnorm(dfcart , mi)
-                qres , nstars = find_clusters(dfcartnorm, dfcart, mi)
+                qres , nstars = find_clusters2(dfcartnorm, dfcart, mi, params)
                 if qres > new_minq && nstars >= new_minstars
                     goodsolutions += 1
                 end
