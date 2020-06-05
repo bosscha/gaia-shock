@@ -269,15 +269,12 @@ function plot_cluster(plotdir, voname, indx, sc::GaiaClustering.SCproperties, df
     if showplot PyPlot.plt.show() end
 end
 
-function plot_cluster2(plotdir, voname, indx, sc::GaiaClustering.SCproperties, df::GaiaClustering.Df, showplot = true , cmap = "gist_stern")
+function plot_cluster2(plotdir, voname, indx, sc::GaiaClustering.SCproperties2, df::GaiaClustering.Df, showplot = true , cmap = "gist_stern")
 
     println("### Cluster plot is centered in Y,Z...")
 
     PyPlot.plt.figure(figsize=(13.0,12.0))
     PyPlot.plt.subplot(3, 3, 1 , xlim = [-20,20] , ylim = [-20,20])
-
-    doff= sqrt(median(df.data[2,indx])^2+median(df.data[3,indx])^2)
-    doffdeg= atand(doff/sc.distance)
 
     xx = df.data[2,indx] .- mean(df.data[2,indx])
     yy = df.data[3,indx] .- mean(df.data[3,indx])
@@ -321,7 +318,7 @@ function plot_cluster2(plotdir, voname, indx, sc::GaiaClustering.SCproperties, d
     txt = "l , b         : $v1  ,  $v2  (degree)" ; push!(text,txt)
     v1 = fmt("3.3f",sc.ra) ; v2 = fmt("3.3f",sc.dec) ;
     txt = "RA , Dec  : $v1  ,  $v2  (degree)" ; push!(text,txt)
-    v1= fmt("3.3f",doffdeg)
+    v1= fmt("3.3f",sc.offdeg)
     txt = "Offset     : $v1 (degree)" ; push!(text,txt)
     v1 = fmt("3.3f",sc.vl) ; v2 = fmt("3.3f",sc.vb) ;
     txt = "vl , vb       : $v1  ,  $v2  (km/s)" ; push!(text,txt)

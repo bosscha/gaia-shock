@@ -267,13 +267,13 @@ end
 
 ## label with higher Qc is selected
 function find_cluster_label2(labels, df::GaiaClustering.Df, dfcart::GaiaClustering.Df ,
-    aperture2d = 1.5, maxaperture2d = 15, aperturev = 3.0, maxaperturev = 20, nboot = 30)
+    m::GaiaClustering.meta)
     let
         println("## Selecting best cluster based on Qc..")
         ### metrics of the clusters
-        q2d = metric2(dfcart, labels, "spatial2d" , aperture2d, maxaperture2d, nboot)
-        q3d = metric2(dfcart, labels, "spatial3d" , aperture2d, maxaperture2d, nboot)     #### Added
-        qv  = metric2(dfcart, labels, "velocity" , aperturev, maxaperturev, nboot)
+        q2d = metric2(dfcart, labels, "spatial2d" , m.aperture2d, m.maxaperture2d, m,nboot)
+        q3d = metric2(dfcart, labels, "spatial3d" , m.aperture3d, m.maxaperture3d, m.nboot)     #### Added
+        qv  = metric2(dfcart, labels, "velocity" , m.aperturev, m.maxaperturev, m.nboot)
         qp, qa = metric2(dfcart, labels, "HRD" )
 
         nlab = []
@@ -594,7 +594,9 @@ function cycle_extraction(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, m::G
         println("##")
         while cyclerun
             tstart= now()
-            println("##\n## starting cycle $cycle ...")
+            println("####################")
+            println("## starting cycle $cycle ...")
+            @printf("## %s \n",tstart)
             ## extraction one cycle.. MCMC optimization
             mc , iter, flag= abc_mcmc_dbscan_full2(dfcart, m)
             println("## ABC/MCMC flag: $flag")
@@ -620,16 +622,15 @@ function cycle_extraction(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, m::G
                 mres = GaiaClustering.modelfull(eps,min_nei,min_cl,w3d,wvel,whrd)
                 dfcartnorm = getDfcartnorm(dfcart, mres)
                 labels = clusters(dfcartnorm.data ,eps  , 20, min_nei, min_cl)
-                labelmax , nmax, qc = find_cluster_label2(labels, df, dfcart)
+                labelmax , nmax, qc = find_cluster_label2(labels, df, dfcart, m)
                 println("## label $labelmax written to oc...")
                 export_df("$votname.$cycle", m.ocdir, df , dfcart, labels , labelmax)
 
-                scproperties0 = get_properties_SC(labels[labelmax] , df, dfcart)
-                scproperties2 = get_properties_SC2(labels[labelmax] , df, dfcart)
-                plot_cluster2(plotdir, "$votname.$cycle", labels[labelmax], scproperties0,  dfcart , false)
+                scproperties = get_properties_SC2(labels[labelmax] , df, dfcart)
+                plot_cluster2(plotdir, "$votname.$cycle", labels[labelmax], scproperties,  dfcart , false)
 
                 println("###")
-                println("### Label solution: $labelmax")
+                println("### label solution: $labelmax")
                 println("### N stars: $nmax")
                 println("### Qc: $qc")
                 println("###")
@@ -644,24 +645,29 @@ function cycle_extraction(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, m::G
                 dfcart= dfcartnew
 
                 ########################### STOP conditions #########
+                FLAG= 0
                 if nmax < m.minstarstop
-                    println("## extraction stopped at cycle $cycle")
-                    println("## nmax too low...")
+                    FLAG += 1<<1
+                    println("### extraction stopped at cycle $cycle")
+                    println("### nmax too low...")
                     cyclerun= false
                 end
                 if cycle == m.cyclemax
-                    println("## extraction stopped at cycle $cycle")
-                    println("## cyclemax reached...")
+                    FLAG += 1<<2
+                    println("### extraction stopped at cycle $cycle")
+                    println("### cyclemax reached...")
                     cyclerun= false
                 end
                 if qc < m.qcmin
-                    println("## extraction stopped at cycle $cycle")
-                    println("## Qc too low...")
+                    FLAG += 1<<3
+                    println("### extraction stopped at cycle $cycle")
+                    println("### Qc too low...")
                     cyclerun= false
                 end
                 if w3d/wvel < m.wratiomin || wvel/w3d < m.wratiomin
-                    println("## extraction stopped at cycle $cycle")
-                    println("## weight ratio too low...")
+                    FLAG += 1<<4
+                    println("### extraction stopped at cycle $cycle")
+                    println("### weight ratio too low...")
                     cyclerun= false
                 end
                 #####################################################
@@ -686,10 +692,12 @@ function cycle_extraction(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, m::G
                 cycle += 1
             else
                 println("## nothing found, stopped...")
+                FLAG= 0
                 cyclerun= false
             end
         end
     end
+    return(cycle-1, FLAG)
 end
 
 function score_cycle(qc, qn, nchain, iter)
