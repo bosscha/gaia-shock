@@ -581,8 +581,8 @@ function cycle_extraction(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, m::G
     let
         println("############### cycle_extraction #########")
 
-        # votname= m.votname
-        cyclerun= true ; cycle= 1
+        votname= m.votname
+        cyclerun= true ; cycle= 1 ; FLAG= 0
 
         # cyclemax= m.cyclemax
         # minstarselection=   m.minstarselection    # minimum of stars to select solution in a cycle...????
@@ -593,18 +593,19 @@ function cycle_extraction(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, m::G
 
         println("##")
         while cyclerun
+            FLAG= -1
             tstart= now()
             println("####################")
             println("## starting cycle $cycle ...")
-            @printf("## %s \n",tstart)
+            @printf("## starting time: %s \n",tstart)
             ## extraction one cycle.. MCMC optimization
-            mc , iter, flag= abc_mcmc_dbscan_full2(dfcart, m)
+            mc , iter, FLAGmcmc= abc_mcmc_dbscan_full2(dfcart, m)
             println("## ABC/MCMC flag: $flag")
             nchain= length(mc.qc)
             println("## $iter iterations performed...")
             println("## $nchain chains")
 
-            if flag== -1 || nchain > m.minchainreached
+            if FLAGmcmc== -1 || nchain > m.minchainreached
                 println("## optimization completed..")
                 println("## analyzing solutions...")
                 plot_dbscanfull_mcmc(m.plotdir, "$votname.$cycle", mc , false)
@@ -670,8 +671,13 @@ function cycle_extraction(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, m::G
                     println("### weight ratio too low...")
                     cyclerun= false
                 end
+                if FLAGmcmc == 3 && nchain > m.minchainreached
+                    FLAG += 1<<5
+                    println("## extraction stopped at cycle $cycle")
+                    println("## chain iteration not performed completely but sufficient to keep...")
+                    cyclerun= false
+                end
                 #####################################################
-
                 ## Time
                 tend= now()
                 duration= Dates.value(tend-tstart) / (1000*1)
@@ -696,8 +702,8 @@ function cycle_extraction(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, m::G
                 cyclerun= false
             end
         end
+        return(cycle-1, FLAG)
     end
-    return(cycle-1, FLAG)
 end
 
 function score_cycle(qc, qn, nchain, iter)

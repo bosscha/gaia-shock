@@ -27,7 +27,7 @@ maxiter         = 500000
 ###
 cyclemax            = 3         ## maximum of cycless
 minstarstop         = 50        ## condition to stop cycling
-minchainreached     = 100       ## minimum chain to analyze solution
+minchainreached     = 3000      ## minimum chain to analyze solution
 qcmin               = 1.5       ## more condition on Qc to stop cycling after the first pass
 wratiomin           = 0.2       ## minimum ratio btwn w3d and wvel (otherwise not an OC)
 
