@@ -271,7 +271,7 @@ function find_cluster_label2(labels, df::GaiaClustering.Df, dfcart::GaiaClusteri
     let
         println("## Selecting best cluster based on Qc..")
         ### metrics of the clusters
-        q2d = metric2(dfcart, labels, "spatial2d" , m.aperture2d, m.maxaperture2d, m,nboot)
+        q2d = metric2(dfcart, labels, "spatial2d" , m.aperture2d, m.maxaperture2d, m.nboot)
         q3d = metric2(dfcart, labels, "spatial3d" , m.aperture3d, m.maxaperture3d, m.nboot)     #### Added
         qv  = metric2(dfcart, labels, "velocity" , m.aperturev, m.maxaperturev, m.nboot)
         qp, qa = metric2(dfcart, labels, "HRD" )
@@ -584,12 +584,7 @@ function cycle_extraction(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, m::G
         votname= m.votname
         cyclerun= true ; cycle= 1 ; FLAG= 0
 
-        # cyclemax= m.cyclemax
-        # minstarselection=   m.minstarselection    # minimum of stars to select solution in a cycle...????
-        # minstarstop=   m.minstarstop         # condition to stop cycling
-        # minchainreached=  m.minchainreached      # minimum chain to analyze solution
-        # qcmin=  m.qcmin                # more condition on Qc to stop cycling after the first
-        # wratiomin=  m.wratiomin          # minimum ratio btwn w3d and wvel (otherwise not an OC)
+        sclist= [] ; mcmclist= [] ; perflist= []
 
         println("##")
         while cyclerun
@@ -600,7 +595,7 @@ function cycle_extraction(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, m::G
             @printf("## starting time: %s \n",tstart)
             ## extraction one cycle.. MCMC optimization
             mc , iter, FLAGmcmc= abc_mcmc_dbscan_full2(dfcart, m)
-            println("## ABC/MCMC flag: $flag")
+            println("## ABC/MCMC flag: $FLAGmcmc")
             nchain= length(mc.qc)
             println("## $iter iterations performed...")
             println("## $nchain chains")
@@ -628,7 +623,9 @@ function cycle_extraction(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, m::G
                 export_df("$votname.$cycle", m.ocdir, df , dfcart, labels , labelmax)
 
                 scproperties = get_properties_SC2(labels[labelmax] , df, dfcart)
-                plot_cluster2(plotdir, "$votname.$cycle", labels[labelmax], scproperties,  dfcart , false)
+                plot_cluster2(m.plotdir, "$votname.$cycle", labels[labelmax], scproperties,  dfcart , false)
+                push!(sclist, scproperties)
+                push!(mcmclist, res)
 
                 println("###")
                 println("### label solution: $labelmax")
@@ -684,6 +681,7 @@ function cycle_extraction(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, m::G
                 nstar= size(df.raw)[2]
                 timeperiterstar= duration / (iter*nstar)
                 timeperchainstar= duration / (nchain*nstar)
+                @printf("## \n")
                 @printf("## Time: \n")
                 @printf("## duration per cycle %3.3f sec \n", duration)
                 @printf("## duration per iteration*star %3.3e sec \n", timeperiterstar)
@@ -694,13 +692,17 @@ function cycle_extraction(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, m::G
                 dfout= DataFrame(votname=votname, cycle=cycle, nstar=nstar, qc=qc, nmax=nmax, nchain=nchain, iter=iter,
                 scorecycle=k, duration=duration, timeperiterstar=timeperiterstar ,
                 timeperchainstar= timeperchainstar )
-                # _updt!(filedebug, dfout)
+                push!(perflist, dfout)
+
                 cycle += 1
             else
                 println("## nothing found, stopped...")
                 FLAG= 0
                 cyclerun= false
             end
+        end
+        if cycle >= 2
+            save_cycle(sclist, mcmclist, perflist, m)
         end
         return(cycle-1, FLAG)
     end
@@ -731,4 +733,35 @@ function remove_stars(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, idx)
     nrem= length(idx)
     println("### $nrem stars removed")
     return(dfnew, dfcartnew)
+end
+
+### save results cycle in csv
+###
+function save_cycle(sc, mcmc, perf, m::GaiaClustering.meta)
+    filesc= @sprintf("%s.sc.csv", m.prefile)
+    filemcmc= @sprintf("%s.mcmc.csv", m.prefile)
+    fileperf= @sprintf("%s.time.csv", m.prefile)
+    votname= m.votname
+
+    ncycle= length(sc)
+
+    for i in 1:ncycle
+        dfsc= convertStruct2Df(sc[i])
+
+        if !isfile(filesc)
+            CSV.write(fileres,dfsc,delim=';')
+            println("## $filesc created...")
+            CSV.write(filemcmc,mcmc[i],delim=';')
+            println("## $filemcmc created...")
+            CSV.write(fileperf,perf[i],delim=';')
+            println("## $fileperf created...")
+        else
+            res = DataFrames.copy(CSV.read(filesc, delim=";"))
+            append!(res,dfsc) ; CSV.write(filesc,res,delim=';')
+            res = DataFrames.copy(CSV.read(filemcmc, delim=";"))
+            append!(res,mcmc[i]) ; CSV.write(filemcmc,res,delim=';')
+            res = DataFrames.copy(CSV.read(fileperf, delim=";"))
+            append!(res,perf[i]) ; CSV.write(fileperf,res,delim=';')
+        end
+    end
 end

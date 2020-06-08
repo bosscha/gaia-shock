@@ -20,3 +20,18 @@ function read_blacklist(blackname)
 
     return(blacklist)
 end
+
+## transform struct to DF
+function convertStruct2Df(s)::DataFrame
+    T= typeof(s)
+    f= fieldnames(T)
+
+     dct= Dict()
+     for field in f
+         val= getfield(s, field)
+         push!(dct, field => val)
+     end
+
+     df= DataFrame(dct)
+     return(df)
+end

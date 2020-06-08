@@ -166,6 +166,7 @@ mutable struct meta
     plotdir::String
     ocdir::String
     votname::String
+    prefile::String
 
     minQc::Float64
     minQn::Int

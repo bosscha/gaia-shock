@@ -12,6 +12,7 @@ function set_default_params()::meta
     def.plotdir = @sprintf("%s/plots-select" , def.wdir)
     def.ocdir   = @sprintf("%s/oc", def.wdir)
     def.votname = "test.vot"
+    def.prefile= "ocres"
 
     ## MCMC
     ##
@@ -95,6 +96,7 @@ function set_param!(def, parstr,value)
     if parstr == "plotdir" def.plotdir= value end
     if parstr == "ocdir"   def.ocdir= value end
     if parstr == "votname" def.votname= value end
+    if parstr == "prefile" def.prefile= value end
 
     if parstr == "minQc"           def.minQc= value end
     if parstr == "minQn"           def.minQn= value end
