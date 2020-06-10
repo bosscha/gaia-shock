@@ -25,13 +25,38 @@ end
 function convertStruct2Df(s)::DataFrame
     T= typeof(s)
     f= fieldnames(T)
+    n=length(f)
 
-     dct= Dict()
-     for field in f
+     field1= fieldname(T,1) ; val1= getfield(s, field1)
+     df= DataFrame(field1 => val1)
+
+     for i in 2:n
+         field= fieldname(T,i)
          val= getfield(s, field)
-         push!(dct, field => val)
+         insertcols!(df,i,field=>val)
      end
 
-     df= DataFrame(dct)
      return(df)
+end
+
+## special printing code
+## return string
+function specialstr(str, CODE)
+    d= Dict( "PURPLE" => "\033[95m" ,
+             "CYAN" => "\033[96m" ,
+             "DARKCYAN" => "\033[36m" ,
+             "BLUE" => "\033[94m" ,
+             "GREEN" => "\033[92m" ,
+             "YELLOW" => "\033[93m" ,
+             "RED" => "\033[91m" ,
+             "BOLD" => "\033[1m" ,
+             "UNDERLINE" => "\033[4m" ,
+             "END" => "\033[0m")
+
+    if haskey(d, CODE)
+        res= @sprintf("%s%s%s", d[CODE], str, d["END"])
+        return(res)
+    else
+        return(str)
+    end
 end

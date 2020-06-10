@@ -1,14 +1,10 @@
-## Testing an optimization on a small set of files
-## It includes the optimization by cycle:detection+subtraction
-##
-
 ## Main loop to extract in e2e the DBSCAN parameters.
 ## The list of votable is selected directly from the directory
 
-using DataFrames, Query
+using DataFrames
 using CSV, Glob, Dates
-using Statistics, Random
-using Printf
+using Statistics
+import DataFrames
 
 rootdir =  ENV["GAIA_ROOT"]
 
@@ -16,16 +12,14 @@ push!(LOAD_PATH,"$rootdir/master/src")
 using GaiaClustering
 
 ## directory
-wdir    = "$rootdir/products"
-votdir  = "$rootdir/e2e_products/votable.2020"
-plotdir = "$rootdir/products/test"
-ocdir   = "$rootdir/products/octest"
-sclist  = "$rootdir/e2e_products/"
+wdir    = "$rootdir/e2e_products"
+votdir  = "$wdir/votable"
+plotdir = "$wdir/plotsSelect"
+ocdir   = "$wdir/oc"
 
 ## load a liist of votable and update the file if done
 ## add results
 ##
-
 function readlist_votable(filelist::String)
     vot = DataFrames.copy(CSV.read(filelist))
     return(vot)
@@ -49,41 +43,39 @@ end
 ## to check if done and record
 ## check and updt if votname analyzed. If not done return false
 function updt_votcompleted(fileres, votname , cycletot=1, onlycheck=true)
-    let
-        println(cycletot)
-        if  onlycheck
-            if !isfile(fileres)
-                return(0, false)
-            else
-                res = DataFrames.copy(CSV.read(fileres, delim=";"))
-                if votname in res.votname
-                    x = @from i in res begin
-                        @where i.votname == votname
-                        @select i
-                        @collect DataFrame
-                    end
-                    return(x, true)
-                else
-                    return(0, false)
-                end
-            end
-            ## UPDTE
+    if  onlycheck
+        if !isfile(fileres)
+            return(0, false)
         else
-            if !isfile(fileres)
-                res = DataFrame(votname=votname, cycle=cycletot)
-                CSV.write(fileres,res,delim=';')
-                println("## $fileres created...")
-                return(res,true)
+            res = DataFrames.copy(CSV.read(fileres, delim=";"))
+            if votname in res.votname
+                x = @from i in res begin
+                    @where i.votname == votname
+                    @select i
+                    @collect DataFrame
+                end
+                return(x, true)
             else
-                res = DataFrames.copy(CSV.read(fileres, delim=";"))
-                newrow = DataFrame(votname=votname,cycle=cycletot)
-                append!(res,newrow)
-                CSV.write(fileres,res,delim=';')
-                return(res,true)
+                return(0, false)
             end
+        end
+    ## UPDTE
+    else
+        if !isfile(fileres)
+            res = DataFrame(votname=votname, cycle=cycletot)
+            CSV.write(fileres,res,delim=';')
+            println("## $fileres created...")
+            return(res,true)
+        else
+            res = DataFrames.copy(CSV.read(fileres, delim=";"))
+            newrow = DataFrame(votname=votname,cycle=cycletot)
+            append!(res,newrow)
+            CSV.write(fileres,res,delim=';')
+            return(res,true)
         end
     end
 end
+
 ## check for blacklist
 ##
 function read_blacklist(blackname)
@@ -152,7 +144,7 @@ function main(filelist,fileres, metafile)
                 ETA= meanTime * (nfile-i) / 24
                 println("## Duration: $duration hours")
                 println("## ETA: $ETA days")
-                @printf("## %s \n",specialstr("Total Files Analyzed: $i","YELLOW"))
+                @printf("## %s",specialstr("Total Files Analyzed: $i","BOLD"))
                 println("##\n##")
 
             end
@@ -160,15 +152,9 @@ function main(filelist,fileres, metafile)
     end
     print("## Main loop done.")
 end
-
 ###############################################################################
-println("# Test of the optimization on a subset of targets. Check the code...")
-
 cd(votdir)
 votlist= glob("*.vot")
 cd(wdir)
 
-rng = MersenneTwister(1234)
-# shuffle!(rng, votlist)
-
-main(votlist,"votlist.done.csv","config1.ext")
+main(votlist,"votlist.done.csv","configAll.ext")

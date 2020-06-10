@@ -623,8 +623,14 @@ function cycle_extraction(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, m::G
                 export_df("$votname.$cycle", m.ocdir, df , dfcart, labels , labelmax)
 
                 scproperties = get_properties_SC2(labels[labelmax] , df, dfcart)
+                scdf= convertStruct2Df(scproperties)
+                insertcols!(scdf, 1, :votname => votname)
+                insertcols!(scdf, 2, :cycle => cycle)
+                insertcols!(res, 2, :cycle => cycle)
+
+
                 plot_cluster2(m.plotdir, "$votname.$cycle", labels[labelmax], scproperties,  dfcart , false)
-                push!(sclist, scproperties)
+                push!(sclist, scdf)
                 push!(mcmclist, res)
 
                 println("###")
@@ -656,13 +662,13 @@ function cycle_extraction(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, m::G
                     println("### cyclemax reached...")
                     cyclerun= false
                 end
-                if qc < m.qcmin
+                if qc < m.qcminstop
                     FLAG += 1<<3
                     println("### extraction stopped at cycle $cycle")
                     println("### Qc too low...")
                     cyclerun= false
                 end
-                if w3d/wvel < m.wratiomin || wvel/w3d < m.wratiomin
+                if w3d/wvel < m.wratiominstop || wvel/w3d < m.wratiominstop
                     FLAG += 1<<4
                     println("### extraction stopped at cycle $cycle")
                     println("### weight ratio too low...")
@@ -740,16 +746,14 @@ end
 function save_cycle(sc, mcmc, perf, m::GaiaClustering.meta)
     filesc= @sprintf("%s.sc.csv", m.prefile)
     filemcmc= @sprintf("%s.mcmc.csv", m.prefile)
-    fileperf= @sprintf("%s.time.csv", m.prefile)
+    fileperf= @sprintf("%s.perf.csv", m.prefile)
     votname= m.votname
 
     ncycle= length(sc)
 
     for i in 1:ncycle
-        dfsc= convertStruct2Df(sc[i])
-
         if !isfile(filesc)
-            CSV.write(fileres,dfsc,delim=';')
+            CSV.write(filesc,sc[i],delim=';')
             println("## $filesc created...")
             CSV.write(filemcmc,mcmc[i],delim=';')
             println("## $filemcmc created...")
@@ -757,7 +761,7 @@ function save_cycle(sc, mcmc, perf, m::GaiaClustering.meta)
             println("## $fileperf created...")
         else
             res = DataFrames.copy(CSV.read(filesc, delim=";"))
-            append!(res,dfsc) ; CSV.write(filesc,res,delim=';')
+            append!(res,sc[i]) ; CSV.write(filesc,res,delim=';')
             res = DataFrames.copy(CSV.read(filemcmc, delim=";"))
             append!(res,mcmc[i]) ; CSV.write(filemcmc,res,delim=';')
             res = DataFrames.copy(CSV.read(fileperf, delim=";"))

@@ -182,8 +182,8 @@ mutable struct meta
     minstarselection::Int
     minstarstop::Int
     minchainreached::Int
-    qcmin::Float64
-    wratiomin::Float64
+    qcminstop::Float64
+    wratiominstop::Float64
 
     epsmean::Float64
     epsdisp::Float64

@@ -33,8 +33,8 @@ function set_default_params()::meta
     def.minstarselection    = 50        ## minimum of stars to select solution in a cycle...
     def.minstarstop         = 50        ## condition to stop cycling
     def.minchainreached     = 100       ## minimum chain to analyze solution
-    def.qcmin               = 1.5       ## more condition on Qc to stop cycling after the first pass
-    def.wratiomin           = 0.2       ## minimum ratio btwn w3d and wvel (otherwise not an OC)
+    def.qcminstop           = 1.5       ## more condition on Qc to stop cycling after the first pass
+    def.wratiominstop       = 0.2       ## minimum ratio btwn w3d and wvel (otherwise not an OC)
 
 
     ## prior settings
@@ -67,14 +67,14 @@ function set_default_params()::meta
 end
 
 ## extracting meta from .ext file
-function read_params(file)
+function read_params(file, verbose=true)
     par= set_default_params()
     println("## All parameters set to default...")
     t= readdlm(file,comments=true, comment_char='#')
 
     s= size(t)
     for i in 1:s[1]
-        println(t[i,:])
+        if verbose println(t[i,:]) end
         if t[i,2] == "="
             set_param!(par,t[i,1],t[i,3])
         else
@@ -113,8 +113,8 @@ function set_param!(def, parstr,value)
     if parstr == "minstarselection" def.minstarselection= value  end
     if parstr == "minstarstop" def.minstarstop= value  end
     if parstr == "minchainreached" def.minchainreached= value  end
-    if parstr == "qcmin" def.qcmin= value  end
-    if parstr == "wratiomin" def.wratiomin= value  end
+    if parstr == "qcminstop" def.qcminstop= value  end
+    if parstr == "wratiominstop" def.wratiominstop= value  end
 
     if parstr == "epsmean"   def.epsmean= value end
     if parstr == "epsdisp"   def.epsdisp= value end

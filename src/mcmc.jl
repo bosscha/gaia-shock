@@ -241,7 +241,7 @@ function abc_mcmc_dbscan_full2(dfcart::GaiaClustering.Df, params::GaiaClustering
         minimumQ= params.minQc
         minstars= params.minQn
         maxstars= params.maxQn
-        niter= params.nchain             #number of chains
+        niter= params.nchain             ## number of chains
         nburn= params.nburnout
 
         maxiter= params.maxiter          ## twice, for init and normal iteration
