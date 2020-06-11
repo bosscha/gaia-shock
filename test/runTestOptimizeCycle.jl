@@ -48,9 +48,8 @@ end
 
 ## to check if done and record
 ## check and updt if votname analyzed. If not done return false
-function updt_votcompleted(fileres, votname , cycletot=1, onlycheck=true)
+function updt_votcompleted(fileres, votname , cycletot=1, flag= 0 , onlycheck=true)
     let
-        println(cycletot)
         if  onlycheck
             if !isfile(fileres)
                 return(0, false)
@@ -70,13 +69,13 @@ function updt_votcompleted(fileres, votname , cycletot=1, onlycheck=true)
             ## UPDTE
         else
             if !isfile(fileres)
-                res = DataFrame(votname=votname, cycle=cycletot)
+                res = DataFrame(votname=votname, cycle=cycletot, flag=flag)
                 CSV.write(fileres,res,delim=';')
                 println("## $fileres created...")
                 return(res,true)
             else
                 res = DataFrames.copy(CSV.read(fileres, delim=";"))
-                newrow = DataFrame(votname=votname,cycle=cycletot)
+                newrow = DataFrame(votname=votname,cycle=cycletot, flag=flag)
                 append!(res,newrow)
                 CSV.write(fileres,res,delim=';')
                 return(res,true)
@@ -119,7 +118,7 @@ function main(filelist,fileres, metafile)
 
         for i in 1:nfile
             votname = filelist[i]
-            res, votfound= updt_votcompleted(fileres, votname, 0, true)
+            res, votfound= updt_votcompleted(fileres, votname, 0, 0, true)
 
             ## test blacklist
             if votname in blacklist
@@ -138,7 +137,7 @@ function main(filelist,fileres, metafile)
                 df , dfcart , dfcartnorm = getdata(votdir*"/"*votname)
                 m.votname= votname
                 cycle, flag= cycle_extraction(df, dfcart, m)
-                res,  votfound= updt_votcompleted(fileres, votname , cycle, false)
+                res,  votfound= updt_votcompleted(fileres, votname , cycle, flag, false)
 
                 tend= now()
                 println("## Ending at $tend")
@@ -150,9 +149,12 @@ function main(filelist,fileres, metafile)
                 totalTime += duration
                 meanTime= totalTime / i
                 ETA= meanTime * (nfile-i) / 24
+                nleft= nfile-i
                 println("## Duration: $duration hours")
                 println("## ETA: $ETA days")
-                @printf("## %s \n",specialstr("Total Files Analyzed: $i","YELLOW"))
+                @printf("## %s \n",specialstr("Votable done: $votname","YELLOW"))
+                @printf("## %s \n",specialstr("Files analyzed: $i","YELLOW"))
+                @printf("## %s \n",specialstr("Files to do: $nleft","YELLOW"))
                 println("##\n##")
 
             end
@@ -168,7 +170,7 @@ cd(votdir)
 votlist= glob("*.vot")
 cd(wdir)
 
-rng = MersenneTwister(1234)
-# shuffle!(rng, votlist)
+rng = MersenneTwister()
+shuffle!(rng, votlist)
 
 main(votlist,"votlist.done.csv","config1.ext")

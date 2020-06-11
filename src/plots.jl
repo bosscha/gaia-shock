@@ -78,7 +78,7 @@ function plot_dbscan_mcmc(plotdir, voname, mc::GaiaClustering.mc , showplot = tr
     PyPlot.plt.grid(true)
 
     PyPlot.plt.xlabel("Qc")
-    figname = plotdir*"/"*voname*"-dbscanMCMC.png"
+    figname = plotdir*"/"*voname*".mcmc.png"
     PyPlot.plt.savefig(figname)
     if showplot PyPlot.plt.show() end
 end
@@ -182,7 +182,7 @@ function plot_dbscanfull_mcmc(plotdir, voname, mc::mcfull , showplot = true)
         show_text(-0.01,0.0, text)
 
     PyPlot.plt.xlabel("Qc")
-    figname = plotdir*"/"*voname*".dbscanMCMC-full.png"
+    figname = plotdir*"/"*voname*".mcmc.png"
     PyPlot.plt.savefig(figname)
     if showplot PyPlot.plt.show() end
 end

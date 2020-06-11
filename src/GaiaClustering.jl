@@ -37,7 +37,7 @@ export voronoi
 include("stellarcluster.jl")
 export metric , clusters , find_clusters2 , find_cluster_label, get_properties_SC , metric2 ,
 find_cluster_label2, get_metrics,  get_properties_SC2, cycle_extraction, score_cycle ,
-remove_stars
+remove_stars , edge_ratio
 
 ## MCMC for gaia
 include("mcmc.jl")

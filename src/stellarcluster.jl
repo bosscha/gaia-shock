@@ -622,12 +622,12 @@ function cycle_extraction(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, m::G
                 println("## label $labelmax written to oc...")
                 export_df("$votname.$cycle", m.ocdir, df , dfcart, labels , labelmax)
 
+                edgeratio= edge_ratio(dfcart, labels[labelmax])
                 scproperties = get_properties_SC2(labels[labelmax] , df, dfcart)
                 scdf= convertStruct2Df(scproperties)
                 insertcols!(scdf, 1, :votname => votname)
                 insertcols!(scdf, 2, :cycle => cycle)
-                insertcols!(res, 2, :cycle => cycle)
-
+                insertcols!(res, 2,  :cycle => cycle)
 
                 plot_cluster2(m.plotdir, "$votname.$cycle", labels[labelmax], scproperties,  dfcart , false)
                 push!(sclist, scdf)
@@ -635,6 +635,7 @@ function cycle_extraction(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, m::G
 
                 println("###")
                 println("### label solution: $labelmax")
+                println("### Offdeg: $(scproperties.offdeg)")
                 println("### N stars: $nmax")
                 println("### Qc: $qc")
                 println("###")
@@ -651,31 +652,31 @@ function cycle_extraction(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, m::G
                 ########################### STOP conditions #########
                 FLAG= 0
                 if nmax < m.minstarstop
-                    FLAG += 1<<1
+                    FLAG= FLAG | (1<<0)
                     println("### extraction stopped at cycle $cycle")
                     println("### nmax too low...")
                     cyclerun= false
                 end
                 if cycle == m.cyclemax
-                    FLAG += 1<<2
+                    FLAG= FLAG | (1<<1)
                     println("### extraction stopped at cycle $cycle")
                     println("### cyclemax reached...")
                     cyclerun= false
                 end
                 if qc < m.qcminstop
-                    FLAG += 1<<3
+                    FLAG= FLAG | (1<<2)
                     println("### extraction stopped at cycle $cycle")
                     println("### Qc too low...")
                     cyclerun= false
                 end
                 if w3d/wvel < m.wratiominstop || wvel/w3d < m.wratiominstop
-                    FLAG += 1<<4
+                    FLAG= FLAG | (1<<3)
                     println("### extraction stopped at cycle $cycle")
                     println("### weight ratio too low...")
                     cyclerun= false
                 end
                 if FLAGmcmc == 3 && nchain > m.minchainreached
-                    FLAG += 1<<5
+                    FLAG= FLAG | (1<<4)
                     println("## extraction stopped at cycle $cycle")
                     println("## chain iteration not performed completely but sufficient to keep...")
                     cyclerun= false
@@ -768,4 +769,28 @@ function save_cycle(sc, mcmc, perf, m::GaiaClustering.meta)
             append!(res,perf[i]) ; CSV.write(fileperf,res,delim=';')
         end
     end
+end
+
+## compute the closeness of the cluster solution to the edge of the data.
+## return a ratio in the range [0., 1]. 1 means at the edge and 0 in the center
+function edge_ratio(dfcart::GaiaClustering.Df, ind)
+    r2= dfcart.data[2,ind] .* dfcart.data[2,ind] .+ dfcart.data[3,ind] .* dfcart.data[3,ind]
+    minX= minimum(dfcart.data[1,ind])
+    maxX= maximum(dfcart.data[1,ind])
+    xg= median(dfcart.data[2,ind]) ; yg= median(dfcart.data[3,ind]) ; dg= median(dfcart.data[1,ind])
+
+    indx= (dfcart.data[1,:] .<= maxX) .& (dfcart.data[1,:] .>= minX)
+    rtot2=  dfcart.data[2,indx] .* dfcart.data[2,indx]  .+ dfcart.data[3,indx] .* dfcart.data[3,indx]
+
+    ratio= sqrt((xg^2+yg^2) / maximum(rtot2))
+
+    ## test
+    alpha= maximum(sqrt.(rtot2)) / maxX
+    r0= alpha*minX
+    rg= alpha*dg
+    ratio_2= sqrt((xg^2+yg^2) / rg^2)
+
+    println("## Edge ratio: $ratio")
+    println("## Edge ratio_2: $(ratio_2)")
+    return(ratio)
 end
