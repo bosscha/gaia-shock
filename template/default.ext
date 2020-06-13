@@ -28,8 +28,8 @@ maxiter         = 500000
 ###
 cyclemax            = 3         ## maximum of cycless
 minstarstop         = 50        ## condition to stop cycling
-minchainreached     = 3000      ## minimum chain to analyze solution
-qcminstop           = 1.5       ## more condition on Qc to stop cycling after the first pass
+minchainreached     = 1000      ## minimum chain to analyze solution
+qcminstop           = 1.8       ## more condition on Qc to stop cycling after the first pass
 wratiominstop       = 0.2       ## minimum ratio btwn w3d and wvel (otherwise not an OC)
 
 
@@ -49,7 +49,7 @@ whrddisp        = 1.5                     ## CMD weight dispersion
 
 ## Metrics Q & find_clusters
 ##
-clustermax      = 1000                    ## cluster max for find_clusters, otherwise returns 0
+clustermax      = 100                    ## cluster max for find_clusters, otherwise returns 0
 aperture2d      = 1.5
 maxaperture2d   = 15.0
 aperture3d      = 3.0

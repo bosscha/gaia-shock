@@ -627,8 +627,8 @@ function cycle_extraction(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, m::G
                 scdf= convertStruct2Df(scproperties)
                 insertcols!(scdf, 1, :votname => votname)
                 s=size(scdf)
-                insertcols!(scdf, s[2]+1, :edgrat1 => edgeratio1)
-                insertcols!(scdf, s[2]+2, :edgrat2 => edgeratio2)
+                insertcols!(scdf, s[2]+1, :edgratg => edgeratio1)
+                insertcols!(scdf, s[2]+2, :edgratm => edgeratio2)
                 insertcols!(scdf, 2, :cycle => cycle)
                 insertcols!(res, 2,  :cycle => cycle)
 
