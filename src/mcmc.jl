@@ -246,12 +246,13 @@ function abc_mcmc_dbscan_full2(dfcart::GaiaClustering.Df, params::GaiaClustering
 
         maxiter= params.maxiter          ## twice, for init and normal iteration
 
-        println("### Chains  : $niter")
         println("### Burn-in : $nburn")
+        println("### Chains  : $niter")
         println("### Minimum Qc : $minimumQ")
         println("### Minimum Qn : $minstars")
         println("### Maximum Qn : $maxstars")
         println("### Maximum iterations: $maxiter")
+        println("###")
 
         minimumQ , minstars = check_qminqstar_full2(dfcart, params)
         println("### Minimum Qc: $minimumQ")
@@ -465,7 +466,7 @@ function check_qminqstar_full2(dfcart::GaiaClustering.Df, params::GaiaClustering
         maxiter= niter*30       ## cycle numbers * niter
 
         println("#### Checking the minQc and minQn conditions...")
-        println("#### Minimum good solutions $mingoodsolution")
+        println("#### Minimum good solutions: $mingoodsolution")
         println("#### Number of iterations: $niter, maxiter: $maxiter")
 
         totaliter= 0

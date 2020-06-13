@@ -622,10 +622,13 @@ function cycle_extraction(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, m::G
                 println("## label $labelmax written to oc...")
                 export_df("$votname.$cycle", m.ocdir, df , dfcart, labels , labelmax)
 
-                edgeratio= edge_ratio(dfcart, labels[labelmax])
+                edgeratio1, edgeratio2= edge_ratio(dfcart, labels[labelmax])
                 scproperties = get_properties_SC2(labels[labelmax] , df, dfcart)
                 scdf= convertStruct2Df(scproperties)
                 insertcols!(scdf, 1, :votname => votname)
+                s=size(scdf)
+                insertcols!(scdf, s[2]+1, :edgrat1 => edgeratio1)
+                insertcols!(scdf, s[2]+2, :edgrat2 => edgeratio2)
                 insertcols!(scdf, 2, :cycle => cycle)
                 insertcols!(res, 2,  :cycle => cycle)
 
@@ -784,13 +787,11 @@ function edge_ratio(dfcart::GaiaClustering.Df, ind)
 
     ratio= sqrt((xg^2+yg^2) / maximum(rtot2))
 
-    ## test
     alpha= maximum(sqrt.(rtot2)) / maxX
-    r0= alpha*minX
     rg= alpha*dg
-    ratio_2= sqrt((xg^2+yg^2) / rg^2)
+    ratio_2= sqrt(maximum(r2)) / rg
 
     println("## Edge ratio: $ratio")
     println("## Edge ratio_2: $(ratio_2)")
-    return(ratio)
+    return(ratio, ratio_2)
 end

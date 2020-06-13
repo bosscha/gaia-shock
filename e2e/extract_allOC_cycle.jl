@@ -17,9 +17,11 @@ votdir  = "$wdir/votable"
 plotdir = "$wdir/plotsSelect"
 ocdir   = "$wdir/oc"
 
+
 ## load a liist of votable and update the file if done
 ## add results
 ##
+
 function readlist_votable(filelist::String)
     vot = DataFrames.copy(CSV.read(filelist))
     return(vot)
@@ -42,40 +44,41 @@ end
 
 ## to check if done and record
 ## check and updt if votname analyzed. If not done return false
-function updt_votcompleted(fileres, votname , cycletot=1, onlycheck=true)
-    if  onlycheck
-        if !isfile(fileres)
-            return(0, false)
-        else
-            res = DataFrames.copy(CSV.read(fileres, delim=";"))
-            if votname in res.votname
-                x = @from i in res begin
-                    @where i.votname == votname
-                    @select i
-                    @collect DataFrame
-                end
-                return(x, true)
-            else
+function updt_votcompleted(fileres, votname , cycletot=1, flag= 0 , onlycheck=true)
+    let
+        if  onlycheck
+            if !isfile(fileres)
                 return(0, false)
+            else
+                res = DataFrames.copy(CSV.read(fileres, delim=";"))
+                if votname in res.votname
+                    x = @from i in res begin
+                        @where i.votname == votname
+                        @select i
+                        @collect DataFrame
+                    end
+                    return(x, true)
+                else
+                    return(0, false)
+                end
             end
-        end
-    ## UPDTE
-    else
-        if !isfile(fileres)
-            res = DataFrame(votname=votname, cycle=cycletot)
-            CSV.write(fileres,res,delim=';')
-            println("## $fileres created...")
-            return(res,true)
+            ## UPDTE
         else
-            res = DataFrames.copy(CSV.read(fileres, delim=";"))
-            newrow = DataFrame(votname=votname,cycle=cycletot)
-            append!(res,newrow)
-            CSV.write(fileres,res,delim=';')
-            return(res,true)
+            if !isfile(fileres)
+                res = DataFrame(votname=votname, cycle=cycletot, flag=flag)
+                CSV.write(fileres,res,delim=';')
+                println("## $fileres created...")
+                return(res,true)
+            else
+                res = DataFrames.copy(CSV.read(fileres, delim=";"))
+                newrow = DataFrame(votname=votname,cycle=cycletot, flag=flag)
+                append!(res,newrow)
+                CSV.write(fileres,res,delim=';')
+                return(res,true)
+            end
         end
     end
 end
-
 ## check for blacklist
 ##
 function read_blacklist(blackname)
@@ -111,7 +114,7 @@ function main(filelist,fileres, metafile)
 
         for i in 1:nfile
             votname = filelist[i]
-            res, votfound= updt_votcompleted(fileres, votname, 0, true)
+            res, votfound= updt_votcompleted(fileres, votname, 0, 0, true)
 
             ## test blacklist
             if votname in blacklist
@@ -130,7 +133,7 @@ function main(filelist,fileres, metafile)
                 df , dfcart , dfcartnorm = getdata(votdir*"/"*votname)
                 m.votname= votname
                 cycle, flag= cycle_extraction(df, dfcart, m)
-                res,  votfound= updt_votcompleted(fileres, votname , cycle, false)
+                res,  votfound= updt_votcompleted(fileres, votname , cycle, flag, false)
 
                 tend= now()
                 println("## Ending at $tend")
@@ -142,9 +145,12 @@ function main(filelist,fileres, metafile)
                 totalTime += duration
                 meanTime= totalTime / i
                 ETA= meanTime * (nfile-i) / 24
+                nleft= nfile-i
                 println("## Duration: $duration hours")
                 println("## ETA: $ETA days")
-                @printf("## %s",specialstr("Total Files Analyzed: $i","BOLD"))
+                @printf("## %s \n",specialstr("Votable done: $votname","YELLOW"))
+                @printf("## %s \n",specialstr("Files analyzed: $i","YELLOW"))
+                @printf("## %s \n",specialstr("Files to do: $nleft","YELLOW"))
                 println("##\n##")
 
             end
@@ -152,7 +158,10 @@ function main(filelist,fileres, metafile)
     end
     print("## Main loop done.")
 end
+
 ###############################################################################
+println("# Test of the optimization on a subset of targets. Check the code...")
+
 cd(votdir)
 votlist= glob("*.vot")
 cd(wdir)
