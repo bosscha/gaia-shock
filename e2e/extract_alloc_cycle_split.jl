@@ -1,5 +1,12 @@
 ## Main loop to extract in e2e the DBSCAN parameters.
 ## The list of votable is selected directly from the directory
+##
+## That version is to run in parallel the optimization
+
+## OPTIONS
+# -s : first centile to consider in the vot files (0-100)
+# -e : last centile to consider in the vot files (0-100)
+# -o : root for the out file of the results
 
 using DataFrames
 using CSV, Glob, Dates
@@ -14,8 +21,8 @@ using GaiaClustering
 ## directory
 wdir    = "$rootdir/e2e_products"
 votdir  = "$wdir/votable"
-plotdir = "$wdir/plotsSelect"
-ocdir   = "$wdir/oc"
+plotdir = "$wdir/plotSelect-TEST"
+ocdir   = "$wdir/oc-TEST"
 
 
 ## load a liist of votable and update the file if done
@@ -95,7 +102,7 @@ end
 #######################
 ## Main loop
 ##
-function main(filelist,fileres, metafile)
+function main(filelist, metafile, prefile)
     let
         wd= pwd() ; nfile= size(filelist)[1] ; totalTime= 0.
         println("## Starting main loop using optimization with cycles...")
@@ -103,9 +110,11 @@ function main(filelist,fileres, metafile)
         println("## Working directory: $wd")
         println("## $nfile files to analyze...")
 
-        m= read_params(metafile)
+        m= read_params(metafile, false)
         m.plotdir= plotdir
         m.ocdir= ocdir
+        m.prefile= prefile
+        fileres= "$(m.prefile).done.csv"
 
         # read a possible votname blacklist
         blackname= "blacklist-test.csv"
@@ -150,20 +159,54 @@ function main(filelist,fileres, metafile)
                 println("## ETA: $ETA days")
                 @printf("## %s \n",specialstr("Votable done: $votname","YELLOW"))
                 @printf("## %s \n",specialstr("Files analyzed: $i","YELLOW"))
-                @printf("## %s \n",specialstr("Files to do: $nleft","YELLOW"))
+                @printf("## %s \n",specialstr("Files to go: $nleft","YELLOW"))
                 println("##\n##")
-
             end
         end
     end
     print("## Main loop done.")
 end
-
 ###############################################################################
-println("# Test of the optimization on a subset of targets. Check the code...")
+let
+    cd(votdir)
+    votlist= glob("*.vot")
+    cd(wdir)
 
-cd(votdir)
-votlist= glob("*.vot")
-cd(wdir)
+    istart= 0 ; iend= 100
+    file_mcmc= "votlist-mcmc_full"
 
-main(votlist,"votlist.done.csv","configAll.ext")
+    for i in 1:length(ARGS)
+        if ARGS[i] == "-s"
+            istart= parse(Int, ARGS[i+1])
+        end
+        if ARGS[i] == "-e"
+            iend= parse(Int, ARGS[i+1])
+        end
+        if ARGS[i] == "-o"
+            file_mcmc= ARGS[i+1]
+        end
+    end
+
+    if istart < 0 istart= 0 end
+    if iend > 100 iend= 100 end
+
+################
+    prefile= "ocres-$istart-$iend"
+
+    nfile= length(votlist)
+    i1= convert(Int,floor(nfile*istart/100))
+    if i1== 0 i1= 1 end
+
+    if iend < 100
+        i2= convert(Int,floor(nfile*iend/100)-1)
+    else
+        i2= convert(Int,floor(nfile*iend/100))
+    end
+
+    println("## DBSCAN optimization starting")
+    println("##")
+
+    votsublist= votlist[i1:i2]
+    main(votsublist, "configAll.ext", prefile)
+    println("##\n## END of split optimization for $prefile \n##")
+end

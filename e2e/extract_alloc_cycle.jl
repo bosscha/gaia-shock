@@ -1,14 +1,10 @@
-## Testing an optimization on a small set of files
-## It includes the optimization by cycle:detection+subtraction
-##
-
 ## Main loop to extract in e2e the DBSCAN parameters.
 ## The list of votable is selected directly from the directory
 
-using DataFrames, Query
+using DataFrames
 using CSV, Glob, Dates
-using Statistics, Random
-using Printf
+using Statistics
+import DataFrames
 
 rootdir =  ENV["GAIA_ROOT"]
 
@@ -16,11 +12,11 @@ push!(LOAD_PATH,"$rootdir/master/src")
 using GaiaClustering
 
 ## directory
-wdir    = "$rootdir/products"
-votdir  = "$rootdir/e2e_products/votable.2020"
-plotdir = "$rootdir/products/test"
-ocdir   = "$rootdir/products/octest"
-sclist  = "$rootdir/e2e_products/"
+wdir    = "$rootdir/e2e_products"
+votdir  = "$wdir/votable"
+plotdir = "$wdir/plotSelect-TEST"
+ocdir   = "$wdir/oc-TEST"
+
 
 ## load a liist of votable and update the file if done
 ## add results
@@ -157,7 +153,6 @@ function main(filelist, metafile)
                 @printf("## %s \n",specialstr("Files analyzed: $i","YELLOW"))
                 @printf("## %s \n",specialstr("Files to go: $nleft","YELLOW"))
                 println("##\n##")
-
             end
         end
     end
@@ -165,13 +160,8 @@ function main(filelist, metafile)
 end
 
 ###############################################################################
-println("# Test of the optimization on a subset of targets. Check the code...")
-
 cd(votdir)
 votlist= glob("*.vot")
 cd(wdir)
 
-rng = MersenneTwister()
-shuffle!(rng, votlist)
-
-main(votlist,"config1.ext")
+main(votlist,"configAll.ext")

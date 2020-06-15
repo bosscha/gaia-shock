@@ -386,7 +386,7 @@ function get_properties_SC2(indx, df::GaiaClustering.Df, dfcart::GaiaClustering.
     doffdeg= atand(doff/distance)
 
     edgeratio1, edgeratio2= edge_ratio(dfcart, indx)
-    
+
     sc = SCproperties2()
     sc.nstars= nstars
     sc.distance= distance
@@ -630,8 +630,6 @@ function cycle_extraction(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, m::G
                 scdf= convertStruct2Df(scproperties)
                 insertcols!(scdf, 1, :votname => votname)
                 s=size(scdf)
-                # insertcols!(scdf, s[2]+1, :edgratg => edgeratio1)
-                # insertcols!(scdf, s[2]+2, :edgratm => edgeratio2)
                 insertcols!(scdf, 2, :cycle => cycle)
                 insertcols!(res, 2,  :cycle => cycle)
 

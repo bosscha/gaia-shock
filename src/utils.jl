@@ -60,3 +60,5 @@ function specialstr(str, CODE)
         return(str)
     end
 end
+
+ function bold(s) GaiaClustering.specialstr(s,"BOLD") end
