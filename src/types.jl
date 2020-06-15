@@ -232,7 +232,9 @@ mutable struct SCproperties2
     vldisp::Float64
     vbdisp::Float64
     vraddisp::Float64
-    offdeg::Float64      ## offset in degree wrt. field center
+    offdeg::Float64          ## offset in degree wrt. field center
+    edgratg::Float64         ## edge ratio of the center
+    edgratm::Float64         ## maximum edge ratio
 
     SCproperties2()= new()
 end

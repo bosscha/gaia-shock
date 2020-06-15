@@ -385,8 +385,9 @@ function get_properties_SC2(indx, df::GaiaClustering.Df, dfcart::GaiaClustering.
     doff= sqrt(median(dfcart.data[2,indx])^2+median(dfcart.data[3,indx])^2)
     doffdeg= atand(doff/distance)
 
+    edgeratio1, edgeratio2= edge_ratio(dfcart, indx)
+    
     sc = SCproperties2()
-
     sc.nstars= nstars
     sc.distance= distance
     sc.ra= ra
@@ -408,6 +409,8 @@ function get_properties_SC2(indx, df::GaiaClustering.Df, dfcart::GaiaClustering.
     sc.vbdisp= vbdisp
     sc.vraddisp= vraddisp
     sc.offdeg= doffdeg
+    sc.edgratg= edgeratio1
+    sc.edgratm= edgeratio2
 
     return(sc)
 end
@@ -590,7 +593,7 @@ function cycle_extraction(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, m::G
         while cyclerun
             FLAG= -1
             tstart= now()
-            println("####################")
+            println("###############")
             println("## starting cycle $cycle ...")
             @printf("## starting time: %s \n",tstart)
             ## extraction one cycle.. MCMC optimization
@@ -627,8 +630,8 @@ function cycle_extraction(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, m::G
                 scdf= convertStruct2Df(scproperties)
                 insertcols!(scdf, 1, :votname => votname)
                 s=size(scdf)
-                insertcols!(scdf, s[2]+1, :edgratg => edgeratio1)
-                insertcols!(scdf, s[2]+2, :edgratm => edgeratio2)
+                # insertcols!(scdf, s[2]+1, :edgratg => edgeratio1)
+                # insertcols!(scdf, s[2]+2, :edgratm => edgeratio2)
                 insertcols!(scdf, 2, :cycle => cycle)
                 insertcols!(res, 2,  :cycle => cycle)
 
@@ -639,6 +642,7 @@ function cycle_extraction(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, m::G
                 println("###")
                 println("### label solution: $labelmax")
                 println("### Offdeg: $(scproperties.offdeg)")
+                println("### Edge ratio: $(scproperties.edgratm)")
                 println("### N stars: $nmax")
                 println("### Qc: $qc")
                 println("###")
@@ -791,7 +795,5 @@ function edge_ratio(dfcart::GaiaClustering.Df, ind)
     rg= alpha*dg
     ratio_2= sqrt(maximum(r2)) / rg
 
-    println("## Edge ratio: $ratio")
-    println("## Edge ratio_2: $(ratio_2)")
     return(ratio, ratio_2)
 end

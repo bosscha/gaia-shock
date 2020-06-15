@@ -99,7 +99,7 @@ end
 #######################
 ## Main loop
 ##
-function main(filelist,fileres, metafile)
+function main(filelist, metafile)
     let
         wd= pwd() ; nfile= size(filelist)[1] ; totalTime= 0.
         println("## Starting main loop using optimization with cycles...")
@@ -110,6 +110,7 @@ function main(filelist,fileres, metafile)
         m= read_params(metafile)
         m.plotdir= plotdir
         m.ocdir= ocdir
+        fileres= "$(m.prefile).done.csv"
 
         # read a possible votname blacklist
         blackname= "blacklist-test.csv"
@@ -154,7 +155,7 @@ function main(filelist,fileres, metafile)
                 println("## ETA: $ETA days")
                 @printf("## %s \n",specialstr("Votable done: $votname","YELLOW"))
                 @printf("## %s \n",specialstr("Files analyzed: $i","YELLOW"))
-                @printf("## %s \n",specialstr("Files to do: $nleft","YELLOW"))
+                @printf("## %s \n",specialstr("Files to go: $nleft","YELLOW"))
                 println("##\n##")
 
             end
@@ -173,4 +174,4 @@ cd(wdir)
 rng = MersenneTwister()
 shuffle!(rng, votlist)
 
-main(votlist,"votlist.done.csv","config1.ext")
+main(votlist,"config1.ext")

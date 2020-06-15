@@ -3,8 +3,7 @@
 
 #### aux. function to plot text in a subplot
 ## plot array of text in a box
-function show_text(posx,pys, text, ywidth = 1.)
-    posy = pys
+function show_text(posx,posy, text, ywidth = 1.)
     dy = ywidth / length(text)
     for t in text
         PyPlot.plt.text(posx,posy,t)
@@ -320,6 +319,8 @@ function plot_cluster2(plotdir, voname, indx, sc::GaiaClustering.SCproperties2, 
     txt = "RA , Dec  : $v1  ,  $v2  (degree)" ; push!(text,txt)
     v1= fmt("3.3f",sc.offdeg)
     txt = "Offset     : $v1 (degree)" ; push!(text,txt)
+    v1= fmt("3.3f",sc.edgratm)
+    txt = "Edge ratio : $v1 " ; push!(text,txt)
     v1 = fmt("3.3f",sc.vl) ; v2 = fmt("3.3f",sc.vb) ;
     txt = "vl , vb       : $v1  ,  $v2  (km/s)" ; push!(text,txt)
     v = fmt("3.2f",sc.vrad) ; txt  = "Vradial   : $v (km/s)"; push!(text,txt)
@@ -329,7 +330,7 @@ function plot_cluster2(plotdir, voname, indx, sc::GaiaClustering.SCproperties2, 
     v = fmt("3.2f",sc.vldisp) ; txt = "Vl disp. : $v (km/s)" ; push!(text,txt)
     v = fmt("3.2f",sc.vbdisp) ; txt = "Vb disp.: $v (km/s)" ; push!(text,txt)
     v = fmt("3.2f",sc.vraddisp) ; txt = "Vradial disp.: $v (km/s)" ; push!(text,txt)
-    show_text(-0.01,0.0, text , 1.0)
+    show_text(-0.01,-0.1, text , 1.1)
 
     PyPlot.plt.subplot(3, 3, 7 )
     PyPlot.plt.axis("on")
