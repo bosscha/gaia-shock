@@ -268,9 +268,12 @@ function plot_cluster(plotdir, voname, indx, sc::GaiaClustering.SCproperties, df
     if showplot PyPlot.plt.show() end
 end
 
-function plot_cluster2(plotdir, voname, indx, sc::GaiaClustering.SCproperties2, df::GaiaClustering.Df, showplot = true , cmap = "gist_stern")
+function plot_cluster2(plotdir, voname, indx, sc::GaiaClustering.SCproperties2, df::GaiaClustering.Df,
+    showplot = true , extra= 0, cmap = "gist_stern")
+    patch= pyimport("matplotlib.patches")
 
     println("### Cluster plot is centered in Y,Z...")
+    PyPlot.plt.rcParams["font.size"]= 25
 
     PyPlot.plt.figure(figsize=(13.0,12.0))
     PyPlot.plt.subplot(3, 3, 1 , xlim = [-20,20] , ylim = [-20,20])
@@ -307,36 +310,49 @@ function plot_cluster2(plotdir, voname, indx, sc::GaiaClustering.SCproperties2, 
     PyPlot.plt.ylabel("Vrad (km/s)")
     PyPlot.plt.grid(true)
 
-    PyPlot.plt.subplot(3, 3, 5)
+    axt= PyPlot.plt.subplot(3, 3, 5)
     PyPlot.plt.axis("off")
     ## text to display
     text =[]
-    v = sc.nstars ; txt = "N stars   : $v" ; push!(text,txt)
-    v = fmt("3.1f",sc.distance) ; txt = "Distance  : $v (pc)" ; push!(text,txt)
+    v = sc.nstars ; txt = "N stars : $v" ; push!(text,txt)
+    v = fmt("3.1f",sc.distance) ; txt = "Distance : $v (pc)" ; push!(text,txt)
     v1 = fmt("3.3f",sc.l) ; v2 = fmt("3.3f",sc.b) ;
-    txt = "l , b         : $v1  ,  $v2  (degree)" ; push!(text,txt)
+    txt = "l , b : $v1  ,  $v2  (degree)" ; push!(text,txt)
     v1 = fmt("3.3f",sc.ra) ; v2 = fmt("3.3f",sc.dec) ;
-    txt = "RA , Dec  : $v1  ,  $v2  (degree)" ; push!(text,txt)
+    txt = "RA , Dec : $v1  ,  $v2  (degree)" ; push!(text,txt)
 
     v1 = fmt("3.3f",sc.vl) ; v2 = fmt("3.3f",sc.vb) ;
-    txt = "vl , vb       : $v1  ,  $v2  (km/s)" ; push!(text,txt)
-    v = fmt("3.2f",sc.vrad) ; txt  = "Vradial   : $v (km/s)"; push!(text,txt)
-    v = fmt("3.2f",sc.xdisp) ; txt = "X disp.   : $v (pc)" ; push!(text,txt)
-    v = fmt("3.2f",sc.ydisp) ; txt = "Y disp.   : $v (pc)" ; push!(text,txt)
-    v = fmt("3.2f",sc.zdisp) ; txt = "Z disp.   : $v (pc)" ; push!(text,txt)
+    txt = "vl , vb : $v1  ,  $v2  (km/s)" ; push!(text,txt)
+    v = fmt("3.2f",sc.vrad) ; txt  = "Vradial : $v (km/s)"; push!(text,txt)
+    v = fmt("3.2f",sc.xdisp) ; txt = "X disp. : $v (pc)" ; push!(text,txt)
+    v = fmt("3.2f",sc.ydisp) ; txt = "Y disp. : $v (pc)" ; push!(text,txt)
+    v = fmt("3.2f",sc.zdisp) ; txt = "Z disp. : $v (pc)" ; push!(text,txt)
     v = fmt("3.2f",sc.vldisp) ; txt = "Vl disp. : $v (km/s)" ; push!(text,txt)
-    v = fmt("3.2f",sc.vbdisp) ; txt = "Vb disp.: $v (km/s)" ; push!(text,txt)
-    v = fmt("3.2f",sc.vraddisp) ; txt = "Vradial disp.: $v (km/s)" ; push!(text,txt)
+    v = fmt("3.2f",sc.vbdisp) ; txt = "Vb disp. : $v (km/s)" ; push!(text,txt)
+    v = fmt("3.2f",sc.vraddisp) ; txt = "Vradial disp. : $v (km/s)" ; push!(text,txt)
     show_text(-0.01,-0.1, text , 1.1)
 
-    text =[]
-    v1= fmt("3.3f",sc.offdeg)
-    txt = "$(bold("Offset"))     : $v1 (degree)" ; push!(text,txt)
-    v1= fmt("3.3f",sc.edgratm)
-    txt = "$(bold("Edge ratio(m)")) : $v1 " ; push!(text,txt)
-    v1= fmt("3.3f",sc.edgratg)
-    txt = "$(bold("Edge ratio(g)")) : $v1 " ; push!(text,txt)
-    show_text(1.2,-0.1, text , 0.28)
+    if extra != 0
+        text =[]
+        v1= "$(extra.votname[1])"
+        txt = "Votable : $v1" ; push!(text,txt)
+        v1= "$(extra.cycle[1])"
+        txt = "Cycle : $v1" ; push!(text,txt)
+        v1= fmt("3.3f",extra.qc[1])
+        txt = "Qc : $v1" ; push!(text,txt)
+        v1= fmt("3.3f",extra.score_cycle[1])
+        txt = "Score : $v1" ; push!(text,txt)
+        v1= fmt("3.3f",sc.offdeg)
+        txt = "Offset : $v1 (degree)" ; push!(text,txt)
+        v1= fmt("3.3f",sc.edgratg)
+        txt = "Edge ratio(g) : $v1 " ; push!(text,txt)
+        v1= fmt("3.3f",sc.edgratm)
+        txt = "Edge ratio(m) : $v1 " ; push!(text,txt)
+        show_text(1.2,-0.1, text , 0.64)
+
+        rec= patch.Rectangle((-0.07, -0.15), 2.22, 1.15, color="lightgrey", alpha= 0.3, clip_on=false)
+        axt.add_artist(rec)
+    end
 
     PyPlot.plt.subplot(3, 3, 7 )
     PyPlot.plt.axis("on")

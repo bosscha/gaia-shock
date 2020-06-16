@@ -632,8 +632,6 @@ function cycle_extraction(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, m::G
                 s=size(scdf)
                 insertcols!(scdf, 2, :cycle => cycle)
                 insertcols!(res, 2,  :cycle => cycle)
-
-                plot_cluster2(m.plotdir, "$votname.$cycle", labels[labelmax], scproperties,  dfcart , false)
                 push!(sclist, scdf)
                 push!(mcmclist, res)
 
@@ -647,6 +645,11 @@ function cycle_extraction(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, m::G
 
                 k= score_cycle(qc, nmax, nchain, iter)
                 @printf("## score cycle %d: %3.3f \n",cycle, k)
+
+                extraplot= DataFrame(cycle=cycle, score_cycle=k, qc=qc, votname=votname)
+
+                plot_cluster2(m.plotdir, "$votname.$cycle", labels[labelmax], scproperties,
+                    dfcart , false, extraplot)
 
                 println("###")
                 println("### subtracting BEST solution from Df...")
