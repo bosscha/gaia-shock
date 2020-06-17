@@ -55,7 +55,7 @@ export atrous , addWav , thresholdingWav , noiseWav
 
 ## utils methods
 include("utils.jl")
-export isnotnan , read_blacklist , convertStruct2Df , specialstr , bold
+export isnotnan , read_blacklist , convertStruct2Df , specialstr , bold , header_extract
 
 ## Mass segregation and stellar clustering
 include("massSegregation.jl")

@@ -1,10 +1,10 @@
 ## Main loop to extract in e2e the DBSCAN parameters.
 ## The list of votable is selected directly from the directory
 
-using DataFrames
+using DataFrames, Query
 using CSV, Glob, Dates
-using Statistics
-import DataFrames
+using Statistics, Random
+using Printf
 
 rootdir =  ENV["GAIA_ROOT"]
 
@@ -153,15 +153,20 @@ function main(filelist, metafile)
                 @printf("## %s \n",specialstr("Files analyzed: $i","YELLOW"))
                 @printf("## %s \n",specialstr("Files to go: $nleft","YELLOW"))
                 println("##\n##")
+
             end
         end
     end
-    print("## Main loop done.")
+    println("## Main loop done.")
 end
-
 ###############################################################################
+header_extract()
+
 cd(votdir)
 votlist= glob("*.vot")
 cd(wdir)
+
+rng = MersenneTwister()
+shuffle!(rng, votlist)
 
 main(votlist,"configAll.ext")

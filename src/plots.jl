@@ -4,9 +4,10 @@
 #### aux. function to plot text in a subplot
 ## plot array of text in a box
 function show_text(posx,posy, text, ywidth = 1.)
+    dct= Dict("color"=> "black", "fontsize"=> 11)
     dy = ywidth / length(text)
     for t in text
-        PyPlot.plt.text(posx,posy,t)
+        PyPlot.plt.text(posx,posy,t, dct)
         posy += dy
     end
 end
@@ -22,7 +23,7 @@ function plot_dbscan_mcmc(plotdir, voname, mc::GaiaClustering.mc , showplot = tr
     PyPlot.plt.grid(true)
 
     nbins = 20
-    PyPlot.plt[:subplot](3, 2, 2 )
+    PyPlot.plt.subplot(3, 2, 2 )
     h = PyPlot.plt.hist(mc.mne,nbins, alpha=0.75)
     PyPlot.plt.xlabel("min_neighbor")
     PyPlot.plt.grid(true)
@@ -85,6 +86,7 @@ end
 
 ### plot the stats of the DBSCAN parameters from the MCMC
 function plot_dbscanfull_mcmc(plotdir, voname, mc::mcfull , showplot = true)
+    patch= pyimport("matplotlib.patches")
     PyPlot.plt.figure(figsize=(12.0,13.0))
 
     nbins = 50
@@ -141,44 +143,49 @@ function plot_dbscanfull_mcmc(plotdir, voname, mc::mcfull , showplot = true)
 
         ### text
 
-    PyPlot.plt.subplot(3, 3, 9)
+    axt= PyPlot.plt.subplot(3, 3, 9)
     PyPlot.plt.axis("off")
     ## text to display
+        dct= Dict( :color=> "black", :fontsize=> 10)
         text =[]
-        push!(text, "VOT: "*voname)
-        vtext  = mean(mc.eps)
-        v2text = std(mc.eps)
+        push!(text, "votable: "*voname)
+        vtext  =  fmt("3.3f", median(mc.eps))
+        v2text =  fmt("3.3f", std(mc.eps))
         txt = "ϵ : $vtext +/- $v2text "
         push!(text,txt)
-        vtext  = mean(mc.mne)
-        v2text = std(mc.mne)
+        vtext  =  fmt("3.3f", median(mc.mne))
+        v2text =  fmt("3.3f", std(mc.mne))
         txt = "min_neigh : $vtext +/- $v2text "
         push!(text,txt)
-        vtext  = mean(mc.mcl)
-        v2text = std(mc.mcl)
+        vtext  =  fmt("3.3f", median(mc.mcl))
+        v2text =  fmt("3.3f", std(mc.mcl))
         txt = "min_clus : $vtext +/- $v2text "
         push!(text,txt)
-        vtext  = mean(mc.w3d)
-        v2text = std(mc.w3d)
+        vtext  =  fmt("3.3f", median(mc.w3d))
+        v2text =  fmt("3.3f", std(mc.w3d))
         txt = "W3d : $vtext +/- $v2text "
         push!(text,txt)
-        vtext  = mean(mc.wvel)
-        v2text = std(mc.wvel)
+        vtext  =  fmt("3.3f", median(mc.wvel))
+        v2text =  fmt("3.3f", std(mc.wvel))
         txt = "Wvel : $vtext +/- $v2text "
         push!(text,txt)
-        vtext  = mean(mc.whrd)
-        v2text = std(mc.whrd)
+        vtext  =  fmt("3.3f", median(mc.whrd))
+        v2text =  fmt("3.3f", std(mc.whrd))
         txt = "Whrd : $vtext +/- $v2text "
         push!(text,txt)
-        vtext  = mean(mc.qn)
-        v2text = std(mc.qn)
+        vtext  =  fmt("3.3f", median(mc.qn))
+        v2text =  fmt("3.3f", std(mc.qn))
         txt = "Qn : $vtext +/- $v2text "
         push!(text,txt)
-        vtext  = mean(mc.qc)
-        v2text = std(mc.qc)
+        vtext  =  fmt("3.3f", median(mc.qc))
+        v2text =  fmt("3.3f", std(mc.qc))
         txt = "Qc : $vtext +/- $v2text "
         push!(text,txt)
         show_text(-0.01,0.0, text)
+
+        rec= patch.Rectangle((-0.07, -0.05), 1.2 , 1.05, color="greenyellow",
+            alpha= 0.4, clip_on=false)
+        axt.add_artist(rec)
 
     PyPlot.plt.xlabel("Qc")
     figname = plotdir*"/"*voname*".mcmc.png"
@@ -312,7 +319,9 @@ function plot_cluster2(plotdir, voname, indx, sc::GaiaClustering.SCproperties2, 
 
     axt= PyPlot.plt.subplot(3, 3, 5)
     PyPlot.plt.axis("off")
+
     ## text to display
+    dct= Dict("color"=> "black", "fontsize"=> 10)
     text =[]
     v = sc.nstars ; txt = "N stars : $v" ; push!(text,txt)
     v = fmt("3.1f",sc.distance) ; txt = "Distance : $v (pc)" ; push!(text,txt)
@@ -330,7 +339,7 @@ function plot_cluster2(plotdir, voname, indx, sc::GaiaClustering.SCproperties2, 
     v = fmt("3.2f",sc.vldisp) ; txt = "Vl disp. : $v (km/s)" ; push!(text,txt)
     v = fmt("3.2f",sc.vbdisp) ; txt = "Vb disp. : $v (km/s)" ; push!(text,txt)
     v = fmt("3.2f",sc.vraddisp) ; txt = "Vradial disp. : $v (km/s)" ; push!(text,txt)
-    show_text(-0.01,-0.1, text , 1.1)
+    show_text(-0.01,-0.1, text , 1.1 )
 
     if extra != 0
         text =[]
@@ -348,9 +357,9 @@ function plot_cluster2(plotdir, voname, indx, sc::GaiaClustering.SCproperties2, 
         txt = "Edge ratio(g) : $v1 " ; push!(text,txt)
         v1= fmt("3.3f",sc.edgratm)
         txt = "Edge ratio(m) : $v1 " ; push!(text,txt)
-        show_text(1.2,-0.1, text , 0.64)
+        show_text(1.2,-0.1, text , 0.64 )
 
-        rec= patch.Rectangle((-0.07, -0.15), 2.22, 1.15, color="lightgrey", alpha= 0.3, clip_on=false)
+        rec= patch.Rectangle((-0.07, -0.15), 2.3, 1.15, color="salmon", alpha= 0.4, clip_on=false)
         axt.add_artist(rec)
     end
 

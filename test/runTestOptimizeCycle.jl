@@ -161,11 +161,11 @@ function main(filelist, metafile)
             end
         end
     end
-    print("## Main loop done.")
+    println("## Main loop done.")
 end
 
 ###############################################################################
-println("# Test of the optimization on a subset of targets. Check the code...")
+header_extract()
 
 cd(votdir)
 votlist= glob("*.vot")

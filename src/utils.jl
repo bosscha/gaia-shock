@@ -61,4 +61,10 @@ function specialstr(str, CODE)
     end
 end
 
- function bold(s) GaiaClustering.specialstr(s,"BOLD") end
+function bold(s) GaiaClustering.specialstr(s,"BOLD") end
+
+function header_extract()
+    println("#\n#")
+    println(" >>>>>>>>>> Extracting Stellar Clusters from GAIA data <<<<<<<<<<")
+    println("#\n#")
+end
