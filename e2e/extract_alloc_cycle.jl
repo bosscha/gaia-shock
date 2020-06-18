@@ -147,8 +147,8 @@ function main(filelist, metafile)
                 meanTime= totalTime / i
                 ETA= meanTime * (nfile-i) / 24
                 nleft= nfile-i
-                println("## Duration: $duration hours")
-                println("## ETA: $ETA days")
+                @printf("## %s \n",specialstr("Duration: $duration hours","YELLOW"))
+                @printf("## %s \n",specialstr("ETA: $ETA days","YELLOW"))
                 @printf("## %s \n",specialstr("Votable done: $votname","YELLOW"))
                 @printf("## %s \n",specialstr("Files analyzed: $i","YELLOW"))
                 @printf("## %s \n",specialstr("Files to go: $nleft","YELLOW"))
