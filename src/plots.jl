@@ -183,7 +183,7 @@ function plot_dbscanfull_mcmc(plotdir, voname, mc::mcfull , showplot = true)
         push!(text,txt)
         show_text(-0.01,0.0, text)
 
-        rec= patch.Rectangle((-0.07, -0.05), 1.2 , 1.05, color="khaki",
+        rec= patch.Rectangle((-0.07, -0.05), 1.2 , 1.05, color="mediumaquamarine",
             alpha= 0.4, clip_on=false)
         axt.add_artist(rec)
 

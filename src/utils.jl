@@ -66,5 +66,6 @@ function bold(s) GaiaClustering.specialstr(s,"BOLD") end
 function header_extract()
     println("#\n#")
     println(" >>>>>>>>>> Extracting Stellar Clusters from GAIA data <<<<<<<<<<")
+    println(" Version: $VERSION  (https://github.com/bosscha/gaia-shock)")
     println("#\n#")
 end

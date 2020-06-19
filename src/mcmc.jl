@@ -343,7 +343,7 @@ function abc_mcmc_dbscan_full2(dfcart::GaiaClustering.Df, params::GaiaClustering
                 titer= now()
                 duration= Dates.value(titer-tstart) / (1000*3600)
                 meanTime= duration / nchain
-                eta= meanTime * (niter-nchain)
+                eta= @sprintf("%3.3f",meanTime * (niter-nchain))
                 println("### iteration: $iter (ETA:$eta h)")
             end
             if iter > maxiter

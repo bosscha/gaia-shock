@@ -6,12 +6,13 @@
 ## OPTIONS
 # -s : first centile to consider in the vot files (0-100)
 # -e : last centile to consider in the vot files (0-100)
-# -o : root for the out file of the results
+# -m : metafile for all split
 
-using DataFrames
+using DataFrames, Query
 using CSV, Glob, Dates
-using Statistics
-import DataFrames
+using Statistics, Random
+using Printf
+
 
 rootdir =  ENV["GAIA_ROOT"]
 
@@ -155,8 +156,9 @@ function main(filelist, metafile, prefile)
                 meanTime= totalTime / i
                 ETA= meanTime * (nfile-i) / 24
                 nleft= nfile-i
-                @printf("## %s \n",specialstr("Duration: $duration hours","YELLOW"))
-                @printf("## %s \n",specialstr("ETA: $ETA days","YELLOW"))
+                ETAstr= @sprintf("%3.3f", ETA) ; durationstr= @sprintf("%3.3f", duration)
+                @printf("## %s \n",specialstr("Duration: $durationstr hours","YELLOW"))
+                @printf("## %s \n",specialstr("ETA: $ETAstr days","YELLOW"))
                 @printf("## %s \n",specialstr("Votable done: $votname","YELLOW"))
                 @printf("## %s \n",specialstr("Files analyzed: $i","YELLOW"))
                 @printf("## %s \n",specialstr("Files to go: $nleft","YELLOW"))
@@ -173,7 +175,7 @@ let
     cd(wdir)
 
     istart= 0 ; iend= 100
-    file_mcmc= "votlist-mcmc_full"
+    metafile= "configAll.ext"
 
     for i in 1:length(ARGS)
         if ARGS[i] == "-s"
@@ -182,16 +184,18 @@ let
         if ARGS[i] == "-e"
             iend= parse(Int, ARGS[i+1])
         end
-        if ARGS[i] == "-o"
-            file_mcmc= ARGS[i+1]
+        if ARGS[i] == "-m"
+            metafile= ARGS[i+1]
         end
     end
 
     if istart < 0 istart= 0 end
     if iend > 100 iend= 100 end
 
-################
-    prefile= "ocres-$istart-$iend"
+###############
+    header_extract()
+    m= read_params(metafile, false)
+    prefile= "$(m.prefile)-$istart-$iend"
 
     nfile= length(votlist)
     i1= convert(Int,floor(nfile*istart/100))
@@ -204,9 +208,10 @@ let
     end
 
     println("## DBSCAN optimization starting")
+    println("## split files: $prefile")
     println("##")
 
     votsublist= votlist[i1:i2]
-    main(votsublist, "configAll.ext", prefile)
+    main(votsublist, metafile, prefile)
     println("##\n## END of split optimization for $prefile \n##")
 end

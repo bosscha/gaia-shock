@@ -1,4 +1,6 @@
-julia optimize_fulldbscan_oc-split.jl -s 0 -e 10 -o votlist-mcmcfull &
+julia extract_alloc_cycle_split.jl -s 0 -e 10 -m configAll.ext &
+
+
 julia optimize_fulldbscan_oc-split.jl -s 10 -e 20 -o votlist-mcmcfull &
 julia optimize_fulldbscan_oc-split.jl -s 20 -e 30 -o votlist-mcmcfull &
 julia optimize_fulldbscan_oc-split.jl -s 30 -e 40 -o votlist-mcmcfull &
