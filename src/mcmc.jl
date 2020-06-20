@@ -491,7 +491,8 @@ function check_qminqstar_full2(dfcart::GaiaClustering.Df, params::GaiaClustering
             if notfound
                 new_minq *= 0.95
                 new_minstars = trunc(Int, 0.95 * new_minstars)
-                println("#### MinQ not reached yet... testing with $new_minq")
+                new_minqstr= @sprintf("%3.3f", new_minq)
+                println("#### MinQ not reached yet... testing with $new_minqstr")
             end
 
             if new_minstars == 0 || totaliter > maxiter
