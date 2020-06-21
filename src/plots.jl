@@ -359,7 +359,7 @@ function plot_cluster2(plotdir, voname, indx, sc::GaiaClustering.SCproperties2, 
         txt = "Edge ratio(m) : $v1 " ; push!(text,txt)
         show_text(1.2,-0.1, text , 0.64 )
 
-        rec= patch.Rectangle((-0.07, -0.15), 2.3, 1.15, color="salmon", alpha= 0.4, clip_on=false)
+        rec= patch.Rectangle((-0.07, -0.15), 2.2, 1.15, color="salmon", alpha= 0.4, clip_on=false)
         axt.add_artist(rec)
     end
 
