@@ -21,7 +21,7 @@ mingoodsolution = 10                      ## minimum good solution for Q in chec
 niterqminq      = 500                     ## iterions for check_qminqstar
 
 nburnout        = 4000                    ## burn-in iterations
-nchain          = 15000                   ## MCMC chains
+nchain          = 16000                   ## MCMC chains
 maxiter         = 200000
 
 ### Cycle parameters

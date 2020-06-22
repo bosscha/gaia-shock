@@ -14,8 +14,8 @@ using GaiaClustering
 ## directory
 wdir    = "$rootdir/e2e_products"
 votdir  = "$wdir/votable"
-plotdir = "$wdir/plotSelect-TEST"
-ocdir   = "$wdir/oc-TEST"
+plotdir = "$wdir/plotSelect"
+ocdir   = "$wdir/oc"
 
 
 ## load a liist of votable and update the file if done
@@ -109,7 +109,7 @@ function main(filelist, metafile)
         fileres= "$(m.prefile).done.csv"
 
         # read a possible votname blacklist
-        blackname= "blacklist-test.csv"
+        blackname= "blacklist.csv"
         blacklist= read_blacklist(blackname)
         println("## blacklist read...")
 
@@ -166,8 +166,5 @@ header_extract()
 cd(votdir)
 votlist= glob("*.vot")
 cd(wdir)
-
-rng = MersenneTwister()
-shuffle!(rng, votlist)
 
 main(votlist,"configAll.ext")

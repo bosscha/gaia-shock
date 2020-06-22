@@ -19,7 +19,7 @@ import StatsBase , CSV,  Distances
 
 using PyCall , PyPlot
 
-VERSION= "1.0.0"
+VERSION= "1.0.1"
 ## include all the types
 include("types.jl")
 export modelCauchy , Grav , abcfull , mcfull, modelfull, meta
