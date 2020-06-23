@@ -19,7 +19,7 @@ import StatsBase , CSV,  Distances
 
 using PyCall , PyPlot
 
-VERSION= "1.0.1"
+VERSION= "1.0.2"
 ## include all the types
 include("types.jl")
 export modelCauchy , Grav , abcfull , mcfull, modelfull, meta
@@ -56,7 +56,7 @@ export atrous , addWav , thresholdingWav , noiseWav
 
 ## utils methods
 include("utils.jl")
-export isnotnan , read_blacklist , convertStruct2Df , specialstr , bold , header_extract
+export isnotnan , read_blacklist , convertStruct2Df , specialstr , bold , yellow, header_extract
 
 ## Mass segregation and stellar clustering
 include("massSegregation.jl")

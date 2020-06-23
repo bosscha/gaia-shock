@@ -62,6 +62,7 @@ function specialstr(str, CODE)
 end
 
 function bold(s) GaiaClustering.specialstr(s,"BOLD") end
+function yellow(s) GaiaClustering.specialstr(s,"YELLOW") end
 
 function header_extract()
     println("#\n#")
