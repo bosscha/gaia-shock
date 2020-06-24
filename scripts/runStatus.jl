@@ -4,10 +4,6 @@
 using DataFrames, Query
 using CSV, Glob, Dates
 
-rootdir =  ENV["GAIA_ROOT"]
-push!(LOAD_PATH,"$rootdir/master/src")
-using GaiaClustering
-
 function perf_status(file)
     if isfile(file)
         perf= DataFrames.copy(CSV.read(file, delim=";"))
@@ -17,6 +13,29 @@ function perf_status(file)
     end
     return(nstarcluster)
 end
+
+function specialstr(str, CODE)
+    d= Dict( "PURPLE" => "\033[95m" ,
+             "CYAN" => "\033[96m" ,
+             "DARKCYAN" => "\033[36m" ,
+             "BLUE" => "\033[94m" ,
+             "GREEN" => "\033[92m" ,
+             "YELLOW" => "\033[93m" ,
+             "RED" => "\033[91m" ,
+             "BOLD" => "\033[1m" ,
+             "UNDERLINE" => "\033[4m" ,
+             "END" => "\033[0m")
+
+    if haskey(d, CODE)
+        res= @sprintf("%s%s%s", d[CODE], str, d["END"])
+        return(res)
+    else
+        return(str)
+    end
+end
+
+function bold(s) GaiaClustering.specialstr(s,"BOLD") end
+function yellow(s) GaiaClustering.specialstr(s,"YELLOW") end
 
 function main(csvlist)
     println("## Extraction status")
