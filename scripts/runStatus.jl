@@ -35,8 +35,8 @@ function specialstr(str, CODE)
     end
 end
 
-function bold(s) GaiaClustering.specialstr(s,"BOLD") end
-function yellow(s) GaiaClustering.specialstr(s,"YELLOW") end
+function bold(s) specialstr(s,"BOLD") end
+function yellow(s) specialstr(s,"YELLOW") end
 
 function main(csvlist)
     println("## Extraction status")
