@@ -3,6 +3,7 @@
 
 using DataFrames, Query
 using CSV, Glob, Dates
+using Printf
 
 function perf_status(file)
     if isfile(file)
