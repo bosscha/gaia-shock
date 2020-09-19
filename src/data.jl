@@ -10,7 +10,7 @@ function query_gaia(coord, radius, dump = false)
     return(0)
 
 end
-
+#
 
 function copy(s::Df)::Df
     c = Df(s.ndata, zeros(length(s.data[:,1]),s.ndata),zeros(length(s.raw[:,1]),s.ndata), zeros(length(s.err[:,1]),s.ndata))
