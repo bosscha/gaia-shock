@@ -85,7 +85,7 @@ class source:
 
 
     ################################
-    def query(self, radius, coordCluster = [], errtol = 0.2, dump = False,table="gaiadr2.gaia_source"):
+    def query(self, radius, coordCluster = [], errtol = 0.2, dump = False,table="gaiaedr3.gaia_source"):
         "do a conesearch"
 
         self.weighted = False
