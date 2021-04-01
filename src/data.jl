@@ -80,14 +80,6 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250], vdec
     ag= zeros(ngaia)
 
     for i in 1:ngaia
-        # lgal[i]     = convert(Float64,gaia[i]["l"])
-        # bgal[i]     = convert(Float64,gaia[i]["b"])
-        # ra[i]       = convert(Float64,gaia[i]["ra"])
-        # dec[i]      = convert(Float64,gaia[i]["dec"])
-        # distance[i] = 1000. / convert(Float64,gaia[i]["parallax"])
-        # parallax[i] = convert(Float64,gaia[i]["parallax"])
-        # pmra[i]     = convert(Float64,gaia[i]["pmra"])
-        # pmdec[i]    = convert(Float64,gaia[i]["pmdec"])
 
         lgal[i]     = convert(Float64, get(gaia,i-1).l)
         bgal[i]     = convert(Float64, get(gaia,i-1).b)
@@ -107,27 +99,18 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250], vdec
         vl[i]  = 4.74e-3 * pml[i]  * distance[i]
         vb[i]  = 4.74e-3 * pmb[i]  * distance[i]
 
-        # radialvel[i]   = convert(Float64,gaia[i]["radial_velocity"])
         radialvel[i]    = convert(Float64, get(gaia,i-1).radial_velocity)
 
         ### errors.
-        # parallax_error[i]  = convert(Float64,gaia[i]["parallax_error"])
-        # pmra_error[i]  = convert(Float64,gaia[i]["pmra_error"])
-        # pmdec_error[i] = convert(Float64,gaia[i]["pmdec_error"])
         parallax_error[i]  = convert(Float64, get(gaia,i-1).parallax_error)
         pmra_error[i]  = convert(Float64, get(gaia,i-1).pmra_error)
         pmdec_error[i] = convert(Float64, get(gaia,i-1).pmdec_error)
 
-
-        # g[i]        = convert(Float64,gaia[i]["phot_g_mean_mag"])
-        # rp[i]       = convert(Float64,gaia[i]["phot_rp_mean_mag"])
-        # bp[i]       = convert(Float64,gaia[i]["phot_bp_mean_mag"])
         g[i]        = convert(Float64, get(gaia,i-1).phot_g_mean_mag)
         rp[i]       = convert(Float64, get(gaia,i-1).phot_rp_mean_mag)
         bp[i]       = convert(Float64, get(gaia,i-1).phot_bp_mean_mag)
 
         #extinction
-        # ag[i]       = convert(Float64,gaia[i]["a_g_val"])
         ag[i]       = convert(Float64, get(gaia,i-1).a_g_val)
 
     end
@@ -149,7 +132,6 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250], vdec
     ifinal = i1 .& i2 .& i3 .& i4 .& i5 .& i6 .& i7 .& i8 .& i9 .& i10 .& i11 .& i12
 
     ## G magnitude
-     # gbar =  g[ifinal] - 5. * log10.(distance[ifinal]) + 17.
     gbar =  g[ifinal] - 5 .* log10.(distance[ifinal]) .+ 17.
 
     ## Df of the filtered dat
