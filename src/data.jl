@@ -53,6 +53,7 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250], vdec
 ########
     ngaia = length(gaia)
 
+    source_id = zeros(ngaia)
     lgal = zeros(ngaia)
     bgal = zeros(ngaia)
     ra = zeros(ngaia)
@@ -81,6 +82,7 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250], vdec
 
     for i in 1:ngaia
 
+        source_id[i]= convert(Float64, get(gaia,i-1).source_id)
         lgal[i]     = convert(Float64, get(gaia,i-1).l)
         bgal[i]     = convert(Float64, get(gaia,i-1).b)
         ra[i]       = convert(Float64, get(gaia,i-1).ra)
