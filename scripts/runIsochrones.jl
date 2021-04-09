@@ -1,7 +1,7 @@
 ## estimae the stellar mass using a known age of the ]OC
 ##
 rootdir = ENV["GAIA_ROOT"]
-push!(LOAD_PATH,"$rootdir/master/src")
+push!(LOAD_PATH,"$rootdir/run/src")
 using GaiaClustering
 
 using PyCall

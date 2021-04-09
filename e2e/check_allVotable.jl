@@ -16,7 +16,7 @@ wdir    = "$rootdir/e2e_products"
 votdir  = "$wdir/votable-TEST"
 plotdir = "$wdir/plots-TEST"
 
-push!(LOAD_PATH,"$rootdir/master/src")
+push!(LOAD_PATH,"$rootdir/run/src")
 using GaiaClustering
 
 cd(wdir)

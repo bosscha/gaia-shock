@@ -20,7 +20,10 @@ wdir    = "$rootdir/products"
 votdir  = "$rootdir/e2e_products/votable.2020"
 plotdir = "$rootdir/products/test"
 ocdir   = "$rootdir/products/octest"
-sclist  = "$rootdir/e2e_products/"
+
+
+## Maximum random votable for testing
+MAX_VOTABLE = 10
 
 ## load a liist of votable and update the file if done
 ## add results
@@ -87,7 +90,7 @@ end
 ##
 function read_blacklist(blackname)
     if isfile(blackname)
-        df= DataFrames.copy(CSV.read(blackname, delim=";"))
+        df= CSV.read(blackname, DataFrame, delim=";")
         blacklist= df.votname
     else
         blacklist= [""]
@@ -175,4 +178,4 @@ cd(wdir)
 rng = MersenneTwister()
 shuffle!(rng, votlist)
 
-main(votlist,"config1.ext")
+main(votlist[1:MAX_VOTABLE],"configAll.ext")
