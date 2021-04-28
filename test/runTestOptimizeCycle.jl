@@ -17,13 +17,13 @@ using GaiaClustering
 
 ## directory
 wdir    = "$rootdir/products"
-votdir  = "$rootdir/e2e_products/votable.2020"
-plotdir = "$rootdir/products/test"
-ocdir   = "$rootdir/products/octest"
+votdir  = "$rootdir/e2e_products/votable.edr3.2021"
+plotdir = "$rootdir/products/plot-TEST"
+ocdir   = "$rootdir/products/oc-TEST"
 
 
 ## Maximum random votable for testing
-MAX_VOTABLE = 10
+MAX_VOTABLE = 50
 
 ## load a liist of votable and update the file if done
 ## add results

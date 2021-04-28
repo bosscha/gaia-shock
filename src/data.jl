@@ -101,7 +101,8 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250], vdec
         vl[i]  = 4.74e-3 * pml[i]  * distance[i]
         vb[i]  = 4.74e-3 * pmb[i]  * distance[i]
 
-        radialvel[i]    = convert(Float64, get(gaia,i-1).radial_velocity)
+        #fix for EDR3
+        radialvel[i]    = convert(Float64, get(gaia,i-1).dr2_radial_velocity)
 
         ### errors.
         parallax_error[i]  = convert(Float64, get(gaia,i-1).parallax_error)
@@ -113,7 +114,8 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250], vdec
         bp[i]       = convert(Float64, get(gaia,i-1).phot_bp_mean_mag)
 
         #extinction
-        ag[i]       = convert(Float64, get(gaia,i-1).a_g_val)
+        # fix fo EDR3, extinction not found
+        ag[i]       = 99.  ##  convert(Float64, get(gaia,i-1).a_g_val)
 
     end
 
