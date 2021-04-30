@@ -769,11 +769,11 @@ function save_cycle(sc, mcmc, perf, m::GaiaClustering.meta)
             CSV.write(fileperf,perf[i],delim=';')
             println("## $fileperf created...")
         else
-            res = DataFrames.copy(CSV.read(filesc, delim=";"))
+            res= CSV.File(filesc, delim=";")
             append!(res,sc[i]) ; CSV.write(filesc,res,delim=';')
-            res = DataFrames.copy(CSV.read(filemcmc, delim=";"))
+            res= CSV.File(filemcmc, delim=";")
             append!(res,mcmc[i]) ; CSV.write(filemcmc,res,delim=';')
-            res = DataFrames.copy(CSV.read(fileperf, delim=";"))
+            res= CSV.File(fileperf, delim=";")
             append!(res,perf[i]) ; CSV.write(fileperf,res,delim=';')
         end
     end
