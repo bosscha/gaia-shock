@@ -545,3 +545,10 @@ function extraction_mcmc(mc, votname)
             w3dm=w3dm,w3dd=w3dd,wvelm=wvelm,wveld=wveld,whrdm=whrdm,whrdd=whrdd)
     return(res)
 end
+
+### create DataFrame for the chaine
+###
+function create_DFchain(mc, votname, cycle)
+    df= DataFrame(votname=votname, cycle=cycle, eps=mc.eps , mne=mc.mne, mcl=mc.mcl, w3d=mc.w3d, wvel=mc.wvel, whrd=mc.whrd, qc=mc.qc, qn=mc.qn)
+    return(df)
+end
