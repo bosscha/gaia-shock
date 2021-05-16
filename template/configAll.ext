@@ -13,7 +13,7 @@ prefile    = "ocres"                 # prefix for the result files
 
 ### MCMC
 ###
-minQc           = 2.7                     ## minimum Qc metric in MCMC
+minQc           = 2.6                     ## minimum Qc metric in MCMC
 minQn           = 40                      ## minimum Qn metric in MCMC
 maxQn           = 5000                    ## maximum Qn metric in MCMC
 forcedminstars  = 30                      ## minimum stars forced if not reached
