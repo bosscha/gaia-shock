@@ -20,9 +20,9 @@ forcedminstars  = 30                      ## minimum stars forced if not reached
 mingoodsolution = 10                      ## minimum good solution for Q in check_qminqstar
 niterqminq      = 500                     ## iterions for check_qminqstar
 
-nburnout        = 4000                    ## burn-in iterations
-nchain          = 16000                   ## MCMC chains
-maxiter         = 200000
+nburnout        = 500                    ## burn-in iterations
+nchain          = 5000                   ## MCMC chains
+maxiter         = 50000                  ## maximum iteration to get the full chain
 
 ### Cycle parameters
 ###
@@ -37,7 +37,7 @@ wratiominstop       = 0.2       ## minimum ratio btwn w3d and wvel (otherwise no
 ##
 epsmean         = 2.5                     ## epsilon mean
 epsdisp         = 1.5                     ## epsilon dispersion
-min_nei         = 10                     ## min_nei mean
+min_nei         = 10                      ## min_nei mean
 min_cl          = 15                      ## min_cl mean
 ncoredisp       = 10                      ## dispersion for min_nei and min_cl
 w3dmean         = 6.0                     ## 2D/3D weight  mean
@@ -46,6 +46,16 @@ wvelmean        = 6.0                     ## velocity weight  mean
 wveldisp        = 4.0                     ## velocity weight  dispersion
 whrdmean        = 2.0                     ## CMD weight mean
 whrddisp        = 1.5                     ## CMD weight dispersion
+
+## random walk parameters
+##
+eps_rw        = 0.4                        ## eps dispersion
+minnei_rw     = 4                          ## min_nei dispersion
+mincl_rw      = 4                          ## min_cl dispersion
+w3d_rw        = 0.8                        ## w3d dispersion
+wvel_rw       = 0.8                        ## wvel dispersion
+whrd_rw       = 0.8                        ## whrd dispersion
+
 
 ## Metrics Q & find_clusters
 ##

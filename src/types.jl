@@ -197,6 +197,13 @@ mutable struct meta
     whrdmean::Float64
     whrddisp::Float64
 
+    eps_rw::Float64
+    minnei_rw::Int
+    mincl_rw::Int
+    w3d_rw::Float64
+    wvel_rw::Float64
+    whrd_rw::Float64      
+
     clustermax::Int
     aperture2d::Float64
     maxaperture2d::Float64
