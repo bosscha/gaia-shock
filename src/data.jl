@@ -140,7 +140,7 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250], vdec
 
     ## Df of the filtered dat
     ndata = length(distance[ifinal])
-    s = Df(ndata, zeros(8,ndata), zeros(14,ndata) , zeros(8,ndata) )
+    s = Df(ndata, zeros(9,ndata), zeros(14,ndata) , zeros(8,ndata) )
 
     s.data[1,:] = lgal[ifinal]
     s.data[2,:] = bgal[ifinal]
@@ -150,6 +150,7 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250], vdec
     s.data[6,:] = gbar
     s.data[7,:] = g[ifinal] .- rp[ifinal]
     s.data[8,:] = bp[ifinal] .- g[ifinal]
+    s.data[9,:] = source_id[ifinal]
 
 
     s.raw[1,:] = ra[ifinal]
@@ -407,7 +408,9 @@ function export_df(votname, ocdir, df , dfcart, labels , labelmax)
     bp= df.raw[12,labels[labelmax]]
     ag= df.raw[14,labels[labelmax]]
 
-    oc= DataFrame(ra=ra,dec=dec,l=l,b=b, distance=d,pmra=pmra, pmdec=pmdec, X=X,Y=Y,Z=Z,vl=vl,vb=vb,vrad=vrad,gbar=gbar,rp=rp,bp=bp, ag=ag)
+    source_id= df.data[9,labels[labelmax]]
+
+    oc= DataFrame(sourceid=source_id,ra=ra,dec=dec,l=l,b=b, distance=d,pmra=pmra, pmdec=pmdec, X=X,Y=Y,Z=Z,vl=vl,vb=vb,vrad=vrad,gbar=gbar,rp=rp,bp=bp, ag=ag)
 
     name= split(votname,".")
     infix= ""
