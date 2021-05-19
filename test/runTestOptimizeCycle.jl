@@ -46,7 +46,7 @@ function getdata(filevot)
 
     dfcartnorm , scale8 = normalization_PerBlock(dfcart, blck, wghtblck , norm, false)
     return(df, dfcart , dfcartnorm)
-end
+ end
 
 
 ## to check if done and record

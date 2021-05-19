@@ -10,6 +10,7 @@ mutable struct Df
     data::Array{Float64}
     raw::Array{Float64}
     err::Array{Float64}
+    sourceid::Array{Int64}
 end
 
 ## dbcan parameters
@@ -202,7 +203,7 @@ mutable struct meta
     mincl_rw::Int
     w3d_rw::Float64
     wvel_rw::Float64
-    whrd_rw::Float64      
+    whrd_rw::Float64
 
     clustermax::Int
     aperture2d::Float64

@@ -739,15 +739,17 @@ function remove_stars(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, idx)
     dfdata= df.data[:,setdiff(1:end,idx)]
     dfraw= df.raw[:,setdiff(1:end,idx)]
     dferr= df.err[:,setdiff(1:end,idx)]
+    dfsid= df.sourceid[:,setdiff(1:end,idx)]
 
     dfcartdata= dfcart.data[:,setdiff(1:end,idx)]
     dfcartraw= dfcart.raw[:,setdiff(1:end,idx)]
     dfcarterr= dfcart.err[:,setdiff(1:end,idx)]
+    dfcartsid= dfcart.sourceid[:,setdiff(1:end,idx)]
 
     s=size(dfdata)
 
-    dfnew= GaiaClustering.Df(s[2],dfdata,dfraw,dferr)
-    dfcartnew= GaiaClustering.Df(s[2],dfcartdata,dfcartraw,dfcarterr)
+    dfnew= GaiaClustering.Df(s[2],dfdata,dfraw,dferr,dfsid)
+    dfcartnew= GaiaClustering.Df(s[2],dfcartdata,dfcartraw,dfcarterr,dfcartsid)
 
     nrem= length(idx)
     println("### $nrem stars removed")
