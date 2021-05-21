@@ -20,6 +20,7 @@ import StatsBase , CSV,  Distances
 using PyCall , PyPlot
 
 VERSION= "1.0.2"
+
 ## include all the types
 include("types.jl")
 export modelCauchy , Grav , abcfull , mcfull, modelfull, meta
@@ -44,7 +45,7 @@ remove_stars , edge_ratio
 include("mcmc.jl")
 export theta , thetaiter , abc_mcmc_dbscan, ministats  , ministats_full ,
 theta_full , thetaiter_full , getDfcartnorm , abc_mcmc_dbscan_full2,
-check_qminqstar_full2
+check_qminqstar_full2, create_DFchain
 
 ## plotting functions
 include("plots.jl")

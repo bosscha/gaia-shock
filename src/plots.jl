@@ -1,5 +1,5 @@
 ### Functions for plotting stellar cluster results
-###
+### 
 
 #### aux. function to plot text in a subplot
 ## plot array of text in a box

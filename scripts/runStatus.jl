@@ -7,7 +7,7 @@ using Printf
 
 function perf_status(file)
     if isfile(file)
-        perf= DataFrames.copy(CSV.read(file, delim=";"))
+        perf= CSV.File(file, delim=";")
         nstarcluster= sum(perf.nmax)
     else
         nstarcluster= 0
@@ -46,7 +46,7 @@ function main(csvlist)
 
     nvotTotal= 0 ; ncycleTotal= 0 ; nstarclusterTotal= 0
     for file in csvlist
-        done= DataFrames.copy(CSV.read(file, delim=";"))
+        done= CSV.File(file, delim=";")
 
         nvot= length(done.votname)
         ncycle= sum(done.cycle)

@@ -12,20 +12,24 @@ function query_gaia(coord, radius, dump = false)
 end
 
 function copy(s::Df)::Df
-    c = Df(s.ndata, zeros(length(s.data[:,1]),s.ndata),zeros(length(s.raw[:,1]),s.ndata), zeros(length(s.err[:,1]),s.ndata))
+    c = Df(s.ndata, zeros(length(s.data[:,1]),s.ndata),zeros(length(s.raw[:,1]),s.ndata), zeros(length(s.err[:,1]),s.ndata),
+    zeros(length(s.sourceid[:,1]),s.ndata))
     c.data[:,:] = s.data[:,:]
     c.raw[:,:]  = s.raw[:,:]
     c.err[:,:]  = s.err[:,:]
+    c.sourceid[:,:]  = s.sourceid[:,:]
 
     return(c)
 end
 
 ## dummy ...
 function copy1(s::Df)::Df
-    c = Df(s.ndata, zeros(length(s.data[:,1]),s.ndata),zeros(length(s.raw[:,1]),s.ndata), zeros(length(s.err[:,1]),s.ndata))
+    c = Df(s.ndata, zeros(length(s.data[:,1]),s.ndata),zeros(length(s.raw[:,1]),s.ndata), zeros(length(s.err[:,1]),s.ndata),
+    zeros(length(s.sourceid[:,1]),s.ndata))
     c.data[:,:] = s.data[:,:]
     c.raw[:,:]  = s.raw[:,:]
     c.err[:,:]  = s.err[:,:]
+    c.sourceid[:,:]  = s.sourceid[:,:]
 
     return(c)
 end
@@ -53,6 +57,7 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250], vdec
 ########
     ngaia = length(gaia)
 
+    source_id = zeros(Int64,ngaia)
     lgal = zeros(ngaia)
     bgal = zeros(ngaia)
     ra = zeros(ngaia)
@@ -81,6 +86,7 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250], vdec
 
     for i in 1:ngaia
 
+        source_id[i]= convert(Int64, get(gaia,i-1).source_id)
         lgal[i]     = convert(Float64, get(gaia,i-1).l)
         bgal[i]     = convert(Float64, get(gaia,i-1).b)
         ra[i]       = convert(Float64, get(gaia,i-1).ra)
@@ -99,7 +105,8 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250], vdec
         vl[i]  = 4.74e-3 * pml[i]  * distance[i]
         vb[i]  = 4.74e-3 * pmb[i]  * distance[i]
 
-        radialvel[i]    = convert(Float64, get(gaia,i-1).radial_velocity)
+        #fix for EDR3
+        radialvel[i]    = convert(Float64, get(gaia,i-1).dr2_radial_velocity)
 
         ### errors.
         parallax_error[i]  = convert(Float64, get(gaia,i-1).parallax_error)
@@ -111,7 +118,8 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250], vdec
         bp[i]       = convert(Float64, get(gaia,i-1).phot_bp_mean_mag)
 
         #extinction
-        ag[i]       = convert(Float64, get(gaia,i-1).a_g_val)
+        # fix fo EDR3, extinction not found
+        ag[i]       = 99.  ##  convert(Float64, get(gaia,i-1).a_g_val)
 
     end
 
@@ -136,7 +144,7 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250], vdec
 
     ## Df of the filtered dat
     ndata = length(distance[ifinal])
-    s = Df(ndata, zeros(8,ndata), zeros(14,ndata) , zeros(8,ndata) )
+    s = Df(ndata, zeros(8,ndata), zeros(15,ndata) , zeros(8,ndata) , zeros(1,ndata))
 
     s.data[1,:] = lgal[ifinal]
     s.data[2,:] = bgal[ifinal]
@@ -146,7 +154,6 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250], vdec
     s.data[6,:] = gbar
     s.data[7,:] = g[ifinal] .- rp[ifinal]
     s.data[8,:] = bp[ifinal] .- g[ifinal]
-
 
     s.raw[1,:] = ra[ifinal]
     s.raw[2,:] = dec[ifinal]
@@ -163,11 +170,13 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250], vdec
     s.raw[13,:] = radialvel[ifinal]
     s.raw[14,:] = ag[ifinal]
 
-
     ## Errors ..
     s.err[1,:] = parallax_error[ifinal]
     s.err[4,:] = pmra_error[ifinal]
     s.err[5,:] = pmdec_error[ifinal]
+
+    ## GAIA source id
+    s.sourceid[1,:] = source_id[ifinal]
 
     println("## Filtering done ...")
     println("## Stars selected: $ndata")
@@ -375,7 +384,7 @@ function subsetDf(df::Df, indx)::Df
 ######
 
   ndat = length(indx)
-  subset = Df(ndat, df.data[:,indx], df.raw[:,indx], df.err[:,indx])
+  subset = Df(ndat, df.data[:,indx], df.raw[:,indx], df.err[:,indx], df.sourceid[:,indx])
 
     return(subset)
 end
@@ -403,7 +412,9 @@ function export_df(votname, ocdir, df , dfcart, labels , labelmax)
     bp= df.raw[12,labels[labelmax]]
     ag= df.raw[14,labels[labelmax]]
 
-    oc= DataFrame(ra=ra,dec=dec,l=l,b=b, distance=d,pmra=pmra, pmdec=pmdec, X=X,Y=Y,Z=Z,vl=vl,vb=vb,vrad=vrad,gbar=gbar,rp=rp,bp=bp, ag=ag)
+    source_id= df.sourceid[1,labels[labelmax]]
+
+    oc= DataFrame(sourceid=source_id,ra=ra,dec=dec,l=l,b=b, distance=d,pmra=pmra, pmdec=pmdec, X=X,Y=Y,Z=Z,vl=vl,vb=vb,vrad=vrad,gbar=gbar,rp=rp,bp=bp, ag=ag)
 
     name= split(votname,".")
     infix= ""

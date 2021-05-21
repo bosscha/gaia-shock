@@ -3,7 +3,7 @@
 ## output the results in a .csv file
 
 rootdir= ENV["GAIA_ROOT"]
-push!(LOAD_PATH,"$rootdir/master/src")
+push!(LOAD_PATH,"$rootdir/run/src")
 using GaiaClustering
 using Printf, Glob, Statistics
 

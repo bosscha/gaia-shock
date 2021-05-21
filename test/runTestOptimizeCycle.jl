@@ -12,15 +12,18 @@ using Printf
 
 rootdir =  ENV["GAIA_ROOT"]
 
-push!(LOAD_PATH,"$rootdir/master/src")
+push!(LOAD_PATH,"$rootdir/run/src")
 using GaiaClustering
 
 ## directory
 wdir    = "$rootdir/products"
-votdir  = "$rootdir/e2e_products/votable.2020"
-plotdir = "$rootdir/products/test"
-ocdir   = "$rootdir/products/octest"
-sclist  = "$rootdir/e2e_products/"
+votdir  = "$rootdir/e2e_products/votable.edr3.2021"
+plotdir = "$rootdir/products/plot-TEST"
+ocdir   = "$rootdir/products/oc-TEST"
+
+
+## Maximum random votable for testing
+MAX_VOTABLE = 50
 
 ## load a liist of votable and update the file if done
 ## add results
@@ -43,7 +46,7 @@ function getdata(filevot)
 
     dfcartnorm , scale8 = normalization_PerBlock(dfcart, blck, wghtblck , norm, false)
     return(df, dfcart , dfcartnorm)
-end
+ end
 
 
 ## to check if done and record
@@ -54,7 +57,7 @@ function updt_votcompleted(fileres, votname , cycletot=1, flag= 0 , onlycheck=tr
             if !isfile(fileres)
                 return(0, false)
             else
-                res = DataFrames.copy(CSV.read(fileres, delim=";"))
+                res = CSV.File(fileres, delim=";") |> DataFrame
                 if votname in res.votname
                     x = @from i in res begin
                         @where i.votname == votname
@@ -87,7 +90,7 @@ end
 ##
 function read_blacklist(blackname)
     if isfile(blackname)
-        df= DataFrames.copy(CSV.read(blackname, delim=";"))
+        df= CSV.read(blackname, DataFrame, delim=";")
         blacklist= df.votname
     else
         blacklist= [""]
@@ -175,4 +178,4 @@ cd(wdir)
 rng = MersenneTwister()
 shuffle!(rng, votlist)
 
-main(votlist,"config1.ext")
+main(votlist[1:MAX_VOTABLE],"configAll.ext")

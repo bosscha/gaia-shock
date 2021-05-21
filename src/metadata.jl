@@ -18,14 +18,14 @@ function set_default_params()::meta
     ##
     def.minQc    = 2.7
     def.minQn    = 40
-    def.maxQn    = 10000
+    def.maxQn    = 5000
     def.forcedminstars = 30
     def.mingoodsolution = 10        # minimum good solution for Q in check_qminqstar
     def.niterqminq = 500            # check_qminqstar..
 
-    def.nburnout  = 2000            # burn-in iterations
-    def.nchain    = 15000           # MCMC iterations==number of CHAINS
-    def.maxiter   = 500000
+    def.nburnout  = 500             # burn-in iterations
+    def.nchain    = 5000            # MCMC iterations==number of CHAINS
+    def.maxiter   = 50000           # maximum iteration
 
     ### Cycle parameters
     ###
@@ -50,6 +50,15 @@ function set_default_params()::meta
     def.wveldisp  = 4.0
     def.whrdmean  = 2.0
     def.whrddisp  = 1.5
+
+    ## random walk parameters
+    ##
+    def.eps_rw        = 0.4             # eps dispersion
+    def.minnei_rw     = 4               # min_nei dispersion
+    def.mincl_rw      = 4               # min_cl dispersion
+    def.w3d_rw        = 0.8             # w3d dispersion
+    def.wvel_rw       = 0.8             # wvel dispersion
+    def.whrd_rw       = 0.8             # whrd dispersion
 
     ## Metrics & parameters find_clusters
     def.clustermax    = 1000
@@ -127,6 +136,14 @@ function set_param!(def, parstr,value)
     if parstr == "wveldisp"  def.wveldisp= value end
     if parstr == "whrdmean"  def.whrdmean= value end
     if parstr == "whrddisp"  def.whrddisp= value end
+
+    if parstr == "eps_rw"  def.eps_rw = value end
+    if parstr == "minnei_rw"  def.minnei_rw= value end
+    if parstr == "mincl_rw"  def.mincl_rw= value end
+    if parstr == "w3d_rw"  def.w3d_rw= value end
+    if parstr == "wvel_rw"  def.wvel_rw= value end
+    if parstr == "whrd_rw"  def.whrd_rw= value end       
+
 
     ## Metrics find_clusters
     if parstr == "clustermax"     def.clustermax= value end

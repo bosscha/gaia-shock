@@ -411,12 +411,12 @@ function thetaiter_full(θi::modelfull , p::meta)
         pwvel        = truncated(Normal(p.wvelmean , p.wveldisp), 0.1, 1000)
         pwhrd        = truncated(Normal(p.whrdmean , p.whrddisp), 0.1, 1000)
 
-        eps_rw    = truncated(Normal(θi.eps,0.4) , 0.1, 1000.)
-        minnei_rw = truncated(Normal(θi.min_nei , 4 ) , 1,  1000.)
-        mincl_rw  = truncated(Normal(θi.min_cl  , 4)  , 1, 1000.)
-        w3d_rw    = truncated(Normal(θi.w3d,  0.4), 0.1, 1000)
-        wvel_rw   = truncated(Normal(θi.wvel, 0.4), 0.1, 1000)
-        whrd_rw   = truncated(Normal(θi.whrd, 0.4), 0.1, 1000)
+        eps_rw    = truncated(Normal(θi.eps,p.eps_rw) , 0.1, 1000.)
+        minnei_rw = truncated(Normal(θi.min_nei , p.minnei_rw) , 1,  1000.)
+        mincl_rw  = truncated(Normal(θi.min_cl  , p.mincl_rw)  , 1, 1000.)
+        w3d_rw    = truncated(Normal(θi.w3d,  p.w3d_rw), 0.1, 1000)
+        wvel_rw   = truncated(Normal(θi.wvel, p.wvel_rw), 0.1, 1000)
+        whrd_rw   = truncated(Normal(θi.whrd, p.whrd_rw), 0.1, 1000)
 
         new_e = 0.
         new_mn = 0
@@ -544,4 +544,11 @@ function extraction_mcmc(mc, votname)
             qcm=qcm,qcd=qcd, qnm=qnm,qnd=qnd,
             w3dm=w3dm,w3dd=w3dd,wvelm=wvelm,wveld=wveld,whrdm=whrdm,whrdd=whrdd)
     return(res)
+end
+
+### create DataFrame for the chaine
+###
+function create_DFchain(mc, votname, cycle)
+    df= DataFrame(votname=votname, cycle=cycle, eps=mc.eps , mne=mc.mne, mcl=mc.mcl, w3d=mc.w3d, wvel=mc.wvel, whrd=mc.whrd, qc=mc.qc, qn=mc.qn)
+    return(df)
 end

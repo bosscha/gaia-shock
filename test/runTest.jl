@@ -6,7 +6,7 @@
 rootdir = ENV["GAIA_ROOT"]
 wdir    = "$rootdir/products"
 
-push!(LOAD_PATH,"$rootdir/master/src")
+push!(LOAD_PATH,"$rootdir/run/src")
 using gaiaClustering
 
 cd(wdir)

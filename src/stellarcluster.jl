@@ -587,7 +587,7 @@ function cycle_extraction(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, m::G
         votname= m.votname
         cyclerun= true ; cycle= 1 ; FLAG= 0
 
-        sclist= [] ; mcmclist= [] ; perflist= []
+        sclist= [] ; mcmclist= [] ; perflist= [] ; chainlist= []
 
         println("##")
         while cyclerun
@@ -634,6 +634,10 @@ function cycle_extraction(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, m::G
                 insertcols!(res, 2,  :cycle => cycle)
                 push!(sclist, scdf)
                 push!(mcmclist, res)
+
+                ## create DF chain
+                dfchain= create_DFchain(mc, votname, cycle)
+                push!(chainlist,dfchain)
 
                 println("###")
                 println("### label solution: $labelmax")
@@ -717,7 +721,7 @@ function cycle_extraction(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, m::G
             end
         end
         if cycle >= 2
-            save_cycle(sclist, mcmclist, perflist, m)
+            save_cycle(sclist, mcmclist, perflist, chainlist, m)
         end
         return(cycle-1, FLAG)
     end
@@ -735,15 +739,17 @@ function remove_stars(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, idx)
     dfdata= df.data[:,setdiff(1:end,idx)]
     dfraw= df.raw[:,setdiff(1:end,idx)]
     dferr= df.err[:,setdiff(1:end,idx)]
+    dfsid= df.sourceid[:,setdiff(1:end,idx)]
 
     dfcartdata= dfcart.data[:,setdiff(1:end,idx)]
     dfcartraw= dfcart.raw[:,setdiff(1:end,idx)]
     dfcarterr= dfcart.err[:,setdiff(1:end,idx)]
+    dfcartsid= dfcart.sourceid[:,setdiff(1:end,idx)]
 
     s=size(dfdata)
 
-    dfnew= GaiaClustering.Df(s[2],dfdata,dfraw,dferr)
-    dfcartnew= GaiaClustering.Df(s[2],dfcartdata,dfcartraw,dfcarterr)
+    dfnew= GaiaClustering.Df(s[2],dfdata,dfraw,dferr,dfsid)
+    dfcartnew= GaiaClustering.Df(s[2],dfcartdata,dfcartraw,dfcarterr,dfcartsid)
 
     nrem= length(idx)
     println("### $nrem stars removed")
@@ -752,10 +758,11 @@ end
 
 ### save results cycle in csv
 ###
-function save_cycle(sc, mcmc, perf, m::GaiaClustering.meta)
+function save_cycle(sc, mcmc, perf, chain,  m::GaiaClustering.meta)
     filesc= @sprintf("%s.sc.csv", m.prefile)
     filemcmc= @sprintf("%s.mcmc.csv", m.prefile)
     fileperf= @sprintf("%s.perf.csv", m.prefile)
+    filechain= @sprintf("%s.chain.csv", m.prefile)
     votname= m.votname
 
     ncycle= length(sc)
@@ -768,13 +775,17 @@ function save_cycle(sc, mcmc, perf, m::GaiaClustering.meta)
             println("## $filemcmc created...")
             CSV.write(fileperf,perf[i],delim=';')
             println("## $fileperf created...")
+            CSV.write(filechain,chain[i],delim=';')
+            println("## $filechain created...")
         else
-            res = DataFrames.copy(CSV.read(filesc, delim=";"))
+            res= CSV.File(filesc, delim=";") |> DataFrame
             append!(res,sc[i]) ; CSV.write(filesc,res,delim=';')
-            res = DataFrames.copy(CSV.read(filemcmc, delim=";"))
+            res= CSV.File(filemcmc, delim=";") |> DataFrame
             append!(res,mcmc[i]) ; CSV.write(filemcmc,res,delim=';')
-            res = DataFrames.copy(CSV.read(fileperf, delim=";"))
+            res= CSV.File(fileperf, delim=";") |> DataFrame
             append!(res,perf[i]) ; CSV.write(fileperf,res,delim=';')
+            # res= CSV.File(filechain, delim=";") |> DataFrame
+            CSV.write(filechain,chain[i],delim=';', append=true)
         end
     end
 end

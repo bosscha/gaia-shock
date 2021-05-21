@@ -12,7 +12,7 @@
 import sys, os
 rootdir = os.environ.get("GAIA_ROOT")
 
-sys.path.append("%s/master/src"%(rootdir))
+sys.path.append("%s/run/src"%(rootdir))
 
 import astropy.coordinates as coord
 from astropy.io.votable import parse
