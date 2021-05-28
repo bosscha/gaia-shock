@@ -10,7 +10,6 @@ end
 
 ###return blacklist if any
 function read_blacklist(blackname)
-
     if isfile(blackname)
         df= CSV.read(blackname, delim=";")
         blacklist= df.votname

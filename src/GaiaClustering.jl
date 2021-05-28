@@ -19,7 +19,7 @@ import StatsBase , CSV,  Distances
 
 using PyCall , PyPlot
 
-VERSION= "1.0.2"
+VERSION= "1.1.0"
 
 ## include all the types
 include("types.jl")
@@ -39,13 +39,13 @@ export voronoi
 include("stellarcluster.jl")
 export metric , clusters , find_clusters2 , find_cluster_label, get_properties_SC , metric2 ,
 find_cluster_label2, get_metrics,  get_properties_SC2, cycle_extraction, score_cycle ,
-remove_stars , edge_ratio
+remove_stars , edge_ratio, save_cycle
 
 ## MCMC for gaia
 include("mcmc.jl")
 export theta , thetaiter , abc_mcmc_dbscan, ministats  , ministats_full ,
 theta_full , thetaiter_full , getDfcartnorm , abc_mcmc_dbscan_full2,
-check_qminqstar_full2, create_DFchain
+check_qminqstar_full2, create_DFchain, extraction_mcmc
 
 ## plotting functions
 include("plots.jl")
