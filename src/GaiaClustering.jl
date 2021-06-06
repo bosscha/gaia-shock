@@ -15,11 +15,12 @@ using Distances, LightGraphs, SimpleWeightedGraphs
 ## For wavelet in imaging
 import Interpolations
 using  Images, Base
-import StatsBase , CSV,  Distances
+import StatsBase , CSV,  Distances , MultivariateStats
+
 
 using PyCall , PyPlot
 
-VERSION= "1.1.0"
+VERSION= "1.2.0"
 
 ## include all the types
 include("types.jl")
@@ -39,7 +40,7 @@ export voronoi
 include("stellarcluster.jl")
 export metric , clusters , find_clusters2 , find_cluster_label, get_properties_SC , metric2 ,
 find_cluster_label2, get_metrics,  get_properties_SC2, cycle_extraction, score_cycle ,
-remove_stars , edge_ratio, save_cycle
+remove_stars , edge_ratio, save_cycle , compute_PC
 
 ## MCMC for gaia
 include("mcmc.jl")

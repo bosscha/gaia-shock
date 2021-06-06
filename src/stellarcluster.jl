@@ -809,3 +809,48 @@ function edge_ratio(dfcart::GaiaClustering.Df, ind)
 
     return(ratio, ratio_2)
 end
+
+## compute principal components of a salution
+## compute cumulated ratio for the first 3 PCs and the 3 first PCs of the normalized data
+##
+function compute_PC(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, labels, labelmax)
+        print("### Computing principal components... \n")
+        s=size(labels[labelmax])
+        data= zeros(8,s[1])
+
+        X= dfcart.data[1, labels[labelmax]]
+        Y= dfcart.data[2, labels[labelmax]]
+        Z= dfcart.data[3, labels[labelmax]]
+        vl= df.data[4,labels[labelmax]]
+        vb= df.data[5,labels[labelmax]]
+        gbar= df.raw[10,labels[labelmax]]
+        rp= df.raw[11,labels[labelmax]]
+        bp= df.raw[12,labels[labelmax]]
+
+        data[1,:]= X
+        data[2,:]= Y
+        data[3,:]= Z
+        data[4,:]= vl
+        data[5,:]= vb
+        data[6,:]= gbar
+        data[7,:]= gbar .- rp
+        data[8,:]= bp .- gbar
+
+        # d=Array(data')
+        dt= StatsBase.fit(ZScoreTransform, data)
+        d2= StatsBase.transform(dt, data)
+        M = fit(PCA, d2)
+        Yt = MultivariateStats.transform(M, d2)
+
+        totvar= tvar(M)
+        pvs= principalvars(M)
+        ratioac= accumulate(+, pvs ./ totvar)
+
+        if length(ratioac) >= 3
+            pcres= 100 .* ratioac[1:3]
+        else
+            pcres= [100,100,100]
+        end
+
+        return(Yt, pcres)
+end
