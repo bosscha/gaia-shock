@@ -339,7 +339,7 @@ function abc_mcmc_dbscan_full2(dfcart::GaiaClustering.Df, params::GaiaClustering
             end
 
             iter += 1
-            if (iter%50000 == 0)
+            if (iter%10000 == 0)
                 titer= now()
                 duration= Dates.value(titer-tstart) / (1000*3600)
                 meanTime= duration / nchain

@@ -238,6 +238,9 @@ end
 ## See Ellsworth-Bowers et al. (2013)
 ## Rgal was updated from Anderson et al. (2018)
 ## xg,yg,zg in pc
+## Modified to be left-handed (yg is modified to -yg from original)
+## see http://astro.utoronto.ca/~bovy/AST1420/notes/notebooks/A.-Coordinate-systems.html
+##
 
 function galXYZ(l,b,distance)
     Rgal= 8.34e3
