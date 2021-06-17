@@ -1,5 +1,5 @@
 ### Functions for plotting stellar cluster results
-### 
+###
 
 #### aux. function to plot text in a subplot
 ## plot array of text in a box
@@ -383,5 +383,130 @@ function plot_cluster2(plotdir, voname, indx, sc::GaiaClustering.SCproperties2, 
 
     figname = plotdir*"/"*voname*".cluster.png"
     PyPlot.plt.savefig(figname)
+    if showplot PyPlot.plt.show() end
+end
+
+## Raw data of the field with Principal Component plots of the extracted cluster
+function plot_rawdata(plotdir, voname, indx, sc::GaiaClustering.SCproperties2, df::GaiaClustering.Df, pc, ijump=100,
+    showplot = true , extra= 0, cmap = "gist_stern")
+    patch= pyimport("matplotlib.patches")
+
+    nsize= size(df.data)
+    nstar= nsize[2]
+    iter= 1:ijump:nstar
+
+    PyPlot.plt.rcParams["font.size"]= 25
+
+    PyPlot.plt.figure(figsize=(13.0,12.0))
+    PyPlot.plt.subplot(3, 3, 1)
+
+    xx = df.data[2,1iter]
+    yy = df.data[3,iter]
+    PyPlot.plt.scatter(xx, yy , s = 0.1 )
+    xx = df.data[2,indx]
+    yy = df.data[3,indx]
+    PyPlot.plt.scatter(xx, yy , s = 1, c="r", alpha=0.5 )
+    PyPlot.plt.xlabel("Y (pc)")
+    PyPlot.plt.ylabel("Z (pc)")
+    PyPlot.plt.grid(true)
+
+    PyPlot.plt.subplot(3, 3, 2 )
+    xx = df.data[1,iter]
+    yy = df.data[3,iter]
+    PyPlot.plt.scatter(xx, yy , s = 0.1 )
+    xx = df.data[1,indx]
+    yy = df.data[3,indx]
+    PyPlot.plt.scatter(xx, yy , s = 1, c="r", alpha=0.5 )
+    PyPlot.plt.xlabel("X (pc)")
+    PyPlot.plt.ylabel("Z (pc)")
+    PyPlot.plt.grid(true)
+
+    PyPlot.plt.subplot(3, 3, 4 )
+    xx = df.data[2,iter]
+    yy = df.data[1,iter]
+    PyPlot.plt.scatter(xx, yy , s = 0.1 )
+    xx = df.data[2,indx]
+    yy = df.data[1,indx]
+    PyPlot.plt.scatter(xx, yy , s = 1, c="r", alpha=0.5 )
+    PyPlot.plt.xlabel("Y (pc)")
+    PyPlot.plt.ylabel("X (pc)")
+    PyPlot.plt.grid(true)
+
+    PyPlot.plt.subplot(3, 3, 3 )
+    xx = df.data[1,iter]
+    yy = df.raw[13,iter]
+    PyPlot.plt.scatter(xx, yy , s = 0.1 )
+    xx = df.data[1,indx]
+    yy = df.raw[13,indx]
+    PyPlot.plt.scatter(xx, yy , s = 1, c="r", alpha=0.5 )
+    PyPlot.plt.xlabel("X(pc)")
+    PyPlot.plt.ylabel("Vrad (km/s)")
+    PyPlot.plt.grid(true)
+
+    ## text to display
+    axt= PyPlot.plt.subplot(3, 3, 5)
+    PyPlot.plt.axis("off")
+    ## text to display
+
+    if extra != 0
+        text =[]
+        v1= "$(extra.votname[1])"
+        txt = "Votable : $v1" ; push!(text,txt)
+        v = nstar ; txt = "N stars in the field  : $v" ; push!(text,txt)
+        v1= "$(extra.cycle[1])"
+        txt = "Cycle : $v1" ; push!(text,txt)
+        v1= @sprintf("%3.3f",extra.qc[1])
+        txt = "Qc : $v1" ; push!(text,txt)
+        v1= @sprintf("%3.3f",extra.score_cycle[1])
+        txt = "Score : $v1" ; push!(text,txt)
+        v1= @sprintf("%3.3f",sc.offdeg)
+        txt = "Offset : $v1 (degree)" ; push!(text,txt)
+        v1= @sprintf("%3.3f",sc.edgratg)
+        txt = "Edge ratio(g) : $v1 " ; push!(text,txt)
+        v1= @sprintf("%3.3f",sc.edgratm)
+        txt = "Edge ratio(m) : $v1 " ; push!(text,txt)
+        txt= @sprintf("PC1: %3.1f , PC2: %3.1f , PC3: %3.1f", extra.pc1[1], extra.pc2[1], extra.pc3[1])
+        push!(text,txt)
+
+        show_text(-0.01,-0.1, text , 1.1 )
+        rec= patch.Rectangle((-0.07, -0.15), 1.2, 1.15, color="skyblue", alpha= 0.4, clip_on=false)
+        axt.add_artist(rec)
+    end
+
+    PyPlot.plt.subplot(3, 3, 7 )
+    PyPlot.plt.axis("on")
+    xx = df.data[7,iter]
+    yy = -df.data[6,iter]
+    PyPlot.plt.scatter(xx, yy , s = 0.1 )
+    xx = df.data[7,indx]
+    yy = -df.data[6,indx]
+    PyPlot.plt.scatter(xx, yy , s = 1, c="r", alpha=0.5 )
+    PyPlot.plt.xlabel("G-Rp")
+    PyPlot.plt.ylabel("G")
+    PyPlot.plt.grid(true)
+
+    PyPlot.plt.subplot(3, 3, 8 )
+    xx = df.data[4,iter]
+    yy = df.data[5,iter]
+    PyPlot.plt.scatter(xx, yy , s = 0.1 )
+    xx = df.data[4,indx]
+    yy = df.data[5,indx]
+    PyPlot.plt.scatter(xx, yy , s = 1, c="r", alpha=0.5 )
+    PyPlot.plt.xlabel("Vl (km/s)")
+    PyPlot.plt.ylabel("Vb (km/s)")
+    PyPlot.plt.grid(true)
+
+    PyPlot.plt.subplot(3, 3, 9 )
+    xx = pc[1,:]
+    yy = pc[2,:]
+    PyPlot.plt.scatter(xx, yy , s = 1, c="r" )
+    PyPlot.plt.xlabel("PC1")
+    PyPlot.plt.ylabel("PC2")
+    PyPlot.plt.grid(true)
+
+
+    figname = plotdir*"/"*voname*".raw.png"
+    PyPlot.plt.savefig(figname)
+
     if showplot PyPlot.plt.show() end
 end

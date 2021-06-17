@@ -50,8 +50,7 @@ check_qminqstar_full2, create_DFchain, extraction_mcmc
 
 ## plotting functions
 include("plots.jl")
-export show_text , plot_dbscan_mcmc , plot_cluster , plot_dbscanfull_mcmc , plot_cluster2
-
+export show_text , plot_dbscan_mcmc , plot_cluster , plot_dbscanfull_mcmc , plot_cluster2 , plot_rawdata
 ## imaging functions
 include("imaging.jl")
 export atrous , addWav , thresholdingWav , noiseWav

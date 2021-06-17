@@ -38,7 +38,7 @@ function getdata(filevot)
     voname = filevot
 
     data       = read_votable(voname)
-    df         = filter_data(data, [0,2000])
+    df         = filter_data(data, [0,2100])
     dfcart     = add_cartesian(df)
     blck       = [[1,2,3],[4,5], [6,7,8]]
     wghtblck   = [4.0,5.0,1.0]
