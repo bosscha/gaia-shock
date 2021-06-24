@@ -20,7 +20,7 @@ import StatsBase , CSV,  Distances , MultivariateStats
 
 using PyCall , PyPlot
 
-VERSION= "1.2.0"
+VERSION= "1.2.1"
 
 ## include all the types
 include("types.jl")
