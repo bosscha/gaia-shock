@@ -15,12 +15,12 @@ using Distances, LightGraphs, SimpleWeightedGraphs
 ## For wavelet in imaging
 import Interpolations
 using  Images, Base
-import StatsBase , CSV,  Distances , MultivariateStats
 
+using  StatsBase , CSV,  Distances , MultivariateStats
 
 using PyCall , PyPlot
 
-VERSION= "1.2.1"
+VERSION= "1.2.2"
 
 ## include all the types
 include("types.jl")
@@ -57,7 +57,7 @@ export atrous , addWav , thresholdingWav , noiseWav
 
 ## utils methods
 include("utils.jl")
-export isnotnan , read_blacklist , convertStruct2Df , specialstr , bold , yellow, header_extract
+export isnotnan , read_blacklist , convertStruct2Df , specialstr , bold , yellow, purple, cyan, red,  header_extract
 
 ## Mass segregation and stellar clustering
 include("massSegregation.jl")

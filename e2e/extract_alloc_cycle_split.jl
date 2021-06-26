@@ -58,7 +58,7 @@ function updt_votcompleted(fileres, votname , cycletot=1, flag= 0 , onlycheck=tr
             if !isfile(fileres)
                 return(0, false)
             else
-                res = DataFrames.copy(CSV.read(fileres, delim=";"))
+                res = CSV.read(fileres, delim=";" , DataFrame)
                 if votname in res.votname
                     x = @from i in res begin
                         @where i.votname == votname
@@ -78,7 +78,7 @@ function updt_votcompleted(fileres, votname , cycletot=1, flag= 0 , onlycheck=tr
                 println("## $fileres created...")
                 return(res,true)
             else
-                res = DataFrames.copy(CSV.read(fileres, delim=";"))
+                res = CSV.read(fileres, delim=";", DataFrame)
                 newrow = DataFrame(votname=votname,cycle=cycletot, flag=flag)
                 append!(res,newrow)
                 CSV.write(fileres,res,delim=';')
