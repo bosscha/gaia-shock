@@ -594,7 +594,7 @@ function cycle_extraction(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, m::G
             FLAG= -1
             tstart= now()
             println("###############")
-            println(blue("## starting cycle $cycle ..."))
+            print("## "); println(blue("starting cycle $cycle ..."))
             @printf("## starting time: %s \n",tstart)
             ## extraction one cycle.. MCMC optimization
             mc , iter, FLAGmcmc= abc_mcmc_dbscan_full2(dfcart, m)
@@ -648,7 +648,7 @@ function cycle_extraction(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, m::G
 
                 println("###")
                 println("### label solution: $labelmax")
-                println(red(@sprintf("### PC1: %3.1f , PC2: %3.1f , PC3: %3.1f \n", pcres[1], pcres[2], pcres[3])))
+                print("### "); println(red(@sprintf("PC1: %3.1f , PC2: %3.1f , PC3: %3.1f", pcres[1], pcres[2], pcres[3])))
                 println("### Offdeg: $(scproperties.offdeg)")
                 println("### Edge ratio: $(scproperties.edgratm)")
                 println("### N stars: $nmax")
@@ -849,7 +849,7 @@ function compute_PC(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, labels, la
         data[8,:]= bp .- gbar
 
         # d=Array(data')
-        dt= StatsBase.fit(ZScoreTransform, data)
+        dt= StatsBase.fit(ZScoreTransform, data, dims=2)
         d2= StatsBase.transform(dt, data)
         M = fit(PCA, d2)
         Yt = MultivariateStats.transform(M, d2)
