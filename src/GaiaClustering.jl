@@ -15,11 +15,12 @@ using Distances, LightGraphs, SimpleWeightedGraphs
 ## For wavelet in imaging
 import Interpolations
 using  Images, Base
-import StatsBase , CSV,  Distances
+
+using  StatsBase , CSV,  Distances , MultivariateStats
 
 using PyCall , PyPlot
 
-VERSION= "1.1.0"
+VERSION= "1.2.2"
 
 ## include all the types
 include("types.jl")
@@ -39,25 +40,24 @@ export voronoi
 include("stellarcluster.jl")
 export metric , clusters , find_clusters2 , find_cluster_label, get_properties_SC , metric2 ,
 find_cluster_label2, get_metrics,  get_properties_SC2, cycle_extraction, score_cycle ,
-remove_stars , edge_ratio
+remove_stars , edge_ratio, save_cycle , compute_PC
 
 ## MCMC for gaia
 include("mcmc.jl")
 export theta , thetaiter , abc_mcmc_dbscan, ministats  , ministats_full ,
 theta_full , thetaiter_full , getDfcartnorm , abc_mcmc_dbscan_full2,
-check_qminqstar_full2, create_DFchain
+check_qminqstar_full2, create_DFchain, extraction_mcmc
 
 ## plotting functions
 include("plots.jl")
-export show_text , plot_dbscan_mcmc , plot_cluster , plot_dbscanfull_mcmc , plot_cluster2
-
+export show_text , plot_dbscan_mcmc , plot_cluster , plot_dbscanfull_mcmc , plot_cluster2 , plot_rawdata
 ## imaging functions
 include("imaging.jl")
 export atrous , addWav , thresholdingWav , noiseWav
 
 ## utils methods
 include("utils.jl")
-export isnotnan , read_blacklist , convertStruct2Df , specialstr , bold , yellow, header_extract
+export isnotnan , read_blacklist , convertStruct2Df , specialstr , bold , yellow, purple, cyan, red,  header_extract
 
 ## Mass segregation and stellar clustering
 include("massSegregation.jl")

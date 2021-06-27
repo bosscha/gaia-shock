@@ -10,7 +10,6 @@ end
 
 ###return blacklist if any
 function read_blacklist(blackname)
-
     if isfile(blackname)
         df= CSV.read(blackname, delim=";")
         blacklist= df.votname
@@ -63,6 +62,10 @@ end
 
 function bold(s) GaiaClustering.specialstr(s,"BOLD") end
 function yellow(s) GaiaClustering.specialstr(s,"YELLOW") end
+function purple(s) GaiaClustering.specialstr(s,"PURPLE") end
+function cyan(s) GaiaClustering.specialstr(s,"CYAN") end
+function blue(s) GaiaClustering.specialstr(s,"BLUE") end
+function red(s) GaiaClustering.specialstr(s,"RED") end
 
 function header_extract()
     println("#\n#")

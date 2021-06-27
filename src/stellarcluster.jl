@@ -594,7 +594,7 @@ function cycle_extraction(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, m::G
             FLAG= -1
             tstart= now()
             println("###############")
-            println("## starting cycle $cycle ...")
+            print("## "); println(blue("starting cycle $cycle ..."))
             @printf("## starting time: %s \n",tstart)
             ## extraction one cycle.. MCMC optimization
             mc , iter, FLAGmcmc= abc_mcmc_dbscan_full2(dfcart, m)
@@ -623,7 +623,10 @@ function cycle_extraction(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, m::G
                 labels = clusters(dfcartnorm.data ,eps  , 20, min_nei, min_cl)
                 labelmax , nmax, qc = find_cluster_label2(labels, df, dfcart, m)
                 println("## label $labelmax written to oc...")
-                export_df("$votname.$cycle", m.ocdir, df , dfcart, labels , labelmax)
+                export_df("$votname.$cycle", m.ocdir, df , dfcart , labels , labelmax)
+
+                ## Principal components
+                pc, pcres= compute_PC(df, dfcart, labels, labelmax)
 
                 edgeratio1, edgeratio2= edge_ratio(dfcart, labels[labelmax])
                 scproperties = get_properties_SC2(labels[labelmax] , df, dfcart)
@@ -631,6 +634,10 @@ function cycle_extraction(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, m::G
                 insertcols!(scdf, 1, :votname => votname)
                 s=size(scdf)
                 insertcols!(scdf, 2, :cycle => cycle)
+                insertcols!(scdf, 3, :pc3 => pcres[3])
+                insertcols!(scdf, 3, :pc2 => pcres[2])
+                insertcols!(scdf, 3, :pc1 => pcres[1])
+
                 insertcols!(res, 2,  :cycle => cycle)
                 push!(sclist, scdf)
                 push!(mcmclist, res)
@@ -641,6 +648,7 @@ function cycle_extraction(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, m::G
 
                 println("###")
                 println("### label solution: $labelmax")
+                print("### "); println(red(@sprintf("PC1: %3.1f , PC2: %3.1f , PC3: %3.1f", pcres[1], pcres[2], pcres[3])))
                 println("### Offdeg: $(scproperties.offdeg)")
                 println("### Edge ratio: $(scproperties.edgratm)")
                 println("### N stars: $nmax")
@@ -650,10 +658,14 @@ function cycle_extraction(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, m::G
                 k= score_cycle(qc, nmax, nchain, iter)
                 @printf("## score cycle %d: %3.3f \n",cycle, k)
 
-                extraplot= DataFrame(cycle=cycle, score_cycle=k, qc=qc, votname=votname)
+                extraplot= DataFrame(cycle=cycle, score_cycle=k, qc=qc, votname=votname, pc1=pcres[1],pc2=pcres[2], pc3=pcres[3])
 
                 plot_cluster2(m.plotdir, "$votname.$cycle", labels[labelmax], scproperties,
                     dfcart , false, extraplot)
+
+                jump= 50  # how many stars to jump in the plot
+                plot_rawdata(m.plotdir, "$votname.$cycle", labels[labelmax], scproperties,
+                    dfcart , pc, jump, false, extraplot)
 
                 println("###")
                 println("### subtracting BEST solution from Df...")
@@ -808,4 +820,49 @@ function edge_ratio(dfcart::GaiaClustering.Df, ind)
     ratio_2= sqrt(maximum(r2)) / rg
 
     return(ratio, ratio_2)
+end
+
+## compute principal components of a salution
+## compute cumulated ratio for the first 3 PCs and the 3 first PCs of the normalized data
+##
+function compute_PC(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, labels, labelmax)
+        print("### Computing principal components... \n")
+        s=size(labels[labelmax])
+        data= zeros(8,s[1])
+
+        X= dfcart.data[1, labels[labelmax]]
+        Y= dfcart.data[2, labels[labelmax]]
+        Z= dfcart.data[3, labels[labelmax]]
+        vl= df.data[4,labels[labelmax]]
+        vb= df.data[5,labels[labelmax]]
+        gbar= df.raw[10,labels[labelmax]]
+        rp= df.raw[11,labels[labelmax]]
+        bp= df.raw[12,labels[labelmax]]
+
+        data[1,:]= X
+        data[2,:]= Y
+        data[3,:]= Z
+        data[4,:]= vl
+        data[5,:]= vb
+        data[6,:]= gbar
+        data[7,:]= gbar .- rp
+        data[8,:]= bp .- gbar
+
+        # d=Array(data')
+        dt= StatsBase.fit(ZScoreTransform, data, dims=2)
+        d2= StatsBase.transform(dt, data)
+        M = fit(PCA, d2)
+        Yt = MultivariateStats.transform(M, d2)
+
+        totvar= tvar(M)
+        pvs= principalvars(M)
+        ratioac= accumulate(+, pvs ./ totvar)
+
+        if length(ratioac) >= 3
+            pcres= 100 .* ratioac[1:3]
+        else
+            pcres= [100,100,100]
+        end
+
+        return(Yt, pcres)
 end

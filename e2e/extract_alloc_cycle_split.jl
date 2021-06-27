@@ -39,7 +39,7 @@ function getdata(filevot)
     voname = filevot
 
     data       = read_votable(voname)
-    df         = filter_data(data, [0,2000])
+    df         = filter_data(data, [0,2100])
     dfcart     = add_cartesian(df)
     blck       = [[1,2,3],[4,5], [6,7,8]]
     wghtblck   = [4.0,5.0,1.0]
@@ -58,7 +58,7 @@ function updt_votcompleted(fileres, votname , cycletot=1, flag= 0 , onlycheck=tr
             if !isfile(fileres)
                 return(0, false)
             else
-                res = DataFrames.copy(CSV.read(fileres, delim=";"))
+                res = CSV.read(fileres, delim=";" , DataFrame)
                 if votname in res.votname
                     x = @from i in res begin
                         @where i.votname == votname
@@ -78,7 +78,7 @@ function updt_votcompleted(fileres, votname , cycletot=1, flag= 0 , onlycheck=tr
                 println("## $fileres created...")
                 return(res,true)
             else
-                res = DataFrames.copy(CSV.read(fileres, delim=";"))
+                res = CSV.read(fileres, delim=";", DataFrame)
                 newrow = DataFrame(votname=votname,cycle=cycletot, flag=flag)
                 append!(res,newrow)
                 CSV.write(fileres,res,delim=';')

@@ -238,6 +238,9 @@ end
 ## See Ellsworth-Bowers et al. (2013)
 ## Rgal was updated from Anderson et al. (2018)
 ## xg,yg,zg in pc
+## Modified to be left-handed (yg is modified to -yg from original)
+## see http://astro.utoronto.ca/~bovy/AST1420/notes/notebooks/A.-Coordinate-systems.html
+##
 
 function galXYZ(l,b,distance)
     Rgal= 8.34e3
@@ -245,7 +248,7 @@ function galXYZ(l,b,distance)
     θ= asin(zsun/Rgal)
 
     xg= Rgal*cos(θ)-distance*(cosd(l)cosd(b)cos(θ)+sind(b)sin(θ))
-    yg= -distance*sind(l)cosd(b)
+    yg= distance*sind(l)cosd(b)
     zg= Rgal*sin(θ)-distance*(cosd(l)cosd(b)sin(θ)-sind(b)cos(θ))
 
     return(xg,yg,zg)
@@ -414,7 +417,22 @@ function export_df(votname, ocdir, df , dfcart, labels , labelmax)
 
     source_id= df.sourceid[1,labels[labelmax]]
 
-    oc= DataFrame(sourceid=source_id,ra=ra,dec=dec,l=l,b=b, distance=d,pmra=pmra, pmdec=pmdec, X=X,Y=Y,Z=Z,vl=vl,vb=vb,vrad=vrad,gbar=gbar,rp=rp,bp=bp, ag=ag)
+    # galactocentric coordinates...
+    s=size(ra)
+    xg= zeros(s[1])
+    yg= zeros(s[1])
+    zg= zeros(s[1])
+
+    ind= 1
+    for i in 1:s[1]
+        xx, yy, zz= galXYZ.(l[i],b[i],d[i])
+        xg[i]= xx
+        yg[i]= yy
+        zg[i]= zz
+    end
+
+    oc= DataFrame(sourceid=source_id,ra=ra,dec=dec,l=l,b=b, distance=d,pmra=pmra, pmdec=pmdec, X=X,Y=Y,Z=Z,vl=vl,
+        vb=vb,vrad=vrad, Xg=xg,Yg=yg,Zg=zg,gbar=gbar,rp=rp,bp=bp, ag=ag)
 
     name= split(votname,".")
     infix= ""
