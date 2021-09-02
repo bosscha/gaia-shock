@@ -17,7 +17,7 @@ using GaiaClustering
 
 ## directory
 wdir    = "$rootdir/products"
-votdir  = "$rootdir/e2e_products/votable.edr3.2021"
+votdir  = "$rootdir/e2e_products.edr3/votable.edr3.2021"
 plotdir = "$rootdir/products/plot-TEST"
 ocdir   = "$rootdir/products/oc-TEST"
 

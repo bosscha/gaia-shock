@@ -159,7 +159,7 @@ mutable struct mcCauchy
 end
 
 
-### METADATA for settings, optimization, etc
+### METADATA for standalone, setings, optimization, etc
 mutable struct meta
     rootdir::String
     wdir::String
@@ -168,6 +168,14 @@ mutable struct meta
     ocdir::String
     votname::String
     prefile::String
+
+    optim::String
+    w3d::Float64
+    wvel::Float64
+    whrd::Float64
+    eps::Float64
+    mcl::Int
+    mnei::Int          
 
     minQc::Float64
     minQn::Int

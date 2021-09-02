@@ -24,5 +24,6 @@ Pkg.add("StatsBase")
 Pkg.add("FFTW")
 Pkg.add("LaTeXStrings")
 Pkg.add("MultivariateStats")
+Pkg.add("ArgParse")
 
 println("## Package installation for GaiaClustering done...")

@@ -14,6 +14,18 @@ function set_default_params()::meta
     def.votname = "test.vot"
     def.prefile= "ocres"
 
+    ## for standalone
+    ##
+    def.optim           = "yes"             ## yes|no for weighting/dbscan optimization
+    # if optim no
+    def.w3d             = 7.0               ## w3d weighting
+    def.wvel            = 8.0               ## wvel weighting
+    def.whrd            = 2.5               ## whrd weighting
+    def.eps             = 2.0               ## epsilon DBSCAN
+    def.mcl             = 18                ## min_cluster DBSCAN
+    def.mnei            = 7                 ## min_neighbor DBSCAN
+
+
     ## MCMC
     ##
     def.minQc    = 2.7
@@ -107,6 +119,14 @@ function set_param!(def, parstr,value)
     if parstr == "votname" def.votname= value end
     if parstr == "prefile" def.prefile= value end
 
+    if parstr == "optim" def.optim= value end
+    if parstr == "w3d" def.w3d= value end
+    if parstr == "wvel" def.wvel= value end
+    if parstr == "whrd" def.whrd= value end
+    if parstr == "eps" def.eps=  value end
+    if parstr == "mcl" def.mcl= value end
+    if parstr == "mnei" def.mnei= value end
+
     if parstr == "minQc"           def.minQc= value end
     if parstr == "minQn"           def.minQn= value end
     if parstr == "maxQn"           def.maxQn= value end
@@ -142,7 +162,7 @@ function set_param!(def, parstr,value)
     if parstr == "mincl_rw"  def.mincl_rw= value end
     if parstr == "w3d_rw"  def.w3d_rw= value end
     if parstr == "wvel_rw"  def.wvel_rw= value end
-    if parstr == "whrd_rw"  def.whrd_rw= value end       
+    if parstr == "whrd_rw"  def.whrd_rw= value end
 
 
     ## Metrics find_clusters

@@ -11,6 +11,18 @@
 # votname   = "FSR 0224-2.0deg.vot"
 prefile    = "ocres"                 # prefix for the result files
 
+## extra init for standalone
+##
+optim           = "no"             ## yes|no for weighting/dbscan optimization
+#
+# if optim no set the dbscan/weighting values
+w3d             = 7.0               ## w3d weighting
+wvel            = 8.0               ## wvel weighting
+whrd            = 2.5               ## whrd weighting
+eps             = 1.7               ## epsilon DBSCAN
+mcl             = 18                ## min_cluster DBSCAN
+mnei            = 7                 ## min_neighbor DBSCAN
+
 ### MCMC
 ###
 minQc           = 2.7                     ## minimum Qc metric in MCMC
