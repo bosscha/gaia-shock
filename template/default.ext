@@ -9,7 +9,7 @@
 # plotdir   = "$wdir/plotsSelect"
 # ocdir     = "$wdir/ocfull"
 # votname   = "FSR 0224-2.0deg.vot"
-prefile    = "ocres"                 # prefix for the result files
+prefile    = "ocres"                  # prefix for the result files
 
 ## extra init for standalone
 ##
