@@ -7,10 +7,14 @@ function set_default_params()::meta
 
     ## Directories
     def.rootdir =  ENV["GAIA_ROOT"]
-    def.wdir    = @sprintf("%s/e2e_products", def.rootdir)
-    def.votdir  = @sprintf("%s/votable", def.wdir)
-    def.plotdir = @sprintf("%s/plots-select" , def.wdir)
-    def.ocdir   = @sprintf("%s/oc", def.wdir)
+    # def.wdir    = @sprintf("%s/e2e_products", def.rootdir)
+    # def.votdir  = @sprintf("%s/votable", def.wdir)
+    # def.plotdir = @sprintf("%s/plots-select" , def.wdir)
+    # def.ocdir   = @sprintf("%s/oc", def.wdir)
+    def.wdir= "."
+    def.votdir= "."
+    def.plotdir= "."
+    def.ocdir= "."
     def.votname = "test.vot"
     def.prefile= "ocres"
 
