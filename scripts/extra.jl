@@ -28,13 +28,34 @@ function parse_commandline()
         "-n"
             help = "maximum number of cycles"
             arg_type = Int
-            default = 2
         "-o"
             help = "optimization of the weightings/DBSCAN"
             action = :store_true
+        "--maxdist" , "-d"
+            help = "maximum distance for stars in pc"
+            arg_type = Float64
+            default = 2100.
+        "--w3d"
+            help = "XYZ weighting"
+            arg_type = Float64
+        "--wvel"
+            help = "Velocity weighting"
+            arg_type = Float64
+        "--whrd"
+            help = "Magnitud/color weighting"
+            arg_type = Float64
+        "--eps"
+            help = "Epsilon parameter of DBSCAN"
+            arg_type = Float64
+        "--mcl"
+            help = "Min_cluster parameter of DBSCAN"
+            arg_type = Int
+        "--mnei"
+            help = "Min_neighbor parameter of DBSCAN"
+            arg_type = Int
         "votable"
-        help = "votable"
-        required = true
+            help = "votable"
+            required = true
     end
 
     return parse_args(s)
@@ -42,11 +63,11 @@ end
 ##
 ## get the data. The weightings are fake. Should be applied later
 ##
-function getdata(filevot)
+function getdata(filevot,distance)
     voname = filevot
 
     data       = read_votable(voname)
-    df         = filter_data(data, [0,2100])
+    df         = filter_data(data, [0,distance])
     dfcart     = add_cartesian(df)
     blck       = [[1,2,3],[4,5], [6,7,8]]
     wghtblck   = [4.0,5.0,1.0]
@@ -64,7 +85,7 @@ function main(m::GaiaClustering.meta, optim)
     println("## Starting with $(m.votname)")
     println("## Starting at $tstart")
 
-    df , dfcart , dfcartnorm = getdata(m.votname)
+    df , dfcart , dfcartnorm = getdata(m.votname, m.maxdist)
     cycle, flag= cycle_extraction_optim(df, dfcart, m, optim)
 
     tend= now()
@@ -86,6 +107,15 @@ let
     metafile= parsed_args["m"]
     votable= parsed_args["votable"]
     ncycle= parsed_args["n"]
+    maxdist= parsed_args["maxdist"]
+    eps= parsed_args["eps"]
+    mcl= parsed_args["mcl"]
+    mnei= parsed_args["mnei"]
+    w3d= parsed_args["w3d"]
+    wvel= parsed_args["wvel"]
+    whrd= parsed_args["whrd"]
+
+
     if parsed_args["o"] opt="yes" else opt= "no" end
 
 ###############
@@ -93,9 +123,17 @@ let
 
     m= read_params(metafile, false)
 
+
     m.optim= opt
-    m.cyclemax= ncycle
     m.votname= votable
+    m.maxdist= maxdist
+    if ncycle != nothing m.cyclemax= ncycle end
+    if eps != nothing m.eps= ncycle end
+    if mcl != nothing m.mcl= mcl end
+    if mnei != nothing m.mnei= mnei end
+    if w3d != nothing m.w3d= w3d end
+    if wvel != nothing m.wvel= wvel end
+    if whrd != nothing m.whrd= whrd end
 
     main(m, parsed_args["o"])
 end

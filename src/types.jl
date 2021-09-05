@@ -175,7 +175,8 @@ mutable struct meta
     whrd::Float64
     eps::Float64
     mcl::Int
-    mnei::Int          
+    mnei::Int
+    maxdist::Float64          
 
     minQc::Float64
     minQn::Int

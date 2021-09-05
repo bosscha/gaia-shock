@@ -269,7 +269,11 @@ end
 function find_cluster_label2(labels, df::GaiaClustering.Df, dfcart::GaiaClustering.Df ,
     m::GaiaClustering.meta)
     let
-        println("## Selecting best cluster based on Qc..")
+        println("## Selecting best cluster based on Qc")
+        if length(labels) == 0
+            println("## no clusters in the DBSCAN selection...")
+            return(0, 0, 0)
+        end
         ### metrics of the clusters
         q2d = metric2(dfcart, labels, "spatial2d" , m.aperture2d, m.maxaperture2d, m.nboot)
         q3d = metric2(dfcart, labels, "spatial3d" , m.aperture3d, m.maxaperture3d, m.nboot)     #### Added
@@ -805,11 +809,26 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
                 nchain= length(mc.qc)
                 println("## $iter iterations performed...")
                 println("## $nchain chains")
-            end
+            else
+                println("## setting the weightings/DBSCAN")
+                eps= m.eps
+                min_nei= m.mnei
+                min_cl= m.mcl
+                w3d= m.w3d
+                wvel= m.wvel
+                whrd= m.whrd
 
-            if !optim
-                FLAGmcmc= -1
-                nchain=  m.minchainreached+1
+                mres = GaiaClustering.modelfull(eps,min_nei,min_cl,w3d,wvel,whrd)
+                dfcartnorm = getDfcartnorm(dfcart, mres)
+                labels = clusters(dfcartnorm.data ,eps  , 20, min_nei, min_cl)
+
+                if length(labels) == 0
+                    FLAGmcmc= 0   ## to force stop even w/o optimization
+                    nchain= 0
+                else
+                    FLAGmcmc= -1
+                    nchain=  m.minchainreached+1
+                end
             end
 
             if FLAGmcmc== -1 || nchain > m.minchainreached
@@ -827,20 +846,12 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
                     w3d= res.w3dm[1]
                     wvel= res.wvelm[1]
                     whrd= res.whrdm[1]
-                else
-                    print("## setting the weightings/DBSCAN")
-                    eps= m.eps
-                    min_nei= m.mnei
-                    min_cl= m.mcl
-                    w3d= m.w3d
-                    wvel= m.wvel
-                    whrd= m.whrd
+
+                    mres = GaiaClustering.modelfull(eps,min_nei,min_cl,w3d,wvel,whrd)
+                    dfcartnorm = getDfcartnorm(dfcart, mres)
+                    labels = clusters(dfcartnorm.data ,eps  , 20, min_nei, min_cl)
                 end
 
-
-                mres = GaiaClustering.modelfull(eps,min_nei,min_cl,w3d,wvel,whrd)
-                dfcartnorm = getDfcartnorm(dfcart, mres)
-                labels = clusters(dfcartnorm.data ,eps  , 20, min_nei, min_cl)
                 labelmax , nmax, qc = find_cluster_label2(labels, df, dfcart, m)
                 println("## label $labelmax written to oc...")
                 export_df("$votname.$cycle", m.ocdir, df , dfcart , labels , labelmax)
