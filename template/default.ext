@@ -23,6 +23,8 @@ eps             = 1.7               ## epsilon DBSCAN
 mcl             = 18                ## min_cluster DBSCAN
 mnei            = 7                 ## min_neighbor DBSCAN
 
+maxdist         = 2100.             ## maximum distance to filter stars in pc
+
 ### MCMC
 ###
 minQc           = 2.7                     ## minimum Qc metric in MCMC

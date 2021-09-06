@@ -34,7 +34,6 @@ function parse_commandline()
         "--maxdist" , "-d"
             help = "maximum distance for stars in pc"
             arg_type = Float64
-            default = 2100.
         "--w3d"
             help = "XYZ weighting"
             arg_type = Float64
@@ -126,9 +125,10 @@ let
 
     m.optim= opt
     m.votname= votable
-    m.maxdist= maxdist
+
     if ncycle != nothing m.cyclemax= ncycle end
-    if eps != nothing m.eps= ncycle end
+    if maxdist != nothing m.maxdist= maxdist end
+    if eps != nothing m.eps= eps end
     if mcl != nothing m.mcl= mcl end
     if mnei != nothing m.mnei= mnei end
     if w3d != nothing m.w3d= w3d end
