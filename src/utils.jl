@@ -68,8 +68,8 @@ function blue(s) GaiaClustering.specialstr(s,"BLUE") end
 function red(s) GaiaClustering.specialstr(s,"RED") end
 
 function header_extract()
-    println("#\n#")
-    println("# >>>>>>>>>> Extracting Stellar Clusters from GAIA data <<<<<<<<<<")
+    println("#")
+    println("# >>>>>>>>>> EXTRActing Stellar Clusters from GAIA data <<<<<<<<<<")
     println("# Version: $VERSION  (https://github.com/bosscha/gaia-shock)")
     println("#\n#")
 end

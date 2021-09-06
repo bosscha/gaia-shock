@@ -20,7 +20,7 @@ using  StatsBase , CSV,  Distances , MultivariateStats
 
 using PyCall , PyPlot
 
-VERSION= "1.2.2"
+VERSION= "1.3.0"
 
 ## include all the types
 include("types.jl")
@@ -40,7 +40,7 @@ export voronoi
 include("stellarcluster.jl")
 export metric , clusters , find_clusters2 , find_cluster_label, get_properties_SC , metric2 ,
 find_cluster_label2, get_metrics,  get_properties_SC2, cycle_extraction, score_cycle ,
-remove_stars , edge_ratio, save_cycle , compute_PC
+remove_stars , edge_ratio, save_cycle , compute_PC , cycle_extraction_optim, save_cycle_optim
 
 ## MCMC for gaia
 include("mcmc.jl")
