@@ -20,12 +20,12 @@ function set_default_params()::meta
 
     ## for standalone
     ##
-    def.optim           = "yes"             ## yes|no for weighting/dbscan optimization
+    def.optim           = "no"             ## yes|no for weighting/dbscan optimization
     # if optim no
     def.w3d             = 7.0               ## w3d weighting
     def.wvel            = 8.0               ## wvel weighting
     def.whrd            = 2.5               ## whrd weighting
-    def.eps             = 2.0               ## epsilon DBSCAN
+    def.eps             = 2.1               ## epsilon DBSCAN
     def.mcl             = 18                ## min_cluster DBSCAN
     def.mnei            = 7                 ## min_neighbor DBSCAN
     def.maxdist         = 2100.0            ## maximum distance to filter stars in pc

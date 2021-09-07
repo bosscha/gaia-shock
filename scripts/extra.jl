@@ -24,7 +24,6 @@ function parse_commandline()
         "-m"
             help = "configuration file"
             arg_type = String
-            default = "configAll.ext"
         "-n"
             help = "maximum number of cycles"
             arg_type = Int
@@ -120,8 +119,12 @@ let
 ###############
     header_extract()
 
-    m= read_params(metafile, false)
-
+    if metafile != nothing
+        m= read_params(metafile, false)
+    else
+        println("## The default options are used.")
+        m= set_default_params()
+    end
 
     m.optim= opt
     m.votname= votable

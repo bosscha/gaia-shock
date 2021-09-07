@@ -19,7 +19,7 @@ optim           = "no"             ## yes|no for weighting/dbscan optimization
 w3d             = 7.0               ## w3d weighting
 wvel            = 8.0               ## wvel weighting
 whrd            = 2.5               ## whrd weighting
-eps             = 1.7               ## epsilon DBSCAN
+eps             = 2.1               ## epsilon DBSCAN
 mcl             = 18                ## min_cluster DBSCAN
 mnei            = 7                 ## min_neighbor DBSCAN
 
