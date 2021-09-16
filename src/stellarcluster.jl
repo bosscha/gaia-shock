@@ -778,6 +778,7 @@ end
 function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, m::GaiaClustering.meta, optim=true)
     let
         println("############### cycle_extraction #########")
+        println("## maximum cycle: $(m.cyclemax)")
         if optim
             println("## DBSCAN/weighting optimization... It could be long.")
         else
@@ -1035,15 +1036,25 @@ function save_cycle_optim(sc, mcmc, perf, chain,  m::GaiaClustering.meta,optim)
                 println("## $filechain created...")
             end
         else
+            println("## cycle $i results appended to $filesc ...")
             res= CSV.File(filesc, delim=";") |> DataFrame
             append!(res,sc[i]) ; CSV.write(filesc,res,delim=';')
             if optim
-                res= CSV.File(filemcmc, delim=";") |> DataFrame
-                append!(res,mcmc[i]) ; CSV.write(filemcmc,res,delim=';')
-                res= CSV.File(fileperf, delim=";") |> DataFrame
-                append!(res,perf[i]) ; CSV.write(fileperf,res,delim=';')
-                # res= CSV.File(filechain, delim=";") |> DataFrame
-                CSV.write(filechain,chain[i],delim=';', append=true)
+                if !isfile(filemcmc)
+                    CSV.write(filemcmc,mcmc[i],delim=';')
+                    println("## $filemcmc created...")
+                    CSV.write(fileperf,perf[i],delim=';')
+                    println("## $fileperf created...")
+                    CSV.write(filechain,chain[i],delim=';')
+                    println("## $filechain created...")
+                else
+                    res= CSV.File(filemcmc, delim=";") |> DataFrame
+                    append!(res,mcmc[i]) ; CSV.write(filemcmc,res,delim=';')
+                    res= CSV.File(fileperf, delim=";") |> DataFrame
+                    append!(res,perf[i]) ; CSV.write(fileperf,res,delim=';')
+                    # res= CSV.File(filechain, delim=";") |> DataFrame
+                    CSV.write(filechain,chain[i],delim=';', append=true)
+                end
             end
         end
     end

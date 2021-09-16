@@ -463,7 +463,7 @@ function check_qminqstar_full2(dfcart::GaiaClustering.Df, params::GaiaClustering
         ## standard sofar 50
         mingoodsolution = params.mingoodsolution
         niter = params.niterqminq
-        maxiter= niter*30       ## cycle numbers * niter
+        maxiter= niter*30           ## cycle numbers * niter
 
         println("#### Checking the minQc and minQn conditions...")
         println("#### Minimum good solutions: $mingoodsolution")
