@@ -780,9 +780,9 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
         println("############### cycle_extraction #########")
         println("## maximum cycle: $(m.cyclemax)")
         if optim
-            println("## DBSCAN/weighting optimization... It could be long.")
+            println("## DBSCAN/weighting optimization. It may take time...")
         else
-            println("## NO optimization, the weightings and DBSCAN parameters are set.")
+            println("## NO optimization, the weightings and DBSCAN parameters are fixed.")
             println("## w3d : $(m.w3d)")
             println("## wvel : $(m.wvel)")
             println("## whrd : $(m.whrd)")
@@ -854,7 +854,7 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
                 end
 
                 labelmax , nmax, qc = find_cluster_label2(labels, df, dfcart, m)
-                println("## label $labelmax written to oc...")
+                println("## label $labelmax written as an oc solution...")
                 export_df("$votname.$cycle", m.ocdir, df , dfcart , labels , labelmax)
 
                 ## Principal components
