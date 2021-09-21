@@ -1,8 +1,11 @@
 ## install package for Gaia.Clustering
 
 using Pkg
+ENV["PYTHON"] = ""
 
 Pkg.add("PyCall")
+Pkg.build("PyCall")
+
 Pkg.add("DataFrames")
 Pkg.add("Clustering")
 Pkg.add("Statistics")
