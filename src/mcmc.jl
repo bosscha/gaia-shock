@@ -160,7 +160,7 @@ function abc_mcmc_dbscan(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, param
                     probi = probcurrent
                     nchain += 1
                     if (nchain%500 == 0) println("### chain:",nchain) end
-                    if nchain > nburn && !burndone println("### burnout done...") ; nchain = 0 ; burndone = true end
+                    if nchain > nburn && !burndone println("### burn-in done...") ; nchain = 0 ; burndone = true end
                     if nchain > niter loopAgain = false end
                     if burndone
                         push!(mci.eps, mi.eps)
@@ -172,7 +172,7 @@ function abc_mcmc_dbscan(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, param
                 else
                     nchain += 1
                     if (nchain%500 == 0) println("### chain:",nchain) end
-                    if nchain > nburn && !burndone println("### burnout done...") ; nchain = 0 ; burndone = true end
+                    if nchain > nburn && !burndone println("### burn-in done...") ; nchain = 0 ; burndone = true end
                     if nchain > niter loopAgain = false end
                     if burndone
                         push!(mci.eps, mi.eps)
@@ -353,7 +353,7 @@ function abc_mcmc_dbscan_full2(dfcart::GaiaClustering.Df, params::GaiaClustering
                 return(mci, iter, FLAG)
             end
         end
-        println("## ABC/MCMC FULL done")
+        println("## ABC/MCMC (full) done")
         println("##")
         return(mci,  iter, FLAG)
     end
