@@ -269,7 +269,7 @@ end
 function find_cluster_label2(labels, df::GaiaClustering.Df, dfcart::GaiaClustering.Df ,
     m::GaiaClustering.meta)
     let
-        println("## Selecting best cluster based on Qc")
+
         if length(labels) == 0
             println("## no clusters in the DBSCAN selection...")
             return(0, 0, 0)
@@ -305,13 +305,42 @@ function find_cluster_label2(labels, df::GaiaClustering.Df, dfcart::GaiaClusteri
             push!(qc,qq)
         end
 
-        println("## Qc: $qc")
-        bestlabel= findmax(qc)[2]
+        if m.labels == "Qc"
+            println("## Selecting best cluster based on Qc")
+            println("## Qc: $qc")
+            println("## Qc: $nlab")
+            bestlabel= findmax(qc)[2]
+        elseif m.labels == "Qn"
+            println("## Selecting best cluster based on Qn")
+            println("## Qc: $qc")
+            println("## Qc: $nlab")
+            bestlabel= findmax(nlab)[2]
+        elseif m.labels == "QcQn"
+            println("## Selecting best cluster based on Qc and Qn")
+            println("## Qc: $qc")
+            println("## Qn: $nlab")
+            qcqn= get_qcqn.(qc, nlab)
+            println("## QcQn: $qcqn")
+            bestlabel= findmax(qcqn)[2]
+        else
+            println("## No rules for selecting best cluster, label 1 set by default...")
+            bestlabel= 1
+        end
 
         return(bestlabel, nlab[bestlabel], qc[bestlabel])
     end
 end
-
+## function to project (Qc,Qn) values on the best value with QcQn methd
+## qn = n
+## favors qc for small qn otherwise qc
+function sigmoid(x, c1, c2)
+    f= 1/(1+exp(-c1*(x-c2)))
+    return(f)
+end
+function get_qcqn(qc, qn)
+    k= qc*sigmoid(qn, 1, 30)
+    return(k)
+end
 ## compute the properties of the cluster with indices indx
 function get_properties_SC(indx, df::GaiaClustering.Df, dfcart::GaiaClustering.Df)::SCproperties
     nstars   = length(indx)
@@ -651,7 +680,7 @@ function cycle_extraction(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, m::G
                 push!(chainlist,dfchain)
 
                 println("###")
-                println("### label solution: $labelmax")
+                println("### solution label: $labelmax")
                 print("### "); println(red(@sprintf("PC1: %3.1f , PC2: %3.1f , PC3: %3.1f", pcres[1], pcres[2], pcres[3])))
                 println("### Offdeg: $(scproperties.offdeg)")
                 println("### Edge ratio: $(scproperties.edgratm)")
@@ -881,7 +910,7 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
                 push!(sclist, scdf)
 
                 println("###")
-                println("### label solution: $labelmax")
+                println("### solution label: $labelmax")
                 print("### "); println(red(@sprintf("PC1: %3.1f , PC2: %3.1f , PC3: %3.1f", pcres[1], pcres[2], pcres[3])))
                 println("### Offdeg: $(scproperties.offdeg)")
                 println("### Edge ratio: $(scproperties.edgratm)")

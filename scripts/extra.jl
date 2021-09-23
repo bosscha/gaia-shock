@@ -116,11 +116,12 @@ let
 
     if parsed_args["o"] opt="yes" else opt= "no" end
 
-###############
+    ############
     header_extract()
 
     if metafile != nothing
         m= read_params(metafile, false)
+        opt= m.optim
     else
         println("## The default options are used.")
         m= set_default_params()
@@ -128,6 +129,12 @@ let
 
     m.optim= opt
     m.votname= votable
+
+    if m.optim == "yes"
+        isoptimize= true
+    else
+        isoptimize= false
+    end
 
     if ncycle != nothing m.cyclemax= ncycle end
     if maxdist != nothing m.maxdist= maxdist end
@@ -138,5 +145,5 @@ let
     if wvel != nothing m.wvel= wvel end
     if whrd != nothing m.whrd= whrd end
 
-    main(m, parsed_args["o"])
+    main(m, isoptimize)
 end
