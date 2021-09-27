@@ -308,18 +308,27 @@ function find_cluster_label2(labels, df::GaiaClustering.Df, dfcart::GaiaClusteri
         if m.labels == "Qc"
             println("## Selecting best cluster based on Qc")
             println("## Qc: $qc")
-            println("## Qc: $nlab")
+            println("## Qn: $nlab")
             bestlabel= findmax(qc)[2]
         elseif m.labels == "Qn"
             println("## Selecting best cluster based on Qn")
             println("## Qc: $qc")
-            println("## Qc: $nlab")
+            println("## Qn: $nlab")
             bestlabel= findmax(nlab)[2]
         elseif m.labels == "QcQn"
             println("## Selecting best cluster based on Qc and Qn")
             println("## Qc: $qc")
             println("## Qn: $nlab")
-            qcqn= get_qcqn.(qc, nlab)
+            qcqn= get_qcqn.(qc, nlab, (m , ))
+            println("## QcQn: $qcqn")
+            bestlabel= findmax(qcqn)[2]
+        elseif m.labels == "QcQnhigh"
+            println("## Selecting best cluster based on Qc and maxQn. Make sure that is what you want...")
+            println("## Qc: $qc")
+            println("## Qn: $nlab")
+            mtemp= m
+            mtemp.minQn= 30
+            qcqn= get_qcqn.(qc, nlab, (mtemp , ))
             println("## QcQn: $qcqn")
             bestlabel= findmax(qcqn)[2]
         else
@@ -337,8 +346,9 @@ function sigmoid(x, c1, c2)
     f= 1/(1+exp(-c1*(x-c2)))
     return(f)
 end
-function get_qcqn(qc, qn)
-    k= qc*sigmoid(qn, 1, 30)
+function get_qcqn(qc, qn,m::GaiaClustering.meta)
+    k= qc*sigmoid(qn, 0.1, m.minQn)*(1-sigmoid(qn,0.1,m.maxQn))
+    # k= qc*sigmoid(qn, 0.1, m.minQn)
     return(k)
 end
 ## compute the properties of the cluster with indices indx
@@ -808,6 +818,7 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
     let
         println("############### cycle_extraction #########")
         println("## maximum cycle: $(m.cyclemax)")
+        println("## Q metric on DBSCAN solutions: $(m.labels)")
         if optim
             println("## DBSCAN/weighting optimization. It may take time...")
         else

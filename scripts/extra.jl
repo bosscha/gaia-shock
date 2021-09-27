@@ -24,7 +24,7 @@ function parse_commandline()
         "-m"
             help = "configuration file"
             arg_type = String
-        "-n"
+        "--ncycle", "-n"
             help = "maximum number of cycles"
             arg_type = Int
         "-o"
@@ -33,6 +33,9 @@ function parse_commandline()
         "--maxdist" , "-d"
             help = "maximum distance for stars in pc"
             arg_type = Float64
+        "--qmetric", "-q"
+            help = "Q metric method to choose best solution in final DBSCAN clusters. The options are: Qc, Qn, QcQn, QcQnhigh"
+            arg_type = String
         "--w3d"
             help = "XYZ weighting"
             arg_type = Float64
@@ -104,7 +107,8 @@ let
 
     metafile= parsed_args["m"]
     votable= parsed_args["votable"]
-    ncycle= parsed_args["n"]
+    ncycle= parsed_args["ncycle"]
+    qmetric= parsed_args["qmetric"]
     maxdist= parsed_args["maxdist"]
     eps= parsed_args["eps"]
     mcl= parsed_args["mcl"]
@@ -112,6 +116,7 @@ let
     w3d= parsed_args["w3d"]
     wvel= parsed_args["wvel"]
     whrd= parsed_args["whrd"]
+
 
 
     if parsed_args["o"] opt="yes" else opt= "no" end
@@ -136,6 +141,7 @@ let
         isoptimize= false
     end
 
+    if qmetric != nothing m.labels= qmetric end
     if ncycle != nothing m.cyclemax= ncycle end
     if maxdist != nothing m.maxdist= maxdist end
     if eps != nothing m.eps= eps end

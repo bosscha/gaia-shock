@@ -61,7 +61,7 @@ wveldisp        = 4.0                     ## velocity weight  dispersion
 whrdmean        = 2.0                     ## CMD weight mean
 whrddisp        = 1.5                     ## CMD weight dispersion
 
-## Metrics Q & find_clusters
+## Qc Metrics  & find_clusters
 ##
 clustermax      = 100                    ## cluster max for find_clusters, otherwise returns 0
 aperture2d      = 1.5
@@ -72,4 +72,4 @@ aperturev       = 3.0
 maxaperturev    = 20.0
 nboot           = 50
 
-labels          = "Qc"                   ## metric method (Qc, Qn, QcQn) for label solutions
+labels          = "Qc"                   ## metric method (Qc, Qn, QcQn, QcQnhigh) for label solutions
