@@ -255,11 +255,11 @@ function abc_mcmc_dbscan_full2(dfcart::GaiaClustering.Df, params::GaiaClustering
         println("###")
 
         minimumQ , minstars = check_qminqstar_full2(dfcart, params)
-        println("### Minimum Qc: $minimumQ")
+        @printf("### Minimum Qc: %3.3f \n",minimumQ)
         println("### Minimum Qn: $minstars")
         if minstars < params.forcedminstars
             minstars = params.forcedminstars
-            println("### Minimum Qn forced to : $minstars")
+            println("### Minimum Qn forced to $minstars")
         end
 
         iter= 0
