@@ -52,19 +52,21 @@ function get_gaia_data(radius, tol, ra, dec, name, table= "gaiaedr3.gaia_source"
     CIRCLE('ICRS',%f, %f, %f)) = 1  AND abs(pmra_error/pmra)<  %3.3f AND abs(pmdec_error/pmdec)< %3.3f
     AND abs(parallax_error/parallax)< %3.3f;", table, table, table, ra, dec, radius, tol, tol, tol )
 
-    println(adql)
 
+    println("## Downloading data...")
+    println(adql)    
     job= gaia.Gaia.launch_job_async(adql, dump_to_file=true)
     outfile= job.outputFile
     filedst= @sprintf("%s-%2.1fdeg.vot",name, radius)
-    mv(outfile, filedst)
+    mv(outfile, filedst , force=true)
+    println("## Votable saved in: $filedst")
 
 end
 function coord_galactic(longi, lati)
     c = coord.SkyCoord(frame="galactic", l=longi*u.degree, b=lati*u.degree)
     return(c.fk5)
 end
-#################################### MAIN
+#################################### MAIN###############################
 let
     args = parse_commandline()
 
@@ -75,20 +77,28 @@ let
     dec= args["dec"]
     fov= args["fov"]
     tol= args[ "tol"]
+    resolv= args[ "resolv"]
 
     iscoord= false
     if l != nothing && b != nothing
         c= coord_galactic(l, b)
-        println(c)
         longi= c.data.lon[1] ; lati= c.data.lat[1]
         iscoord= true
     elseif ra != nothing && dec != nothing
         longi= ra ; lati= dec
         iscoord= true
+    elseif resolv
+        println("## Resolving name...")
+        try
+            c= coord.get_icrs_coordinates(fname)
+            longi= c.ra[1] ; lati= c.dec[1]
+            iscoord= true
+        catch err
+            @printf("## failed to resolve %s \n", fname)
+        end
     end
 
     if iscoord
-        println(longi)
         get_gaia_data(fov, tol, longi, lati, fname)
     end
 end
