@@ -66,7 +66,8 @@ end
 ##
 function getdata(filevot,distance)
     voname = filevot
-
+    println("## Distance cut: $distance pc")
+    
     data       = read_votable(voname)
     df         = filter_data(data, [0,distance])
     dfcart     = add_cartesian(df)
@@ -75,6 +76,8 @@ function getdata(filevot,distance)
     norm       = "identity"
 
     dfcartnorm , scale8 = normalization_PerBlock(dfcart, blck, wghtblck , norm, false)
+
+
     return(df, dfcart , dfcartnorm)
 end
 ##
