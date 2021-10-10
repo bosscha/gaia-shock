@@ -66,6 +66,7 @@ end
 ##
 function getdata(filevot,distance)
     voname = filevot
+    println("## Distance cut: $distance pc")
 
     data       = read_votable(voname)
     df         = filter_data(data, [0,distance])
@@ -75,6 +76,8 @@ function getdata(filevot,distance)
     norm       = "identity"
 
     dfcartnorm , scale8 = normalization_PerBlock(dfcart, blck, wghtblck , norm, false)
+
+
     return(df, dfcart , dfcartnorm)
 end
 ##
@@ -87,6 +90,7 @@ function main(m::GaiaClustering.meta, optim)
     println("## Starting at $tstart")
 
     df , dfcart , dfcartnorm = getdata(m.votname, m.maxdist)
+
     cycle, flag= cycle_extraction_optim(df, dfcart, m, optim)
 
     tend= now()
