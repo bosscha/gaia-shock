@@ -830,7 +830,7 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
             println("## min_cluster : $(m.mcl)")
             println("## min_neighbor : $(m.mnei)")
         end
-        votname= m.votname
+        votname= basename(m.votname)       # get rid of the leading part only useful to read data
         cyclerun= true ; cycle= 1 ; FLAG= 0
 
         sclist= [] ; mcmclist= [] ; perflist= [] ; chainlist= []
