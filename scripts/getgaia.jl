@@ -20,8 +20,8 @@ function parse_commandline()
         "--resolv", "-r"
             help = "To resolv the field name on the sky"
             action = :store_true
-        "--fov"
-            help = "Field of View in degrees."
+        "--rad"
+            help = "Radius on sky in degrees."
             arg_type = Float64
             default= 2.0
         "--tol"
@@ -54,7 +54,7 @@ function get_gaia_data(radius, tol, ra, dec, name, table= "gaiaedr3.gaia_source"
 
 
     println("## Downloading data...")
-    println(adql)    
+    println(adql)
     job= gaia.Gaia.launch_job_async(adql, dump_to_file=true)
     outfile= job.outputFile
     filedst= @sprintf("%s-%2.1fdeg.vot",name, radius)
@@ -75,7 +75,7 @@ let
     b= args["b"]
     ra= args["ra"]
     dec= args["dec"]
-    fov= args["fov"]
+    rad= args["rad"]
     tol= args[ "tol"]
     resolv= args[ "resolv"]
 
@@ -99,6 +99,6 @@ let
     end
 
     if iscoord
-        get_gaia_data(fov, tol, longi, lati, fname)
+        get_gaia_data(rad, tol, longi, lati, fname)
     end
 end
