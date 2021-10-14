@@ -20,7 +20,7 @@ using  StatsBase , CSV,  Distances , MultivariateStats
 
 using PyCall , PyPlot
 
-VERSION= "1.4.4 "
+VERSION= "1.4.5 "
 
 ## include all the types
 include("types.jl")

@@ -357,7 +357,10 @@ function plot_cluster2(plotdir, voname, indx, sc::GaiaClustering.SCproperties2, 
         txt = "Edge ratio(g) : $v1 " ; push!(text,txt)
         v1= fmt("3.3f",sc.edgratm)
         txt = "Edge ratio(m) : $v1 " ; push!(text,txt)
-        show_text(1.2,-0.1, text , 0.64 )
+        v = @sprintf("XG : %6.1f (pc)", extra.xg[1]) ; push!(text,v)
+        v = @sprintf("YG : %6.1f (pc)", extra.yg[1]) ; push!(text,v)
+        v = @sprintf("ZG : %6.1f (pc)", extra.zg[1]) ; push!(text,v)
+        show_text(1.2,-0.1, text , 0.95 )
 
         rec= patch.Rectangle((-0.07, -0.15), 2.2, 1.15, color="salmon", alpha= 0.4, clip_on=false)
         axt.add_artist(rec)
