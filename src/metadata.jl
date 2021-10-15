@@ -29,6 +29,7 @@ function set_default_params()::meta
     def.mcl             = 18                ## min_cluster DBSCAN
     def.mnei            = 7                 ## min_neighbor DBSCAN
     def.maxdist         = 2100.0            ## maximum distance to filter stars in pc
+    def.mindist         = 0.0               ## minimum distance to filter stars in pc
 
     ## MCMC
     ##
@@ -131,6 +132,7 @@ function set_param!(def, parstr,value)
     if parstr == "mcl" def.mcl= value end
     if parstr == "mnei" def.mnei= value end
     if parstr == "maxdist" def.maxdist= value end
+    if parstr == "mindist" def.mindist= value end
 
     if parstr == "minQc"           def.minQc= value end
     if parstr == "minQn"           def.minQn= value end

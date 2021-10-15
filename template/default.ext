@@ -24,6 +24,7 @@ mcl             = 18                ## min_cluster DBSCAN
 mnei            = 7                 ## min_neighbor DBSCAN
 
 maxdist         = 2100.             ## maximum distance to filter stars in pc
+mindist         = 0.                ## minimum distance to filter stars in pc
 
 ### MCMC
 ###
