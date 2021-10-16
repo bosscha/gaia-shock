@@ -5,7 +5,7 @@
 
 using DataFrames, Query
 using CSV, Glob, Dates
-using Statistics, Random
+using Statistics, Random, UUIDs
 using Printf, ArgParse
 
 rootdir =  ENV["GAIA_ROOT"]
@@ -68,7 +68,7 @@ end
 ## get the data. The weightings are fake. Should be applied later
 ##
 function getdata(m::GaiaClustering.meta)
-    println("## Distance cut: $(m.mindist) $(m.maxdist) pc")
+    println("## Distance cut : $(m.mindist) $(m.maxdist) pc")
 
     data       = read_votable(m.votname)
     df         = filter_data(data, [m.mindist, m.maxdist])
@@ -87,9 +87,13 @@ end
 ##
 function main(m::GaiaClustering.meta, optim)
     tstart= now()
+    rng = MersenneTwister(1257)
+    uuid=uuid4(rng)
+
     println("###########################")
     println("## Starting with $(m.votname)")
     println("## Starting at $tstart")
+    println("## Id $uuid")
 
     df , dfcart , dfcartnorm = getdata(m)
 
