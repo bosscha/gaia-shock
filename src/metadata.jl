@@ -18,6 +18,9 @@ function set_default_params()::meta
     def.votname = "test.vot"
     def.prefile= "ocres"
 
+    ## placeholder for the uuid
+    def.uuid= UUID("cfc395e8-590f-11e8-1f13-43a2532b2fa8")
+
     ## for standalone
     ##
     def.optim           = "no"             ## yes|no for weighting/dbscan optimization
@@ -29,6 +32,7 @@ function set_default_params()::meta
     def.mcl             = 18                ## min_cluster DBSCAN
     def.mnei            = 7                 ## min_neighbor DBSCAN
     def.maxdist         = 2100.0            ## maximum distance to filter stars in pc
+    def.mindist         = 0.0               ## minimum distance to filter stars in pc
 
     ## MCMC
     ##
@@ -122,6 +126,7 @@ function set_param!(def, parstr,value)
     if parstr == "ocdir"   def.ocdir= value end
     if parstr == "votname" def.votname= value end
     if parstr == "prefile" def.prefile= value end
+    if parstr == "uuid" def.uuid= value end
 
     if parstr == "optim" def.optim= value end
     if parstr == "w3d" def.w3d= value end
@@ -131,6 +136,7 @@ function set_param!(def, parstr,value)
     if parstr == "mcl" def.mcl= value end
     if parstr == "mnei" def.mnei= value end
     if parstr == "maxdist" def.maxdist= value end
+    if parstr == "mindist" def.mindist= value end
 
     if parstr == "minQc"           def.minQc= value end
     if parstr == "minQn"           def.minQn= value end

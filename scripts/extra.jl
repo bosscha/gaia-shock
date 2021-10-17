@@ -5,7 +5,7 @@
 
 using DataFrames, Query
 using CSV, Glob, Dates
-using Statistics, Random
+using Statistics, Random, UUIDs
 using Printf, ArgParse
 
 rootdir =  ENV["GAIA_ROOT"]
@@ -32,6 +32,9 @@ function parse_commandline()
             action = :store_true
         "--maxdist" , "-d"
             help = "maximum distance for stars in pc"
+            arg_type = Float64
+        "--mindist"
+            help = "miniimum distance for stars in pc"
             arg_type = Float64
         "--qmetric", "-q"
             help = "Q metric method to choose best solution in final DBSCAN clusters. The options are: Qc, Qn, QcQn, QcQnhigh"
@@ -64,12 +67,11 @@ end
 ##
 ## get the data. The weightings are fake. Should be applied later
 ##
-function getdata(filevot,distance)
-    voname = filevot
-    println("## Distance cut: $distance pc")
+function getdata(m::GaiaClustering.meta)
+    println("## Distance cut : $(m.mindist) $(m.maxdist) pc")
 
-    data       = read_votable(voname)
-    df         = filter_data(data, [0,distance])
+    data       = read_votable(m.votname)
+    df         = filter_data(data, [m.mindist, m.maxdist])
     dfcart     = add_cartesian(df)
     blck       = [[1,2,3],[4,5], [6,7,8]]
     wghtblck   = [4.0,5.0,1.0]
@@ -85,11 +87,16 @@ end
 ##
 function main(m::GaiaClustering.meta, optim)
     tstart= now()
+    rng = MersenneTwister(1257)
+    uuid=uuid4(rng)
+    m.uuid= uuid
+
     println("###########################")
     println("## Starting with $(m.votname)")
     println("## Starting at $tstart")
+    println("## Id $uuid")
 
-    df , dfcart , dfcartnorm = getdata(m.votname, m.maxdist)
+    df , dfcart , dfcartnorm = getdata(m)
 
     cycle, flag= cycle_extraction_optim(df, dfcart, m, optim)
 
@@ -114,6 +121,7 @@ let
     ncycle= parsed_args["ncycle"]
     qmetric= parsed_args["qmetric"]
     maxdist= parsed_args["maxdist"]
+    mindist= parsed_args["mindist"]
     eps= parsed_args["eps"]
     mcl= parsed_args["mcl"]
     mnei= parsed_args["mnei"]
@@ -148,6 +156,7 @@ let
     if qmetric != nothing m.labels= qmetric end
     if ncycle != nothing m.cyclemax= ncycle end
     if maxdist != nothing m.maxdist= maxdist end
+    if mindist != nothing m.mindist= mindist end
     if eps != nothing m.eps= eps end
     if mcl != nothing m.mcl= mcl end
     if mnei != nothing m.mnei= mnei end

@@ -9,7 +9,7 @@ module GaiaClustering
 using DataFrames , Formatting, Printf , Dates ,  DelimitedFiles
 
 using Clustering
-using Statistics , Distributions ,Random
+using Statistics , Distributions ,Random, UUIDs
 using Distances, LightGraphs, SimpleWeightedGraphs
 
 ## For wavelet in imaging
@@ -20,7 +20,7 @@ using  StatsBase , CSV,  Distances , MultivariateStats
 
 using PyCall , PyPlot
 
-VERSION= "1.4.4 "
+VERSION= "1.5.0 "
 
 ## include all the types
 include("types.jl")

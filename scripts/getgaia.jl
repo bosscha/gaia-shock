@@ -63,8 +63,9 @@ function get_gaia_data(radius, tol, ra, dec, name, table= "gaiaedr3.gaia_source"
 
 end
 function coord_galactic(longi, lati)
-    c = coord.SkyCoord(frame="galactic", l=longi*u.degree, b=lati*u.degree)
-    return(c.fk5)
+    c = coord.SkyCoord(l=longi*u.degree, b=lati*u.degree,frame="galactic")
+    ct= c.transform_to("fk5")
+    return(ct.ra[1], ct.dec[1])
 end
 #################################### MAIN###############################
 let
@@ -81,8 +82,7 @@ let
 
     iscoord= false
     if l != nothing && b != nothing
-        c= coord_galactic(l, b)
-        longi= c.data.lon[1] ; lati= c.data.lat[1]
+        longi, lati= coord_galactic(l, b)
         iscoord= true
     elseif ra != nothing && dec != nothing
         longi= ra ; lati= dec
@@ -100,5 +100,7 @@ let
 
     if iscoord
         get_gaia_data(rad, tol, longi, lati, fname)
+    else
+        println("No coordinates defined...")
     end
 end
