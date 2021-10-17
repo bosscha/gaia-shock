@@ -89,6 +89,7 @@ function main(m::GaiaClustering.meta, optim)
     tstart= now()
     rng = MersenneTwister(1257)
     uuid=uuid4(rng)
+    m.uuid= uuid
 
     println("###########################")
     println("## Starting with $(m.votname)")

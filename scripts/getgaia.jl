@@ -100,5 +100,7 @@ let
 
     if iscoord
         get_gaia_data(rad, tol, longi, lati, fname)
+    else
+        println("No coordinates defined...")
     end
 end

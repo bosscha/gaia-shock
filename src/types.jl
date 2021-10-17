@@ -168,6 +168,7 @@ mutable struct meta
     ocdir::String
     votname::String
     prefile::String
+    uuid::UUID
 
     optim::String
     w3d::Float64
@@ -176,7 +177,7 @@ mutable struct meta
     eps::Float64
     mcl::Int
     mnei::Int
-    maxdist::Float64  
+    maxdist::Float64
     mindist::Float64
 
     minQc::Float64

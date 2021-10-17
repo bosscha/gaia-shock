@@ -905,11 +905,12 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
                 scproperties = get_properties_SC2(labels[labelmax] , df, dfcart)
                 scdf= convertStruct2Df(scproperties)
                 insertcols!(scdf, 1, :votname => votname)
-                s=size(scdf)
-                insertcols!(scdf, 2, :cycle => cycle)
-                insertcols!(scdf, 3, :pc3 => pcres[3])
-                insertcols!(scdf, 3, :pc2 => pcres[2])
-                insertcols!(scdf, 3, :pc1 => pcres[1])
+                # s=size(scdf)
+                insertcols!(scdf, 2, :uuid => string(m.uuid))
+                insertcols!(scdf, 3, :cycle => cycle)
+                insertcols!(scdf, 4, :pc3 => pcres[3])
+                insertcols!(scdf, 4, :pc2 => pcres[2])
+                insertcols!(scdf, 4, :pc1 => pcres[1])
 
                 ## Xg, Yg, Zg median Galactic position
                 dg = df.data[3,labels[labelmax]]
@@ -945,7 +946,7 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
                 if optim k= score_cycle(qc, nmax, nchain, iter) else k= 1. end
                 @printf("## score cycle %d: %3.3f \n",cycle, k)
 
-                extraplot= DataFrame(cycle=cycle, score_cycle=k, qc=qc, votname=votname, pc1=pcres[1],pc2=pcres[2], pc3=pcres[3], xg=Xgm, yg=Ygm,zg=Zgm)
+                extraplot= DataFrame(cycle=cycle, score_cycle=k, qc=qc, votname=votname, pc1=pcres[1],pc2=pcres[2], pc3=pcres[3], xg=Xgm, yg=Ygm,zg=Zgm, uuid= m.uuid)
 
                 plot_cluster2(m.plotdir, "$votname.$cycle", labels[labelmax], scproperties,
                     dfcart , false, extraplot)
