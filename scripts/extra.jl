@@ -87,7 +87,7 @@ end
 ##
 function main(m::GaiaClustering.meta, optim)
     tstart= now()
-    rng = MersenneTwister(1257)
+    rng = MersenneTwister()
     uuid=uuid4(rng)
     m.uuid= uuid
 
