@@ -30,7 +30,7 @@ export modelCauchy , Grav , abcfull , mcfull, modelfull, meta
 include("data.jl")
 export read_votable , filter_data , add_cartesian , normalization_PerBlock , copy1 ,
   subsetDf , galXYZ , PM_equatorial2galactic , galUVW ,export_df , equatorial2galactic ,
-  angle4sphere
+  angle4sphere , get_data
 
 ## Geometry functions (Voronoi, correlation2d)
 include("geometry.jl")

@@ -446,3 +446,20 @@ function export_df(votname, ocdir, df , dfcart, labels , labelmax)
     CSV.write(filename,oc,delim=';')
     @printf("### %s created \n",filename)
 end
+#######################################
+## a built-in version of getdata
+function get_data(m::GaiaClustering.meta)
+    println("## Distance cut : $(m.mindist) $(m.maxdist) pc")
+
+    data       = read_votable(m.votname)
+    df         = filter_data(data, [m.mindist, m.maxdist])
+    dfcart     = add_cartesian(df)
+    blck       = [[1,2,3],[4,5], [6,7,8]]
+    wghtblck   = [4.0,5.0,1.0]
+    norm       = "identity"
+
+    dfcartnorm , scale8 = normalization_PerBlock(dfcart, blck, wghtblck , norm, false)
+
+
+    return(df, dfcart , dfcartnorm)
+end
