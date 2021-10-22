@@ -20,6 +20,10 @@ using  StatsBase , CSV,  Distances , MultivariateStats
 
 using PyCall , PyPlot
 
+## testing voronoi
+using VoronoiCells
+import GeometryBasics as gb
+
 VERSION= "1.5.1"
 
 ## include all the types

@@ -209,7 +209,6 @@ function find_clusters2(df::GaiaClustering.Df, dfcart::GaiaClustering.Df , m::Ga
             return(0, 0)
         end
 
-
     ### metrics of the clusters
         q2d = metric2(dfcart, labels, "spatial2d" , param.aperture2d, param.maxaperture2d, param.nboot)
         q3d = metric2(dfcart, labels, "spatial3d" , param.aperture3d, param.maxaperture3d, param.nboot)

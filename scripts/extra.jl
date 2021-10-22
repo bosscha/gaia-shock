@@ -129,8 +129,6 @@ let
     wvel= parsed_args["wvel"]
     whrd= parsed_args["whrd"]
 
-
-
     if parsed_args["o"] opt="yes" else opt= "no" end
 
     ############
