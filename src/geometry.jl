@@ -104,13 +104,8 @@ function voronoi(pts, verbose = false)
         rect = Rectangle(gb.Point2(xmin,ymin),gb.Point2(xmax,ymax))
         ptarr= [gb.Point2(xx[i], yy[i]) for i in 1:ndat]
 
-        try
-            tess = voronoicells(ptarr, rect)
-            area= voronoiarea(tess)
-        catch
-            println("## Voronoi error...")
-            return([1000,1000],[1000,1000])   ## arbitrary values for peri and area
-        end
+        tess = voronoicells(ptarr, rect)
+        area= voronoiarea(tess)
 
         return(area , area)
 end
