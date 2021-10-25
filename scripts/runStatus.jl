@@ -9,10 +9,18 @@ function perf_status(file)
     if isfile(file)
         perf= CSV.File(file, delim=";")
         nstarcluster= sum(perf.nmax)
+
+        x = @from i in perf begin
+            @where i.cycle == 1
+            @select i
+            @collect DataFrame
+        end
+        nstartotal= sum(x.nstar)
     else
         nstarcluster= 0
+        nstartotal= 0
     end
-    return(nstarcluster)
+    return(nstarcluster, nstartotal)
 end
 
 function specialstr(str, CODE)
@@ -44,30 +52,33 @@ function main(csvlist)
     println("## $(now())")
     println("##")
 
-    nvotTotal= 0 ; ncycleTotal= 0 ; nstarclusterTotal= 0
+    nvotTotal= 0 ; ncycleTotal= 0 ; nstarclusterTotal= 0 ; nstarTotal= 0
     for file in csvlist
         done= CSV.File(file, delim=";")
 
         nvot= length(done.votname)
         ncycle= sum(done.cycle)
         fileperf= split(file,".")[1]*".perf.csv"
-        nstarcluster= perf_status(fileperf)
+        nstarcluster, nstartotal= perf_status(fileperf)
 
         println("### $file")
         println("### votables: $nvot")
         println("### cycles: $ncycle")
         println("### stars extracted: $nstarcluster")
+        println("### total star analyzed: $nstartotal")
         println("###")
 
         nvotTotal += nvot
         ncycleTotal += ncycle
         nstarclusterTotal += nstarcluster
+        nstarTotal += nstartotal
     end
     println("##")
     println(yellow("## SUMMARY:"))
     println(yellow("## votables: $nvotTotal"))
     println(yellow("## cycles: $ncycleTotal"))
     println(yellow("## stars extracted: $nstarclusterTotal"))
+    println(yellow("## stars analyzed: $nstarTotal"))
 
 end
 

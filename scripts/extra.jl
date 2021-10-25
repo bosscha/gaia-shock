@@ -87,7 +87,7 @@ end
 ##
 function main(m::GaiaClustering.meta, optim)
     tstart= now()
-    rng = MersenneTwister(1257)
+    rng = MersenneTwister()
     uuid=uuid4(rng)
     m.uuid= uuid
 
@@ -128,8 +128,6 @@ let
     w3d= parsed_args["w3d"]
     wvel= parsed_args["wvel"]
     whrd= parsed_args["whrd"]
-
-
 
     if parsed_args["o"] opt="yes" else opt= "no" end
 

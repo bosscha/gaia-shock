@@ -28,5 +28,7 @@ Pkg.add("FFTW")
 Pkg.add("LaTeXStrings")
 Pkg.add("MultivariateStats")
 Pkg.add("ArgParse")
+Pkg.add("VoronoiCells")
+Pkg.add("GeometryBasics")
 
 println("## Package installation for GaiaClustering done...")

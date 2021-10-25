@@ -1,6 +1,5 @@
 ### Function to analyze the geometry
 ###
-
 function voronoi_perimeter(ver, region)
     # compute the perimetet  in the voronoi region and vertices
 
@@ -26,8 +25,7 @@ function voronoi_perimeter(ver, region)
     end
     return(perimeter)
 end
-
-
+##
 function voronoi_area(ver, region)
     # compute the area   in the voronoi region and vertices
 
@@ -50,19 +48,17 @@ function voronoi_area(ver, region)
     end
     return(abs(area))
 end
-
-
-
-### Voronoi tesselation using the scipy function
-###
-function voronoi(pts, verbose = false)
+## Voronoi tesselation using the scipy function
+##
+function voronoi_python(pts, verbose = true)
     let
         ndat = length(pts)
         peri = zeros(ndat)
         area = zeros(ndat)
 
-        spatial = pyimport("scipy.spatial")
         vor = 0
+        spatial = pyimport("scipy.spatial")
+
         try
             # vor = spatial[:Voronoi](pts)
             vor = spatial.Voronoi(pts)
@@ -73,9 +69,6 @@ function voronoi(pts, verbose = false)
 
         if verbose println("## Voronoi tesselation done.") end
 
-        # ver = vor[:vertices]
-        # reg = vor[:regions]
-        # pt  = vor[:point_region]
         ver = vor.vertices
         reg = vor.regions
         pt  = vor.point_region
@@ -85,7 +78,34 @@ function voronoi(pts, verbose = false)
             peri[i] =  voronoi_perimeter(ver,region)
             area[i] =  voronoi_area(ver,region)
         end
-
+        println("ending voronoi ...")
         return(peri , area)
     end
+end
+##
+## Julia voronoi implementation
+function voronoi(pts, verbose = false)
+
+        ndat = length(pts)
+        peri = zeros(ndat)
+        area = zeros(ndat)
+
+        xx= [] ; yy=[]
+        for i in 1:ndat
+            push!(xx,pts[i][1])
+            push!(yy,pts[i][2])
+        end
+
+        xmin= minimum(xx)
+        xmax= maximum(xx)
+        ymin= minimum(yy)
+        ymax= maximum(yy)
+
+        rect = Rectangle(gb.Point2(xmin,ymin),gb.Point2(xmax,ymax))
+        ptarr= [gb.Point2(xx[i], yy[i]) for i in 1:ndat]
+
+        tess = voronoicells(ptarr, rect)
+        area= voronoiarea(tess)
+
+        return(area , area)
 end
