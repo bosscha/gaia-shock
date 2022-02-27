@@ -1,7 +1,7 @@
 ## install package for Gaia.Clustering
 
 using Pkg
-ENV["PYTHON"] = " "
+ENV["PYTHON"] = "/usr/bin/python3"
 
 Pkg.add("PyCall")
 Pkg.build("PyCall")
