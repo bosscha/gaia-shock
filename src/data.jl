@@ -254,7 +254,6 @@ function galXYZ(l,b,distance)
     return(xg,yg,zg)
 end
 
-
 ### Correction of the radial velocity
 ### Conrad (3025)
 
