@@ -30,6 +30,9 @@ function parse_commandline()
         "-o"
             help = "optimization of the weightings/DBSCAN"
             action = :store_true
+        "--pca", "-p"
+            help = "Add Principal Component coordinates in oc file and save PC vectors"
+            action = :store_true
         "--maxdist" , "-d"
             help = "maximum distance for stars in pc"
             arg_type = Float64
@@ -130,6 +133,7 @@ let
     whrd= parsed_args["whrd"]
 
     if parsed_args["o"] opt="yes" else opt= "no" end
+    if parsed_args["pca"] pca="yes" else pca= "no" end
 
     ############
     header_extract()
@@ -137,6 +141,7 @@ let
     if metafile != nothing
         m= read_params(metafile, false)
         opt= m.optim
+        pca= m.pca
     else
         println("## The default options are used.")
         m= set_default_params()
@@ -144,6 +149,7 @@ let
 
     m.optim= opt
     m.votname= votable
+    m.pca= pca
 
     if m.optim == "yes"
         isoptimize= true

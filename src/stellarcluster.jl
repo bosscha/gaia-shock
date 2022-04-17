@@ -894,11 +894,17 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
                 end
 
                 labelmax , nmax, qc = find_cluster_label2(labels, df, dfcart, m)
-                println("## label $labelmax written as an oc solution...")
-                export_df("$votname.$cycle", m.ocdir, df , dfcart , labels , labelmax)
 
                 ## Principal components
                 pc, pcres= compute_PC(df, dfcart, labels, labelmax)
+
+                if m.pca == "no"
+                    export_df("$votname.$cycle", m.ocdir, df , dfcart , labels , labelmax, pc, m)
+                elseif m.pca == "yes"
+                    println("## PCA components added to the oc")
+                    export_df("$votname.$cycle", m.ocdir, df , dfcart , labels , labelmax, pc, m)
+                end
+                println("## label $labelmax written as an oc solution...")
 
                 edgeratio1, edgeratio2= edge_ratio(dfcart, labels[labelmax])
                 scproperties = get_properties_SC2(labels[labelmax] , df, dfcart)
@@ -1160,8 +1166,17 @@ function compute_PC(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, labels, la
         # d=Array(data')
         dt= StatsBase.fit(ZScoreTransform, data, dims=2)
         d2= StatsBase.transform(dt, data)
-        M = fit(PCA, d2)
+        M= fit(PCA, d2, maxoutdim= 8)
+        p= projection(M)
         Yt = MultivariateStats.transform(M, d2)
+
+        ## project data on PCA
+        # dpca= MultivariateStats.transform(M, data)
+        # println("test pca--- ")
+        # println(size(data))
+        # println(size(M))
+        # println(size(Yt))
+        # print(Yt)
 
         totvar= tvar(M)
         pvs= principalvars(M)

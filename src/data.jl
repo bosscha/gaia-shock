@@ -395,7 +395,7 @@ end
 ####
 # Create the DataFrame to save the cluster...
 ##
-function export_df(votname, ocdir, df , dfcart, labels , labelmax)
+function export_df(votname, ocdir, df , dfcart, labels , labelmax, pc, m::GaiaClustering.meta)
     ra= df.raw[1, labels[labelmax]]
     dec= df.raw[2,labels[labelmax]]
     l= df.data[1, labels[labelmax]]
@@ -433,6 +433,16 @@ function export_df(votname, ocdir, df , dfcart, labels , labelmax)
     oc= DataFrame(sourceid=source_id,ra=ra,dec=dec,l=l,b=b, distance=d,pmra=pmra, pmdec=pmdec, X=X,Y=Y,Z=Z,vl=vl,
         vb=vb,vrad=vrad, Xg=xg,Yg=yg,Zg=zg,gbar=gbar,rp=rp,bp=bp, ag=ag)
 
+    spc= size(pc)
+    if m.pca == "yes" && s[1] == spc[2]
+       for i in 1:spc[1]
+            colname = "PC$i"
+            oc[!,colname] = pc[i,:]
+       end
+    else
+        println("### Warning : PCA size and star number are not equal....")
+    end
+
     name= split(votname,".")
     infix= ""
     for iname in name
@@ -443,7 +453,7 @@ function export_df(votname, ocdir, df , dfcart, labels , labelmax)
     infix *= "oc.csv"
     filename= @sprintf("%s/%s",ocdir, infix)
     CSV.write(filename,oc,delim=';')
-    @printf("### %s created \n",filename)
+    @printf("### %s created  in %s \n",filename, ocdir)
 end
 #######################################
 ## a built-in version of getdata

@@ -14,6 +14,7 @@ prefile    = "ocres"                  # prefix for the result files
 ## extra init for standalone
 ##
 optim           = "no"             ## yes|no for weighting/dbscan optimization
+pca             = "no"             ## yes|no to add accordingly the PC components and PC vector file
 #
 # if optim no set the dbscan/weighting values
 w3d             = 7.0               ## w3d weighting
