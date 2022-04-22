@@ -62,7 +62,7 @@ function parse_commandline()
             arg_type = Int
         "votable"
             help = "votable"
-            required = true
+            required = false
     end
 
     return parse_args(s)
@@ -73,7 +73,7 @@ end
 function getdata(m::GaiaClustering.meta)
     println("## Distance cut : $(m.mindist) $(m.maxdist) pc")
 
-    data       = read_votable(m.votname)
+    data       = read_votable(m.votdir*"/"*m.votname)
     df         = filter_data(data, [m.mindist, m.maxdist])
     dfcart     = add_cartesian(df)
     blck       = [[1,2,3],[4,5], [6,7,8]]
@@ -142,6 +142,8 @@ let
         m= read_params(metafile, false)
         opt= m.optim
         pca= m.pca
+
+        if votable == nothing votable= m.votname end
     else
         println("## The default options are used.")
         m= set_default_params()

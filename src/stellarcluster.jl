@@ -898,6 +898,8 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
                 ## Principal components
                 pc, pcres= compute_PC(df, dfcart, labels, labelmax)
 
+
+
                 if m.pca == "no"
                     export_df("$votname.$cycle", m.ocdir, df , dfcart , labels , labelmax, pc, m)
                 elseif m.pca == "yes"
@@ -1038,6 +1040,8 @@ end
 ### save results cycle in csv
 ###
 function save_cycle(sc, mcmc, perf, chain,  m::GaiaClustering.meta)
+    cd(m.wdir)
+
     filesc= @sprintf("%s.sc.csv", m.prefile)
     filemcmc= @sprintf("%s.mcmc.csv", m.prefile)
     fileperf= @sprintf("%s.perf.csv", m.prefile)
@@ -1072,6 +1076,7 @@ end
 ### save results cycle in csv with the optim option
 ###
 function save_cycle_optim(sc, mcmc, perf, chain,  m::GaiaClustering.meta,optim)
+    cd(m.wdir)
     filesc= @sprintf("%s.sc.csv", m.prefile)
     if optim
         filemcmc= @sprintf("%s.mcmc.csv", m.prefile)

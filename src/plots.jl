@@ -189,6 +189,7 @@ function plot_dbscanfull_mcmc(plotdir, voname, mc::mcfull , showplot = true)
 
     PyPlot.plt.xlabel("Qc")
     figname = plotdir*"/"*voname*".mcmc.png"
+
     PyPlot.plt.savefig(figname)
     if showplot PyPlot.plt.show() end
 end
