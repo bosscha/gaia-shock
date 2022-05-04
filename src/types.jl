@@ -171,6 +171,7 @@ mutable struct meta
     uuid::UUID
 
     optim::String
+    pca::String
     w3d::Float64
     wvel::Float64
     whrd::Float64

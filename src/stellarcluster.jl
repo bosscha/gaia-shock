@@ -894,11 +894,19 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
                 end
 
                 labelmax , nmax, qc = find_cluster_label2(labels, df, dfcart, m)
-                println("## label $labelmax written as an oc solution...")
-                export_df("$votname.$cycle", m.ocdir, df , dfcart , labels , labelmax)
 
                 ## Principal components
                 pc, pcres= compute_PC(df, dfcart, labels, labelmax)
+
+
+
+                if m.pca == "no"
+                    export_df("$votname.$cycle", m.ocdir, df , dfcart , labels , labelmax, pc, m)
+                elseif m.pca == "yes"
+                    println("## PCA components added to the oc")
+                    export_df("$votname.$cycle", m.ocdir, df , dfcart , labels , labelmax, pc, m)
+                end
+                println("## label $labelmax written as an oc solution...")
 
                 edgeratio1, edgeratio2= edge_ratio(dfcart, labels[labelmax])
                 scproperties = get_properties_SC2(labels[labelmax] , df, dfcart)
@@ -1032,6 +1040,8 @@ end
 ### save results cycle in csv
 ###
 function save_cycle(sc, mcmc, perf, chain,  m::GaiaClustering.meta)
+    cd(m.wdir)
+
     filesc= @sprintf("%s.sc.csv", m.prefile)
     filemcmc= @sprintf("%s.mcmc.csv", m.prefile)
     fileperf= @sprintf("%s.perf.csv", m.prefile)
@@ -1066,6 +1076,7 @@ end
 ### save results cycle in csv with the optim option
 ###
 function save_cycle_optim(sc, mcmc, perf, chain,  m::GaiaClustering.meta,optim)
+    cd(m.wdir)
     filesc= @sprintf("%s.sc.csv", m.prefile)
     if optim
         filemcmc= @sprintf("%s.mcmc.csv", m.prefile)
@@ -1144,9 +1155,9 @@ function compute_PC(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, labels, la
         Z= dfcart.data[3, labels[labelmax]]
         vl= df.data[4,labels[labelmax]]
         vb= df.data[5,labels[labelmax]]
-        gbar= df.raw[10,labels[labelmax]]
-        rp= df.raw[11,labels[labelmax]]
-        bp= df.raw[12,labels[labelmax]]
+        gbar= df.data[6,labels[labelmax]]
+        Crp= df.data[7,labels[labelmax]]
+        Cbp= df.data[8,labels[labelmax]]
 
         data[1,:]= X
         data[2,:]= Y
@@ -1154,14 +1165,15 @@ function compute_PC(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, labels, la
         data[4,:]= vl
         data[5,:]= vb
         data[6,:]= gbar
-        data[7,:]= gbar .- rp
-        data[8,:]= bp .- gbar
+        data[7,:]= Crp
+        data[8,:]= Cbp
 
-        # d=Array(data')
         dt= StatsBase.fit(ZScoreTransform, data, dims=2)
         d2= StatsBase.transform(dt, data)
-        M = fit(PCA, d2)
+        M= fit(PCA, d2)
+        p= projection(M)
         Yt = MultivariateStats.transform(M, d2)
+
 
         totvar= tvar(M)
         pvs= principalvars(M)

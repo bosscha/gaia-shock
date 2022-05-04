@@ -21,9 +21,10 @@ function set_default_params()::meta
     ## placeholder for the uuid
     def.uuid= UUID("cfc395e8-590f-11e8-1f13-43a2532b2fa8")
 
-    ## for standalone
+    ## for standalone (or not?)
     ##
     def.optim           = "no"             ## yes|no for weighting/dbscan optimization
+    def.pca             = "no"
     # if optim no
     def.w3d             = 7.0               ## w3d weighting
     def.wvel            = 8.0               ## wvel weighting
@@ -129,6 +130,7 @@ function set_param!(def, parstr,value)
     if parstr == "uuid" def.uuid= value end
 
     if parstr == "optim" def.optim= value end
+    if parstr == "pca" def.pca= value end
     if parstr == "w3d" def.w3d= value end
     if parstr == "wvel" def.wvel= value end
     if parstr == "whrd" def.whrd= value end
