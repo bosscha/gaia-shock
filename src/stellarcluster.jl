@@ -1155,9 +1155,9 @@ function compute_PC(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, labels, la
         Z= dfcart.data[3, labels[labelmax]]
         vl= df.data[4,labels[labelmax]]
         vb= df.data[5,labels[labelmax]]
-        gbar= df.raw[10,labels[labelmax]]
-        rp= df.raw[11,labels[labelmax]]
-        bp= df.raw[12,labels[labelmax]]
+        gbar= df.data[6,labels[labelmax]]
+        Crp= df.data[7,labels[labelmax]]
+        Cbp= df.data[8,labels[labelmax]]
 
         data[1,:]= X
         data[2,:]= Y
@@ -1165,23 +1165,15 @@ function compute_PC(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, labels, la
         data[4,:]= vl
         data[5,:]= vb
         data[6,:]= gbar
-        data[7,:]= gbar .- rp
-        data[8,:]= bp .- gbar
+        data[7,:]= Crp
+        data[8,:]= Cbp
 
-        # d=Array(data')
         dt= StatsBase.fit(ZScoreTransform, data, dims=2)
         d2= StatsBase.transform(dt, data)
-        M= fit(PCA, d2, maxoutdim= 8)
+        M= fit(PCA, d2)
         p= projection(M)
         Yt = MultivariateStats.transform(M, d2)
 
-        ## project data on PCA
-        # dpca= MultivariateStats.transform(M, data)
-        # println("test pca--- ")
-        # println(size(data))
-        # println(size(M))
-        # println(size(Yt))
-        # print(Yt)
 
         totvar= tvar(M)
         pvs= principalvars(M)

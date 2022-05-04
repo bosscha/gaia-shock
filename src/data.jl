@@ -117,8 +117,8 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250], vdec
         rp[i]       = convert(Float64, get(gaia,i-1).phot_rp_mean_mag)
         bp[i]       = convert(Float64, get(gaia,i-1).phot_bp_mean_mag)
 
-        #extinction
-        # fix fo EDR3, extinction not found
+        # extinction
+        # fix fo EDR3, extinction not  present
         ag[i]       = 99.  ##  convert(Float64, get(gaia,i-1).a_g_val)
 
     end
