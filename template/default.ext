@@ -15,6 +15,7 @@ prefile    = "ocres"                  # prefix for the result files
 ##
 optim           = "no"             ## yes|no for weighting/dbscan optimization
 pca             = "no"             ## yes|no to add accordingly the PC components and PC vector file
+zpt             = "yes"            ## apply Zero point offset correction for parallax (Lindengren 2020)
 #
 # if optim no set the dbscan/weighting values
 w3d             = 7.0               ## w3d weighting

@@ -53,8 +53,10 @@ end
 
 
 #########
-function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250], vdec_range = [-250.,250], mag_range =[-1e9, 1e9])::Df
+function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250],
+    vdec_range = [-250.,250], mag_range =[-1e9, 1e9] ; zpt=false)::Df
 ########
+
     ngaia = length(gaia)
 
     source_id = zeros(Int64,ngaia)
@@ -80,6 +82,12 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250], vdec
     pmb = zeros(ngaia)
     vl = zeros(ngaia)
     vb = zeros(ngaia)
+    ## ZPT parameters
+    nu_eff_used_in_astrometry= zeros(ngaia)
+    pseudocolour= zeros(ngaia)
+    ecl_lat= zeros(ngaia)
+    astrometric_params_solved= zeros(ngaia)
+    zcorr= zeros(ngaia)
 
     ## Extinction A_G
     ag= zeros(ngaia)
@@ -121,6 +129,28 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250], vdec
         # fix fo EDR3, extinction not  present
         ag[i]       = 99.  ##  convert(Float64, get(gaia,i-1).a_g_val)
 
+        ## for ZPT correction
+        nu_eff_used_in_astrometry[i] = convert(Float64, get(gaia,i-1).nu_eff_used_in_astrometry)
+        pseudocolour[i]= convert(Float64, get(gaia,i-1).pseudocolour)
+        ecl_lat[i]= convert(Float64, get(gaia,i-1).ecl_lat)
+        astrometric_params_solved[i]= convert(Float64, get(gaia,i-1).astrometric_params_solved)
+    end
+
+    if zpt
+            try
+                zpt= pyimport("zero_point.zpt")
+                zpt.load_tables()
+                zcorr= zpt.get_zpt(g, nu_eff_used_in_astrometry, pseudocolour, ecl_lat, astrometric_params_solved)
+
+                parallax = parallax .- zcorr
+                distance = 1000. ./ parallax
+                vra      = 4.74e-3 .* pmra  .* distance
+                vdec     = 4.74e-3 .* pmdec .* distance
+                vl       = 4.74e-3 .* pml  .* distance
+                vb       = 4.74e-3 .* pmb  .* distance
+            catch
+                println("## Issues with the ZPT correction...")
+            end
     end
 
     ## Filtering ...
@@ -172,8 +202,9 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250], vdec
 
     ## Errors ..
     s.err[1,:] = parallax_error[ifinal]
-    s.err[4,:] = pmra_error[ifinal]
-    s.err[5,:] = pmdec_error[ifinal]
+    s.err[2,:] = pmra_error[ifinal]
+    s.err[3,:] = pmdec_error[ifinal]
+    s.err[4,:] = zcorr[ifinal]
 
     ## GAIA source id
     s.sourceid[1,:] = source_id[ifinal]
@@ -460,8 +491,15 @@ end
 function get_data(m::GaiaClustering.meta)
     println("## Distance cut : $(m.mindist) $(m.maxdist) pc")
 
+    if m.zpt=="yes"
+        zoff= true
+        println("## Will apply Zero Point offset correction on parallax...")
+    else
+        zoff= false
+    end
+
     data       = read_votable(m.votname)
-    df         = filter_data(data, [m.mindist, m.maxdist])
+    df         = filter_data(data, [m.mindist, m.maxdist],zpt=zoff)
     dfcart     = add_cartesian(df)
     blck       = [[1,2,3],[4,5], [6,7,8]]
     wghtblck   = [4.0,5.0,1.0]

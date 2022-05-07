@@ -962,6 +962,9 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
                 plot_rawdata(m.plotdir, "$votname.$cycle", labels[labelmax], scproperties,
                     dfcart , pc, jump, false, extraplot)
 
+                plot_astrom(m.plotdir, "$votname.$cycle", labels[labelmax], scproperties,
+                    df , false, extraplot)
+
                 println("###")
                 println("### subtracting BEST solution from Df...")
                 dfnew, dfcartnew= remove_stars(df, dfcart, labels[labelmax])

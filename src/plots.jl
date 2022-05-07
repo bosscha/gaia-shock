@@ -288,7 +288,6 @@ function plot_cluster2(plotdir, voname, indx, sc::GaiaClustering.SCproperties2, 
 
     xx = df.data[2,indx] .- mean(df.data[2,indx])
     yy = df.data[3,indx] .- mean(df.data[3,indx])
-
     PyPlot.plt.scatter(xx, yy , s = 1.0 )
     PyPlot.plt.xlabel("Y (pc)")
     PyPlot.plt.ylabel("Z (pc)")
@@ -377,6 +376,15 @@ function plot_cluster2(plotdir, voname, indx, sc::GaiaClustering.SCproperties2, 
     PyPlot.plt.grid(true)
 
     PyPlot.plt.subplot(3, 3, 8 )
+    PyPlot.plt.axis("on")
+    xx = df.data[8,indx] .+ df.data[7,indx]
+    yy = -df.data[6,indx]
+    PyPlot.plt.scatter(xx, yy , s = 1.0 )
+    PyPlot.plt.xlabel("Bp-Rp")
+    PyPlot.plt.ylabel("G")
+    PyPlot.plt.grid(true)
+
+    PyPlot.plt.subplot(3, 3, 9 )
     xx = df.data[4,indx]
     yy = df.data[5,indx]
     PyPlot.plt.scatter(xx, yy , s = 1.0 )
@@ -512,5 +520,120 @@ function plot_rawdata(plotdir, voname, indx, sc::GaiaClustering.SCproperties2, d
     figname = plotdir*"/"*voname*".raw.png"
     PyPlot.plt.savefig(figname)
 
+    if showplot PyPlot.plt.show() end
+end
+
+# plot the astrometric data
+function plot_astrom(plotdir, voname, indx, sc::GaiaClustering.SCproperties2, df::GaiaClustering.Df,
+    showplot = true , extra= 0, cmap = "gist_stern")
+    patch= pyimport("matplotlib.patches")
+
+    println("### Cluster plot is centered in Y,Z...")
+    PyPlot.plt.rcParams["font.size"]= 25
+
+    PyPlot.plt.figure(figsize=(13.0,12.0))
+
+    PyPlot.plt.subplot(3, 3, 1)
+    PyPlot.plt.axis("on")
+    xx = df.data[1,indx]
+    yy = df.data[2,indx]
+    PyPlot.plt.scatter(xx, yy , s = 1.0 )
+    PyPlot.plt.xlabel("l (degree)")
+    PyPlot.plt.ylabel("b (degree)")
+    PyPlot.plt.grid(true)
+
+    PyPlot.plt.subplot(3, 3, 2 )
+    xx = df.raw[6,indx]
+    yy = df.raw[7,indx]
+    PyPlot.plt.scatter(xx, yy , s = 1.0 )
+    PyPlot.plt.xlabel("pmra")
+    PyPlot.plt.ylabel("pmdec")
+    PyPlot.plt.grid(true)
+
+    PyPlot.plt.subplot(3, 3, 4 , xlim = [-20,20])
+    xx = df.data[2,indx] .- mean(df.data[2,indx])
+    yy = df.data[1,indx]
+    PyPlot.plt.scatter(xx, yy , s = 1.0 )
+    PyPlot.plt.xlabel("Y (pc)")
+    PyPlot.plt.ylabel("X (pc)")
+    PyPlot.plt.grid(true)
+
+    PyPlot.plt.subplot(3, 3, 3 )
+    xx = df.data[1,indx]
+    yy = df.raw[13,indx]
+    PyPlot.plt.scatter(xx, yy , s = 1.0 )
+    PyPlot.plt.xlabel("X(pc)")
+    PyPlot.plt.ylabel("Vrad (km/s)")
+    PyPlot.plt.grid(true)
+
+    axt= PyPlot.plt.subplot(3, 3, 5)
+    PyPlot.plt.axis("off")
+
+    ## text to display
+    dct= Dict("color"=> "black", "fontsize"=> 10)
+    text =[]
+    v = sc.nstars ; txt = "N stars : $v" ; push!(text,txt)
+    v = fmt("3.1f",sc.distance) ; txt = "Distance : $v (pc)" ; push!(text,txt)
+    v1 = fmt("3.3f",sc.l) ; v2 = fmt("3.3f",sc.b) ;
+    txt = "l , b : $v1  ,  $v2  (degree)" ; push!(text,txt)
+    v1 = fmt("3.3f",sc.ra) ; v2 = fmt("3.3f",sc.dec) ;
+    txt = "RA , Dec : $v1  ,  $v2  (degree)" ; push!(text,txt)
+
+    v1 = fmt("3.3f",sc.vl) ; v2 = fmt("3.3f",sc.vb) ;
+    txt = "vl , vb : $v1  ,  $v2  (km/s)" ; push!(text,txt)
+    v = fmt("3.2f",sc.vrad) ; txt  = "Vradial : $v (km/s)"; push!(text,txt)
+    v = fmt("3.2f",sc.xdisp) ; txt = "X disp. : $v (pc)" ; push!(text,txt)
+    v = fmt("3.2f",sc.ydisp) ; txt = "Y disp. : $v (pc)" ; push!(text,txt)
+    v = fmt("3.2f",sc.zdisp) ; txt = "Z disp. : $v (pc)" ; push!(text,txt)
+    v = fmt("3.2f",sc.vldisp) ; txt = "Vl disp. : $v (km/s)" ; push!(text,txt)
+    v = fmt("3.2f",sc.vbdisp) ; txt = "Vb disp. : $v (km/s)" ; push!(text,txt)
+    v = fmt("3.2f",sc.vraddisp) ; txt = "Vradial disp. : $v (km/s)" ; push!(text,txt)
+    show_text(-0.01,-0.1, text , 1.1 )
+
+    if extra != 0
+        text =[]
+        v1= "$(extra.votname[1])"
+        txt = "Votable : $v1" ; push!(text,txt)
+        v1= "$(extra.cycle[1])"
+        txt = "Cycle : $v1" ; push!(text,txt)
+        v1= fmt("3.3f",extra.qc[1])
+        txt = "Qc : $v1" ; push!(text,txt)
+        v1= fmt("3.3f",extra.score_cycle[1])
+        txt = "Score : $v1" ; push!(text,txt)
+        v1= fmt("3.3f",sc.offdeg)
+        txt = "Offset : $v1 (degree)" ; push!(text,txt)
+        v1= fmt("3.3f",sc.edgratg)
+        txt = "Edge ratio(g) : $v1 " ; push!(text,txt)
+        v1= fmt("3.3f",sc.edgratm)
+        txt = "Edge ratio(m) : $v1 " ; push!(text,txt)
+        v = @sprintf("XG : %6.1f (pc)", extra.xg[1]) ; push!(text,v)
+        v = @sprintf("YG : %6.1f (pc)", extra.yg[1]) ; push!(text,v)
+        v = @sprintf("ZG : %6.1f (pc)", extra.zg[1]) ; push!(text,v)
+        show_text(1.2,-0.1, text , 0.95 )
+
+        rec= patch.Rectangle((-0.07, -0.15), 2.2, 1.15, color="salmon", alpha= 0.4, clip_on=false)
+        axt.add_artist(rec)
+    end
+
+    PyPlot.plt.subplot(3, 3, 7 )
+    PyPlot.plt.axis("on")
+    xx = df.data[7,indx]
+    yy = -df.data[6,indx]
+    PyPlot.plt.scatter(xx, yy , s = 1.0 )
+    PyPlot.plt.xlabel("G-Rp")
+    PyPlot.plt.ylabel("G")
+    PyPlot.plt.grid(true)
+
+    PyPlot.plt.subplot(3, 3, 8 )
+    xx = df.data[4,indx]
+    yy = df.data[5,indx]
+    PyPlot.plt.scatter(xx, yy , s = 1.0 )
+    PyPlot.plt.xlabel("Vl (km/s)")
+    PyPlot.plt.ylabel("Vb (km/s)")
+    PyPlot.plt.grid(true)
+
+
+    figname = plotdir*"/"*voname*".astrom.png"
+    PyPlot.plt.savefig(figname)
     if showplot PyPlot.plt.show() end
 end

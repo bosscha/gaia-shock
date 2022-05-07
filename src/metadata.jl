@@ -23,8 +23,9 @@ function set_default_params()::meta
 
     ## for standalone (or not?)
     ##
-    def.optim           = "no"             ## yes|no for weighting/dbscan optimization
-    def.pca             = "no"
+    def.optim           = "no"              ## yes|no for weighting/dbscan optimization
+    def.pca             = "no"              ## yes|no output PCA components in oc file
+    def.zpt             = "no"              ## yes|no to apply zero point correction (Lindengren 2020)
     # if optim no
     def.w3d             = 7.0               ## w3d weighting
     def.wvel            = 8.0               ## wvel weighting
@@ -131,6 +132,7 @@ function set_param!(def, parstr,value)
 
     if parstr == "optim" def.optim= value end
     if parstr == "pca" def.pca= value end
+    if parstr == "zpt" def.zpt= value end
     if parstr == "w3d" def.w3d= value end
     if parstr == "wvel" def.wvel= value end
     if parstr == "whrd" def.whrd= value end
