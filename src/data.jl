@@ -431,6 +431,7 @@ function export_df(votname, ocdir, df , dfcart, labels , labelmax, pc, m::GaiaCl
     dec= df.raw[2,labels[labelmax]]
     l= df.data[1, labels[labelmax]]
     b= df.data[2,labels[labelmax]]
+    parallax= df.raw[5,labels[labelmax]]
     d= df.data[3,labels[labelmax]]
     pmra= df.raw[6, labels[labelmax]]
     pmdec= df.raw[7, labels[labelmax]]
@@ -461,7 +462,8 @@ function export_df(votname, ocdir, df , dfcart, labels , labelmax, pc, m::GaiaCl
         zg[i]= zz
     end
 
-    oc= DataFrame(sourceid=source_id,ra=ra,dec=dec,l=l,b=b, distance=d,pmra=pmra, pmdec=pmdec, X=X,Y=Y,Z=Z,vl=vl,
+    oc= DataFrame(sourceid=source_id,ra=ra,dec=dec,l=l,b=b, parallax=parallax, distance=d,
+        pmra=pmra, pmdec=pmdec, X=X,Y=Y,Z=Z,vl=vl,
         vb=vb,vrad=vrad, Xg=xg,Yg=yg,Zg=zg,gbar=gbar,rp=rp,bp=bp, ag=ag)
 
     spc= size(pc)

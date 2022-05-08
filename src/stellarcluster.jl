@@ -431,7 +431,7 @@ function get_properties_SC2(indx, df::GaiaClustering.Df, dfcart::GaiaClustering.
 
     sc = SCproperties2()
     sc.nstars= nstars
-    sc.distance= distance
+    sc.distance= 1000. / parallax
     sc.ra= ra
     sc.dec= dec
     sc.l= l
