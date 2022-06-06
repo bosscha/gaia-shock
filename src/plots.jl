@@ -554,17 +554,20 @@ function plot_astrom(plotdir, voname, indx, sc::GaiaClustering.SCproperties2, df
     xx = df.data[2,indx]
     yy = df.raw[5,indx]
     PyPlot.plt.scatter(xx, yy , s = 1.0 )
-    PyPlot.plt.xlabel("l")
-    PyPlot.plt.ylabel("parallax")
+    PyPlot.plt.xlabel("l (degree)")
+    PyPlot.plt.ylabel("parallax (mas)")
     PyPlot.plt.grid(true)
 
     PyPlot.plt.subplot(3, 3, 4 )
     xx = df.raw[5,indx]
     yy = df.raw[5,indx] .+ df.err[4,indx]
-    PyPlot.plt.hist(yy, density=false, bins=30,histtype="stepfilled", facecolor="r", alpha=0.6)
-    PyPlot.plt.hist(xx, density=false, bins=30,histtype="stepfilled", facecolor="g", alpha=0.6)
+    PyPlot.plt.hist(yy, density=false, bins=30,histtype="stepfilled", facecolor="r",
+        alpha=0.6, label=["uncorrected"])
+    PyPlot.plt.hist(xx, density=false, bins=30,histtype="stepfilled", facecolor="g",
+        alpha=0.6, label=["ZPT corrected"])
+    PyPlot.plt.legend(prop=Dict("size"=> 8))
     PyPlot.plt.ylabel("N")
-    PyPlot.plt.xlabel("Parallax")
+    PyPlot.plt.xlabel("Parallax (mas)")
     PyPlot.plt.grid(true)
 
     axt= PyPlot.plt.subplot(3, 3, 5)
