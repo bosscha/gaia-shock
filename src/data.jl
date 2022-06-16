@@ -500,7 +500,7 @@ function get_data(m::GaiaClustering.meta)
         zoff= false
     end
 
-    data       = read_votable(m.votname)
+    data       = read_votable(m.votdir*"/"*m.votname)
     df         = filter_data(data, [m.mindist, m.maxdist],zpt=zoff)
     dfcart     = add_cartesian(df)
     blck       = [[1,2,3],[4,5], [6,7,8]]
@@ -508,7 +508,6 @@ function get_data(m::GaiaClustering.meta)
     norm       = "identity"
 
     dfcartnorm , scale8 = normalization_PerBlock(dfcart, blck, wghtblck , norm, false)
-
 
     return(df, dfcart , dfcartnorm)
 end

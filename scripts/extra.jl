@@ -72,7 +72,7 @@ function parse_commandline()
 end
 ##
 ## get the data. The weightings are fake. Should be applied later
-##
+## DEPRECATED
 function getdata(m::GaiaClustering.meta)
     println("## Distance cut : $(m.mindist) $(m.maxdist) pc")
 
@@ -98,7 +98,7 @@ end
 ##
 ## Main function
 ##
-function main(m::GaiaClustering.meta, optim)
+function extra(m::GaiaClustering.meta, optim)
     tstart= now()
     rng = MersenneTwister()
     uuid=uuid4(rng)
@@ -109,7 +109,7 @@ function main(m::GaiaClustering.meta, optim)
     println("## Starting at $tstart")
     println("## Id $uuid")
 
-    df , dfcart , dfcartnorm = getdata(m)
+    df , dfcart , dfcartnorm = get_data(m)
 
     cycle, flag= cycle_extraction_optim(df, dfcart, m, optim)
 
@@ -183,5 +183,5 @@ let
     if wvel != nothing m.wvel= wvel end
     if whrd != nothing m.whrd= whrd end
 
-    main(m, isoptimize)
+    extra(m, isoptimize)
 end
