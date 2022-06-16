@@ -23,7 +23,7 @@ using PyCall , PyPlot
 using VoronoiCells
 import GeometryBasics as gb
 
-VERSION= "1.6.1-dev"
+VERSION= "1.6.1"
 
 ## include all the types
 include("types.jl")
@@ -68,7 +68,7 @@ export isnotnan , read_blacklist , convertStruct2Df , specialstr , bold , yellow
 include("massSegregation.jl")
 export mst_graph, lambda_mst, sample_size, kappa_ms, select_massivestars, get_kappaMS ,
   get_Q
-  
+
  ## Spatial structure parameters
 include("spatialStructure.jl")
 export spatialParameter, density2D , density3D , locdens2d , locdens3d, model_rad, fdens1
