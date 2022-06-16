@@ -23,7 +23,7 @@ using PyCall , PyPlot
 using VoronoiCells
 import GeometryBasics as gb
 
-VERSION= "1.6.0"
+VERSION= "1.6.1"
 
 ## include all the types
 include("types.jl")
@@ -53,7 +53,9 @@ check_qminqstar_full2, create_DFchain, extraction_mcmc
 
 ## plotting functions
 include("plots.jl")
-export show_text , plot_dbscan_mcmc , plot_cluster , plot_dbscanfull_mcmc , plot_cluster2 , plot_rawdata
+export show_text , plot_dbscan_mcmc , plot_cluster , plot_dbscanfull_mcmc , plot_cluster2 ,
+plot_rawdata, plot_astrom
+
 ## imaging functions
 include("imaging.jl")
 export atrous , addWav , thresholdingWav , noiseWav

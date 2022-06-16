@@ -33,6 +33,9 @@ function parse_commandline()
         "--pca", "-p"
             help = "Add Principal Component coordinates in oc file and save PC vectors"
             action = :store_true
+        "--zpt", "-z"
+            help = "Apply Zero Point offset correction (Lindengren 2020)"
+            action = :store_true
         "--maxdist" , "-d"
             help = "maximum distance for stars in pc"
             arg_type = Float64
@@ -69,12 +72,19 @@ function parse_commandline()
 end
 ##
 ## get the data. The weightings are fake. Should be applied later
-##
+## DEPRECATED
 function getdata(m::GaiaClustering.meta)
     println("## Distance cut : $(m.mindist) $(m.maxdist) pc")
 
+    if m.zpt=="yes"
+        zoff= true
+        println("## Will apply Zero Point offset correction on parallax...")
+    else
+        zoff= false
+    end
+
     data       = read_votable(m.votdir*"/"*m.votname)
-    df         = filter_data(data, [m.mindist, m.maxdist])
+    df         = filter_data(data, [m.mindist, m.maxdist], zpt=zoff)
     dfcart     = add_cartesian(df)
     blck       = [[1,2,3],[4,5], [6,7,8]]
     wghtblck   = [4.0,5.0,1.0]
@@ -88,7 +98,7 @@ end
 ##
 ## Main function
 ##
-function main(m::GaiaClustering.meta, optim)
+function extra(m::GaiaClustering.meta, optim)
     tstart= now()
     rng = MersenneTwister()
     uuid=uuid4(rng)
@@ -99,7 +109,7 @@ function main(m::GaiaClustering.meta, optim)
     println("## Starting at $tstart")
     println("## Id $uuid")
 
-    df , dfcart , dfcartnorm = getdata(m)
+    df , dfcart , dfcartnorm = get_data(m)
 
     cycle, flag= cycle_extraction_optim(df, dfcart, m, optim)
 
@@ -134,15 +144,17 @@ let
 
     if parsed_args["o"] opt="yes" else opt= "no" end
     if parsed_args["pca"] pca="yes" else pca= "no" end
+    if parsed_args["zpt"] zpt="yes" else zpt= "no" end
 
     ############
     header_extract()
 
     if metafile != nothing
         m= read_params(metafile, false)
+
         opt= m.optim
         pca= m.pca
-
+        zpt= m.zpt
         if votable == nothing votable= m.votname end
     else
         println("## The default options are used.")
@@ -152,6 +164,7 @@ let
     m.optim= opt
     m.votname= votable
     m.pca= pca
+    m.zpt= zpt
 
     if m.optim == "yes"
         isoptimize= true
@@ -170,5 +183,5 @@ let
     if wvel != nothing m.wvel= wvel end
     if whrd != nothing m.whrd= whrd end
 
-    main(m, isoptimize)
+    extra(m, isoptimize)
 end

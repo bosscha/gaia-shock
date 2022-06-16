@@ -431,7 +431,7 @@ function get_properties_SC2(indx, df::GaiaClustering.Df, dfcart::GaiaClustering.
 
     sc = SCproperties2()
     sc.nstars= nstars
-    sc.distance= distance
+    sc.distance= 1000. / parallax
     sc.ra= ra
     sc.dec= dec
     sc.l= l
@@ -961,6 +961,9 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
                 jump= 50  # how many stars to jump in the plot
                 plot_rawdata(m.plotdir, "$votname.$cycle", labels[labelmax], scproperties,
                     dfcart , pc, jump, false, extraplot)
+
+                plot_astrom(m.plotdir, "$votname.$cycle", labels[labelmax], scproperties,
+                    df , false, extraplot)
 
                 println("###")
                 println("### subtracting BEST solution from Df...")

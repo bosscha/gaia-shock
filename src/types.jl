@@ -172,6 +172,7 @@ mutable struct meta
 
     optim::String
     pca::String
+    zpt::String
     w3d::Float64
     wvel::Float64
     whrd::Float64

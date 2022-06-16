@@ -20,6 +20,9 @@ function parse_commandline()
         "--resolv", "-r"
             help = "To resolv the field name on the sky"
             action = :store_true
+        "--rect"
+            help = "Rectangular query around field center (default conesearch)"
+            action = :store_true
         "--rad"
             help = "Radius on sky in degrees."
             arg_type = Float64
@@ -46,12 +49,18 @@ function parse_commandline()
     return parse_args(s)
 end
 ## query the gaia data and save then
-function get_gaia_data(radius, tol, ra, dec, name, table= "gaiaedr3.gaia_source")
+function get_gaia_data(radius, tol, ra, dec, name, rect, table= "gaiadr3.gaia_source")
 
-    adql= @sprintf("SELECT * FROM %s WHERE CONTAINS(POINT('ICRS',%s.ra, %s.dec),
+    if rect
+        adql= @sprintf("SELECT * FROM %s WHERE %s.ra BETWEEN %f AND %f AND
+%s.dec BETWEEN %f AND %f AND abs(pmra_error/pmra)<  %3.3f AND abs(pmdec_error/pmdec)< %3.3f
+    AND abs(parallax_error/parallax)< %3.3f;", table, table, ra-radius, ra+radius, table,dec-radius,
+    dec+radius,tol, tol, tol )
+    else
+        adql= @sprintf("SELECT * FROM %s WHERE CONTAINS(POINT('ICRS',%s.ra, %s.dec),
     CIRCLE('ICRS',%f, %f, %f)) = 1  AND abs(pmra_error/pmra)<  %3.3f AND abs(pmdec_error/pmdec)< %3.3f
     AND abs(parallax_error/parallax)< %3.3f;", table, table, table, ra, dec, radius, tol, tol, tol )
-
+    end
 
     println("## Downloading data...")
     println(adql)
@@ -79,6 +88,7 @@ let
     rad= args["rad"]
     tol= args[ "tol"]
     resolv= args[ "resolv"]
+    rect= args[ "rect"]
 
     iscoord= false
     if l != nothing && b != nothing
@@ -99,7 +109,7 @@ let
     end
 
     if iscoord
-        get_gaia_data(rad, tol, longi, lati, fname)
+        get_gaia_data(rad, tol, longi, lati, fname, rect)
     else
         println("No coordinates defined...")
     end
