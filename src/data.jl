@@ -114,7 +114,7 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250],
         vb[i]  = 4.74e-3 * pmb[i]  * distance[i]
 
         #fix for EDR3
-        radialvel[i]    = convert(Float64, get(gaia,i-1).dr2_radial_velocity)
+        radialvel[i]    = convert(Float64, get(gaia,i-1).radial_velocity)
 
         ### errors.
         parallax_error[i]  = convert(Float64, get(gaia,i-1).parallax_error)
