@@ -33,7 +33,7 @@ function set_default_params()::meta
     def.eps             = 2.1               ## epsilon DBSCAN
     def.mcl             = 18                ## min_cluster DBSCAN
     def.mnei            = 7                 ## min_neighbor DBSCAN
-    def.maxdist         = 2100.0            ## maximum distance to filter stars in pc
+    def.maxdist         = 1e9               ## maximum distance to filter stars in pc
     def.mindist         = 0.0               ## minimum distance to filter stars in pc
 
     ## MCMC
