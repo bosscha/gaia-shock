@@ -23,7 +23,7 @@ using PyCall , PyPlot
 using VoronoiCells
 import GeometryBasics as gb
 
-VERSION= "1.6.2-dev"
+VERSION= "1.6.2-dev-1"
 
 ## include all the types
 include("types.jl")
