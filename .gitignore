@@ -60,3 +60,4 @@ venv.bak/
 /site
 .mypy_cache/
 .pydevproject
+.vscode/
