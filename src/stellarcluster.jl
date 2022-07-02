@@ -940,12 +940,15 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
 
                 push!(sclist, scdf)
 
+                distance_lab= median(dg)
+
                 println("###")
                 println("### solution label: $labelmax")
                 print("### "); println(red(@sprintf("PC1: %3.1f , PC2: %3.1f , PC3: %3.1f", pcres[1], pcres[2], pcres[3])))
                 println("### Offdeg: $(scproperties.offdeg)")
                 println("### Edge ratio: $(scproperties.edgratm)")
                 println("### N stars: $nmax")
+                println("### Distance: $distance_lab pc")
                 println("### Qc: $qc")
                 println("###")
 
