@@ -2,6 +2,8 @@
 ## optimization of the DBSCAN parameters.
 ##
 
+# module to use extra in another script
+module GaiaExtra
 
 using DataFrames, Query
 using CSV, Glob, Dates
@@ -12,6 +14,8 @@ rootdir =  ENV["GAIA_ROOT"]
 
 push!(LOAD_PATH,"$rootdir/run/src")
 using GaiaClustering
+
+export extra
 
 
 ##
@@ -69,31 +73,6 @@ function parse_commandline()
     end
 
     return parse_args(s)
-end
-##
-## get the data. The weightings are fake. Should be applied later
-## DEPRECATED
-function getdata(m::GaiaClustering.meta)
-    println("## Distance cut : $(m.mindist) $(m.maxdist) pc")
-
-    if m.zpt=="yes"
-        zoff= true
-        println("## Will apply Zero Point offset correction on parallax...")
-    else
-        zoff= false
-    end
-
-    data       = read_votable(m.votdir*"/"*m.votname)
-    df         = filter_data(data, [m.mindist, m.maxdist], zpt=zoff)
-    dfcart     = add_cartesian(df)
-    blck       = [[1,2,3],[4,5], [6,7,8]]
-    wghtblck   = [4.0,5.0,1.0]
-    norm       = "identity"
-
-    dfcartnorm , scale8 = normalization_PerBlock(dfcart, blck, wghtblck , norm, false)
-
-
-    return(df, dfcart , dfcartnorm)
 end
 ##
 ## Main function
@@ -184,4 +163,7 @@ let
     if whrd != nothing m.whrd= whrd end
 
     extra(m, isoptimize)
+end
+
+
 end
