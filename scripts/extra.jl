@@ -2,9 +2,6 @@
 ## optimization of the DBSCAN parameters.
 ##
 
-# module to use extra in another script
-module GaiaExtra
-
 using DataFrames, Query
 using CSV, Glob, Dates
 using Statistics, Random, UUIDs
@@ -14,9 +11,6 @@ rootdir =  ENV["GAIA_ROOT"]
 
 push!(LOAD_PATH,"$rootdir/run/src")
 using GaiaClustering
-
-export extra
-
 
 ##
 ## parse extra options/flags
@@ -77,7 +71,8 @@ end
 ##
 ## Main function
 ##
-function extra(m::GaiaClustering.meta, optim)
+### DEPRECATED
+function _extra(m::GaiaClustering.meta, optim)
     tstart= now()
     rng = MersenneTwister()
     uuid=uuid4(rng)
@@ -163,7 +158,4 @@ let
     if whrd != nothing m.whrd= whrd end
 
     extra(m, isoptimize)
-end
-
-
 end

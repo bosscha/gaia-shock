@@ -81,6 +81,10 @@ export zagreb_first, zagreb_second
 include("metadata.jl")
 export set_default_params , read_params , set_param!
 
+## functions to be used in the build script mainly
+include("_build.jl")
+export extra
+
 ## deprecated functions
 include("deprecated.jl")
 export abc_mcmc_dbscan_full , check_qminqstar_full , find_clusters

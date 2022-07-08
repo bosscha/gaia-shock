@@ -2,13 +2,22 @@
 ## fields
 ##
 
+using DataFrames , TOML , ArgParse
+
 rootdir =  ENV["GAIA_ROOT"]
 
 push!(LOAD_PATH,"$rootdir/run/src")
 using GaiaClustering
 
-push!(LOAD_PATH,"$rootdir/run/scripts")
-using extra
+#################################### MAIN 
+let
+    println(ARGS)
+    println("####################")
+    println("### testing build...")
 
-println("### testing build...")
-extra(0,false)
+    metabuild = TOML.parsefile(ARGS[1])
+
+    println(metabuild)
+
+    extra(0,false)
+end

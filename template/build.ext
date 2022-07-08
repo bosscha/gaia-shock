@@ -1,0 +1,29 @@
+## example of build parameter files
+## TOML syntax
+
+
+## General settings
+
+mode = "reprocess"              # build mode: reprocess|list|random
+
+optimization = "yes             # optimization or not needed. Acordingly information is provided.
+
+getvot = "yes"                  # download the votable
+keepvot = "no"                  # keep or not the votable
+
+releasename = "RC1"             # label for the new release objects
+
+catalogname = "catalog.csv"     # catalog filename with the needed fields
+
+wdir = "./"                     # working directory
+
+# votdir = "pathtovotdirectory"  # optional
+
+
+## reprocess settings
+
+optsol = "ocres-mcmc.csv"        # optimization solutions to be applied with the necessary fields
+
+edgerecoverylevel = 0            # for edge solution (edgratm > 0.95) the candidates can be reanalyzed after targeting the center (level 0: nothing, 1: once, 2: down to 2 leveles, etc)
+
+extrafile = "repro.ext"           # setting file for the extraction with extra settings(optim do no apply)
