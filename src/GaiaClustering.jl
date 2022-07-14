@@ -62,7 +62,7 @@ export atrous , addWav , thresholdingWav , noiseWav
 
 ## utils methods
 include("utils.jl")
-export isnotnan , read_blacklist , convertStruct2Df , specialstr , bold , yellow, purple, cyan, red,  header_extract
+export isnotnan , read_blacklist , convertStruct2Df , specialstr , bold , yellow, purple, cyan, red, blue, header_extract, debug_red
 
 ## Mass segregation and stellar clustering
 include("massSegregation.jl")
@@ -83,7 +83,7 @@ export set_default_params , read_params , set_param!
 
 ## functions to be used in the build script mainly
 include("_build.jl")
-export extra
+export extra , get_gaia_data
 
 ## deprecated functions
 include("deprecated.jl")

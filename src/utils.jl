@@ -73,3 +73,7 @@ function header_extract()
     println("# Version: $VERSION  (https://github.com/bosscha/gaia-shock)")
     println("#\n#")
 end
+
+function debug_red(msg)
+    println(red("########## $msg"))
+end

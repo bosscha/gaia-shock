@@ -6,7 +6,7 @@
 
 mode = "reprocess"              # build mode: reprocess|list|random
 
-optimization = "yes             # optimization or not needed. Acordingly information is provided.
+optimization = "yes"            # optimization or not needed. Acordingly information is provided.
 
 getvot = "yes"                  # download the votable
 keepvot = "no"                  # keep or not the votable
