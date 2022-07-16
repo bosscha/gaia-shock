@@ -912,12 +912,19 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
                 scproperties = get_properties_SC2(labels[labelmax] , df, dfcart)
                 scdf= convertStruct2Df(scproperties)
                 insertcols!(scdf, 1, :votname => votname)
-                # s=size(scdf)
                 insertcols!(scdf, 2, :uuid => string(m.uuid))
                 insertcols!(scdf, 3, :cycle => cycle)
                 insertcols!(scdf, 4, :pc3 => pcres[3])
                 insertcols!(scdf, 4, :pc2 => pcres[2])
                 insertcols!(scdf, 4, :pc1 => pcres[1])
+
+                ## add solution used for DBSCAN and weighting
+                insertcols!(scdf, 30, :whrd => whrd)
+                insertcols!(scdf, 30, :wvel => wvel)
+                insertcols!(scdf, 30, :w3d => w3d)
+                insertcols!(scdf, 30, :mnei => min_nei)
+                insertcols!(scdf, 30, :mcl => min_cl)
+                insertcols!(scdf, 30, :eps => eps)
 
                 ## Xg, Yg, Zg median Galactic position
                 dg = df.data[3,labels[labelmax]]

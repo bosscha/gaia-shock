@@ -83,7 +83,7 @@ export set_default_params , read_params , set_param!
 
 ## functions to be used in the build script mainly
 include("_build.jl")
-export extra , get_gaia_data
+export extra , get_gaia_data , get_gaia_data_many
 
 ## deprecated functions
 include("deprecated.jl")
