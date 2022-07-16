@@ -3,7 +3,7 @@
 ##
 
 using DataFrames , CSV, TOML , ArgParse
-using Dates, Printf
+using Dates, Printf, PyCall
 
 rootdir =  ENV["GAIA_ROOT"]
 
@@ -22,7 +22,7 @@ function reprocess(meta)
     mextra= read_params(mrepro["extrafile"], false)
 
     cd(mgene["wdir"])
-    progressfile= "done.csv"            #progress file 
+    progressfile= "_    done.csv"            #progress file 
     mextra.rootdir= "./"
     mextra.wdir= "./"
     mextra.plotdir= "./plotSelect"
@@ -44,6 +44,8 @@ function reprocess(meta)
         println(mrepro["optsol"])
         dfoptsol= CSV.File(mrepro["optsol"], delim=",") |> DataFrame
         # println(dfoptsol)
+        
+        gaia= pyimport("astroquery.gaia")
 
         for row in eachrow(dfoptsol)
             if mgene["getvot"] == "yes"
@@ -60,7 +62,8 @@ function reprocess(meta)
                 if votname in dfp.votname
                     println("## $votname skipped..")
                 else
-                    mextra.votname= get_gaia_data(radius, tol, ra, dec, name , rect)
+
+                    mextra.votname= get_gaia_data_many(gaia, radius, tol, ra, dec, name , rect)
 
                     mextra.w3d= row.w3dm
                     mextra.wvel= row.wvelm
