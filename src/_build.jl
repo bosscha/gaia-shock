@@ -81,3 +81,26 @@ function get_gaia_data_many(gaia, radius, tol, ra, dec, name, rect, table= "gaia
     
     return(filedst)
 end
+
+###########
+### create random field positions
+### mode:uniform|galactic   if galactic needs to set b scale (hb)
+###
+function get_random_field(mode="uniform", hb=0)
+    if mode=="uniform"
+        ra= rand(Float64)*360.
+        dec= rand(Float64)*180 - 90.
+    elseif mode=="galactic"
+        coord= pyimport("astropy.coordinates")
+        l= rand(Float64)*360 -180
+        b= hb*randexp()
+        if rand() < 0.5 b= -b end
+        println("### Random field: l:$l b:$b ")
+        radec= coord.SkyCoord(l,b, unit="deg", frame="galactic").icrs
+        ra= radec.ra[1] ; dec= radec.dec[1]
+    else
+        println("## Warning! Random field mode not found")
+        return(0,0)
+    end
+    return(ra,dec)
+end

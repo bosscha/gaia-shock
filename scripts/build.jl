@@ -10,7 +10,7 @@ rootdir =  ENV["GAIA_ROOT"]
 push!(LOAD_PATH,"$rootdir/run/src")
 using GaiaClustering
 
-######################### functions...
+#########################  reprocess function
 function reprocess(meta)
 
     tstart= now()
@@ -22,7 +22,7 @@ function reprocess(meta)
     mextra= read_params(mrepro["extrafile"], false)
 
     cd(mgene["wdir"])
-    progressfile= "_    done.csv"            #progress file 
+    progressfile= "_done.csv"            #progress file 
     mextra.rootdir= "./"
     mextra.wdir= "./"
     mextra.plotdir= "./plotSelect"
@@ -83,10 +83,85 @@ function reprocess(meta)
                 end
             end
         end
-
-
     end
+    rm(progressfile)
 end
+
+#########################  randomfields function
+function randomfields(meta)
+
+    tstart= now()
+    println(blue("## Processing random fields ..."))
+    println(blue("## Starting at $tstart"))
+
+    mrandom= meta["random"]
+    mgene= meta["general"]
+    mextra= read_params(mrandom["extrafile"], false)
+
+    cd(mgene["wdir"])
+    progressfile= "_done.csv"            #progress file 
+    mextra.rootdir= "./"
+    mextra.wdir= "./"
+    mextra.plotdir= "./plotSelect"
+    mextra.ocdir= "./oc"
+
+    println(mrandom)
+    println(mgene)
+
+    if isfile(progressfile)              
+        dfp=  CSV.File(progressfile, delim=",") |> DataFrame 
+    else
+        dfp= DataFrame(votname= String[])
+    end
+
+    ndone= size(dfp)[1]
+    nfields= mrandom["fields"]
+    radius= mrandom["radius"]
+    tol= mrandom["tol"]
+    mode= mrandom["mode"]
+    
+    if mode == "galactic"
+        bscale= mrandom["bscale"]
+    else
+        bscale= -1
+    end
+    rect= false   # conesearch
+
+    if ndone < nfields
+        notfinished= true
+    else
+        notfinished= false
+    end
+
+    gaia= pyimport("astroquery.gaia")
+
+    while notfinished
+        if mextra.optim == "yes"
+            optim= true
+            ra, dec = get_random_field(mode, bscale)
+            name= @sprintf("RA%.3fDec%.3f",ra,dec)
+            debug_red(name)
+
+            mextra.votname= get_gaia_data_many(gaia, radius, tol, ra, dec, name , rect)
+            extra(mextra, optim)
+
+            push!(dfp, [mextra.votname])
+            CSV.write(progressfile, dfp, delim=";")
+            if mgene["rmvot"] == "yes"
+                rm(mextra.votname)
+                println("## votable $(mextra.votname) removed")
+            end
+
+            ndone += 1
+            println("## $ndone random fields processed...")
+            if ndone > nfields
+                notfinished= false
+            end
+        end
+    end
+    rm(progressfile)
+end
+
 #################################### MAIN 
 let
     println(ARGS)
@@ -104,6 +179,10 @@ let
         if k == "reprocess" 
             reprocess(metabuild)
         end
+
+        if k == "random" 
+            randomfields(metabuild)
+        end       
     end
 
     

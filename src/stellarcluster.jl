@@ -1161,6 +1161,10 @@ end
 function compute_PC(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, labels, labelmax)
         print("### Computing principal components... \n")
         s=size(labels[labelmax])
+        if s[1] == 0 
+            print("### No solutions found, PCA not performed")
+            return([0],[0,0,0])
+        end
         data= zeros(8,s[1])
 
         X= dfcart.data[1, labels[labelmax]]
