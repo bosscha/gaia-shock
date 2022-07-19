@@ -937,6 +937,11 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
                 end
                 Xgm= median(xg) ; Ygm= median(yg); Zgm= median(zg)
 
+                ## add Galactic positions into SC
+                insertcols!(scdf, 17, :Zg => Zgm)
+                insertcols!(scdf, 17, :Yg => Ygm)
+                insertcols!(scdf, 17, :Xg => Xgm)
+                
                 if optim
                     insertcols!(res, 2,  :cycle => cycle)
                     push!(mcmclist, res)

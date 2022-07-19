@@ -75,5 +75,5 @@ function header_extract()
 end
 
 function debug_red(msg)
-    println(red("########## $msg"))
+    println(red("##_debug_###### $msg"))
 end
