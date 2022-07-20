@@ -865,7 +865,7 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
                 if length(labels) == 0
                     FLAGmcmc= 0   ## to force stop even w/o optimization
                     nchain= 0
-                    println("### no solution from DBSCAN...")
+                    println("### no solution with DBSCAN...")
                 else
                     FLAGmcmc= -1
                     nchain=  m.minchainreached+1

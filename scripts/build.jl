@@ -140,29 +140,27 @@ function randomfields(meta)
     elseif mextra.optim == "no"
         optim= false
     end
-    
+
     while notfinished
+        ra, dec = get_random_field(mode, bscale)
+        name= @sprintf("RA%.3fDec%.3f",ra,dec)
+        debug_red(name)
 
-            ra, dec = get_random_field(mode, bscale)
-            name= @sprintf("RA%.3fDec%.3f",ra,dec)
-            debug_red(name)
+        mextra.votname= get_gaia_data_many(gaia, radius, tol, ra, dec, name , rect)
+        extra(mextra, optim)
 
-            mextra.votname= get_gaia_data_many(gaia, radius, tol, ra, dec, name , rect)
-            extra(mextra, optim)
+        push!(dfp, [mextra.votname])
+        CSV.write(progressfile, dfp, delim=";")
+        if mgene["rmvot"] == "yes"
+            rm(mextra.votname)
+            println("## votable $(mextra.votname) removed")
+        end
 
-            push!(dfp, [mextra.votname])
-            CSV.write(progressfile, dfp, delim=";")
-            if mgene["rmvot"] == "yes"
-                rm(mextra.votname)
-                println("## votable $(mextra.votname) removed")
-            end
-
-            ndone += 1
-            println("## $ndone random fields processed...")
-            if ndone > nfields
-                notfinished= false
-            end
-        
+        ndone += 1
+        println("## $ndone random fields processed...")
+        if ndone > nfields
+            notfinished= false
+        end    
     end
     rm(progressfile)
 end
