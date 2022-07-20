@@ -941,6 +941,13 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
                 insertcols!(scdf, 18, :Zg => Zgm)
                 insertcols!(scdf, 18, :Yg => Ygm)
                 insertcols!(scdf, 18, :Xg => Xgm)
+
+                ## Galactic UVW velocities
+                uvw= galUVW(scdf.ra[1], scdf.dec[1], scdf.distance[1], scdf.pmra[1], scdf.pmdec[1], scdf.vrad[1])
+                insertcols!(scdf, 21, :W => uvw[3])
+                insertcols!(scdf, 21, :V => uvw[2])
+                insertcols!(scdf, 21, :U => uvw[1])
+
                 
                 if optim
                     insertcols!(res, 2,  :cycle => cycle)

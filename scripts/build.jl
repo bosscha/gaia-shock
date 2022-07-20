@@ -135,9 +135,14 @@ function randomfields(meta)
 
     gaia= pyimport("astroquery.gaia")
 
+    if mextra.optim == "yes"
+        optim= true
+    elseif mextra.optim == "no"
+        optim= false
+    end
+    
     while notfinished
-        if mextra.optim == "yes"
-            optim= true
+
             ra, dec = get_random_field(mode, bscale)
             name= @sprintf("RA%.3fDec%.3f",ra,dec)
             debug_red(name)
@@ -157,7 +162,7 @@ function randomfields(meta)
             if ndone > nfields
                 notfinished= false
             end
-        end
+        
     end
     rm(progressfile)
 end
