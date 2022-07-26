@@ -89,7 +89,6 @@ end
 
 #########################  randomfields function
 function randomfields(meta)
-
     tstart= now()
     println(blue("## Processing random fields ..."))
     println(blue("## Starting at $tstart"))
@@ -165,7 +164,86 @@ function randomfields(meta)
     rm(progressfile)
 end
 
-#################################### MAIN 
+#########################  gridding function
+function gridding(meta)
+
+    tstart= now()
+    println(blue("## Processing gridding fields ..."))
+    println(blue("## Starting at $tstart"))
+
+    mgrid= meta["gridding"]
+    mgene= meta["general"]
+    mextra= read_params(mgrid["extrafile"], false)
+
+    cd(mgene["wdir"])
+    progressfile= "_done.csv"            #progress file 
+    mextra.rootdir= "./"
+    mextra.wdir= "./"
+    mextra.plotdir= "./plotSelect"
+    mextra.ocdir= "./oc"
+
+    println(mgrid)
+    println(mgene)
+
+    if isfile(progressfile)              
+        dfp=  CSV.File(progressfile, delim=",") |> DataFrame 
+    else
+        dfp= DataFrame(votname= String[])
+    end
+
+    gaia= pyimport("astroquery.gaia")
+
+    radius= mgrid["radius"]
+    tol= mgrid["tol"]
+    ref= mgrid["ref"]
+    rect= false   # conesearch
+
+    if ref == "galactic"
+        xiter= mgrid["lgal_grid"]
+        yiter= mgrid["bgal_grid"]
+    elseif ref == "equatorial"
+        xiter= mgrid["ra_grid"]
+        yiter= mgrid["dec_grid"]  
+    end
+    
+    if mextra.optim == "yes"
+        optim= true
+    elseif mextra.optim == "no"
+        optim= false
+    end
+    
+    debug_red(xiter)
+
+    for xx in xiter[1]:xiter[3]:xiter[2]
+        for yy in yiter[1]:yiter[3]:yiter[2]
+            debug_red(xx)
+            if ref == "galactic"
+                ra, dec= galactic2equatorial(xx,yy)
+            elseif ref == "equatorial"
+                ra= xx ; dec= yy
+            end
+
+            name= @sprintf("RA%.3fDec%.3f",ra,dec)
+            votname= @sprintf("%s-%2.1fdeg.vot",name, radius)
+            debug_red(votname)
+
+            if name in dfp.votname 
+                println("## $name done...")
+            else
+                mextra.votname= get_gaia_data_many(gaia, radius, tol, ra, dec, name , rect)
+                extra(mextra, optim)
+    
+                push!(dfp, [mextra.votname])
+                CSV.write(progressfile, dfp, delim=";")
+                if mgene["rmvot"] == "yes"
+                    rm(mextra.votname)
+                    println("## votable $(mextra.votname) removed")
+                end
+            end
+        end
+    end
+end
+#################################### MAIN ########################
 let
     println(ARGS)
     println("####################")
@@ -181,10 +259,10 @@ let
 
         if k == "reprocess" 
             reprocess(metabuild)
-        end
-
-        if k == "random" 
+        elseif k == "random" 
             randomfields(metabuild)
+        elseif k== "gridding"
+            gridding(metabuild)
         end       
     end
 

@@ -104,3 +104,10 @@ function get_random_field(mode="uniform", hb=0)
     end
     return(ra,dec)
 end
+##############
+function galactic2equatorial(l,b)
+    coord= pyimport("astropy.coordinates")
+    radec= coord.SkyCoord(l,b, unit="deg", frame="galactic").icrs
+    ra= radec.ra[1] ; dec= radec.dec[1]
+    return(ra,dec)
+end

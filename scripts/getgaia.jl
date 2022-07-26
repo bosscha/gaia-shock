@@ -42,8 +42,7 @@ function parse_commandline()
             arg_type = Float64
         "--dec"
             help = "Declination in degrees"
-            arg_type = Float64
-
+            arg_type = Float64      
     end
 
     return parse_args(s)
