@@ -865,7 +865,7 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
                 if length(labels) == 0
                     FLAGmcmc= 0   ## to force stop even w/o optimization
                     nchain= 0
-                    println("### no solution from DBSCAN...")
+                    println("### no solution with DBSCAN...")
                 else
                     FLAGmcmc= -1
                     nchain=  m.minchainreached+1
@@ -912,12 +912,19 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
                 scproperties = get_properties_SC2(labels[labelmax] , df, dfcart)
                 scdf= convertStruct2Df(scproperties)
                 insertcols!(scdf, 1, :votname => votname)
-                # s=size(scdf)
                 insertcols!(scdf, 2, :uuid => string(m.uuid))
                 insertcols!(scdf, 3, :cycle => cycle)
                 insertcols!(scdf, 4, :pc3 => pcres[3])
                 insertcols!(scdf, 4, :pc2 => pcres[2])
                 insertcols!(scdf, 4, :pc1 => pcres[1])
+
+                ## add solution used for DBSCAN and weighting
+                insertcols!(scdf, 30, :whrd => whrd)
+                insertcols!(scdf, 30, :wvel => wvel)
+                insertcols!(scdf, 30, :w3d => w3d)
+                insertcols!(scdf, 30, :mnei => min_nei)
+                insertcols!(scdf, 30, :mcl => min_cl)
+                insertcols!(scdf, 30, :eps => eps)
 
                 ## Xg, Yg, Zg median Galactic position
                 dg = df.data[3,labels[labelmax]]
@@ -930,6 +937,18 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
                 end
                 Xgm= median(xg) ; Ygm= median(yg); Zgm= median(zg)
 
+                ## add Galactic positions into SC
+                insertcols!(scdf, 18, :Zg => Zgm)
+                insertcols!(scdf, 18, :Yg => Ygm)
+                insertcols!(scdf, 18, :Xg => Xgm)
+
+                ## Galactic UVW velocities
+                uvw= galUVW(scdf.ra[1], scdf.dec[1], scdf.distance[1], scdf.pmra[1], scdf.pmdec[1], scdf.vrad[1])
+                insertcols!(scdf, 21, :W => uvw[3])
+                insertcols!(scdf, 21, :V => uvw[2])
+                insertcols!(scdf, 21, :U => uvw[1])
+
+                
                 if optim
                     insertcols!(res, 2,  :cycle => cycle)
                     push!(mcmclist, res)
@@ -940,12 +959,15 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
 
                 push!(sclist, scdf)
 
+                distance_lab= median(dg)
+
                 println("###")
                 println("### solution label: $labelmax")
                 print("### "); println(red(@sprintf("PC1: %3.1f , PC2: %3.1f , PC3: %3.1f", pcres[1], pcres[2], pcres[3])))
                 println("### Offdeg: $(scproperties.offdeg)")
                 println("### Edge ratio: $(scproperties.edgratm)")
                 println("### N stars: $nmax")
+                println("### Distance: $distance_lab pc")
                 println("### Qc: $qc")
                 println("###")
 
@@ -1151,6 +1173,10 @@ end
 function compute_PC(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, labels, labelmax)
         print("### Computing principal components... \n")
         s=size(labels[labelmax])
+        if s[1] == 0 
+            print("### No solutions found, PCA not performed")
+            return([0],[0,0,0])
+        end
         data= zeros(8,s[1])
 
         X= dfcart.data[1, labels[labelmax]]

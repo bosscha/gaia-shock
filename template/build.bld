@@ -1,0 +1,44 @@
+## example of build parameter files
+## TOML syntax
+
+
+## General settings
+[general]
+optimization = "yes"            # optimization or not needed. Acordingly information is provided.
+getvot = "yes"                  # download the votable
+rmvot = "yes"                   # remov or not the votable
+catalog = "catalog.csv"         # catalog filename with the needed fields
+
+wdir = "./test"                     # working directory
+# votdir = "pathtovotdirectory"  # optional
+
+
+## reprocess settings
+[reprocess]
+optsol = "optsol-tot.csv"        # optimization solutions to be applied with the necessary fields
+extrafile = "reprocess.ext"          # setting file for extra
+radius = 2.0
+tol = 0.2
+
+## merge settings for the catalog
+[merge]
+duplicate=  "yes"               # remove duplicated source
+toldist= 1.5                    # maximum separation in pc for the distance of the candidates
+tolsky=  0.2                    # maximum separation in degres for the sky position of the candidates
+
+
+[random]
+fields = 10
+extrafile = "random.ext"
+radius = 2.5
+tol = 0.2
+edgerecoverylevel = 0
+
+
+[gridding]
+fields = 10
+ra_range = [10,20,0.5]
+dec_range = [-30,-10,0.5]
+extrafile = "grid.ext"
+radius = 2.0
+tol = 0.2

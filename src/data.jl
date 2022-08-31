@@ -448,6 +448,14 @@ function export_df(votname, ocdir, df , dfcart, labels , labelmax, pc, m::GaiaCl
 
     source_id= df.sourceid[1,labels[labelmax]]
 
+
+    #####
+    maxy= maximum(Y)
+    maxz= maximum(Z)   
+    debug_red("max Y: $maxy pc")
+    debug_red("max Z: $maxz pc") 
+    #####
+
     # galactocentric coordinates...
     s=size(ra)
     xg= zeros(s[1])

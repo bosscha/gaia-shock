@@ -1,0 +1,15 @@
+## example of build parameter files
+## TOML syntax
+
+
+## General settings
+[general]
+wdir = "./test"                     # working directory
+rmfile =   "yes"                    # remove oc and plot files if removed from the catalog
+
+[merge]
+catalog = "ocres.sc.csv"           # catalog filename with the needed fields
+mode =  "duplicate"                # merging mode: duplicate|simbad|
+toldeg = 0.1                       # tolerance in degrees for position on sky (RA,Dec)
+toldist = 0.5                      # tolerance in parsec for distance
+metric =  "Edgm"                     # metric to choose the oc of the two duplicated: Qn(max stars)|Edgm(minimum edgm if available)

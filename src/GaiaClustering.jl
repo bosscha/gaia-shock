@@ -11,6 +11,7 @@ using DataFrames , Formatting, Printf , Dates ,  DelimitedFiles
 using Clustering
 using Statistics , Distributions ,Random, UUIDs
 using Distances, LightGraphs, SimpleWeightedGraphs
+using Glob
 
 ## For wavelet in imaging
 import Interpolations
@@ -23,7 +24,7 @@ using PyCall , PyPlot
 using VoronoiCells
 import GeometryBasics as gb
 
-VERSION= "1.6.3-dev-t"
+VERSION= "1.6.3-dev"
 
 ## include all the types
 include("types.jl")
@@ -62,7 +63,7 @@ export atrous , addWav , thresholdingWav , noiseWav
 
 ## utils methods
 include("utils.jl")
-export isnotnan , read_blacklist , convertStruct2Df , specialstr , bold , yellow, purple, cyan, red,  header_extract
+export isnotnan , read_blacklist , convertStruct2Df , specialstr , bold , yellow, purple, cyan, red, blue, header_extract, debug_red
 
 ## Mass segregation and stellar clustering
 include("massSegregation.jl")
@@ -80,6 +81,10 @@ export zagreb_first, zagreb_second
 ## metadata methods
 include("metadata.jl")
 export set_default_params , read_params , set_param!
+
+## functions to be used in the build script mainly
+include("_build.jl")
+export extra , get_gaia_data , get_gaia_data_many , get_random_field , galactic2equatorial , rm_duplicated
 
 ## deprecated functions
 include("deprecated.jl")

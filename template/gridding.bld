@@ -1,0 +1,23 @@
+## example of build parameter files
+## TOML syntax
+
+
+## General settings
+[general]
+optimization = "no"             # optimization or not needed. Acordingly information is provided.
+getvot = "yes"                  # download the votable
+rmvot = "yes"                   # remov or not the votable
+catalog = "catalog.csv"         # catalog filename with the needed fields
+
+wdir = "./test"                     # working directory
+# votdir = "pathtovotdirectory"  # optional
+
+[gridding]
+extrafile = "gridding.ext"
+radius = 4.0
+lgal_grid= [150,210,2]            # l range: start , max , step  (degrees)
+bgal_grid= [-10,10,2]             # b range: start , max , step  (degrees)d
+ra_grid= [150,210,2]              # ra range: start , max , step  (degrees)
+dec_grid= [-10,10,2]              # dec range: start , max , step  (degrees)d
+tol = 0.2
+ref=  "galactic"                # reference system  (equatorial|galactic)
