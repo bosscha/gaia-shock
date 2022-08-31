@@ -227,7 +227,7 @@ function gridding(meta)
             votname= @sprintf("%s-%2.1fdeg.vot",name, radius)
             debug_red(votname)
 
-            if name in dfp.votname 
+            if votname in dfp.votname 
                 println("## $name done...")
             else
                 mextra.votname= get_gaia_data_many(gaia, radius, tol, ra, dec, name , rect)
@@ -243,6 +243,38 @@ function gridding(meta)
         end
     end
 end
+#########################  merge function
+function merge(meta)
+
+    tstart= now()
+    println(blue("## Merging catalog ..."))
+    println(blue("## Starting at $tstart"))
+
+    mmerge= meta["merge"]
+    mgene= meta["general"]
+
+    cd(mgene["wdir"])
+
+    catalog= mmerge["catalog"]
+    mergefile= name= @sprintf("%s.merge", catalog)
+    mode= mmerge["mode"]
+    if mgene["rmfile"] == "yes" rmfile= true else rmfile= false end
+
+    debug_red(rmfile)
+    debug_red(mergefile)
+
+    if mode == "duplicate"
+        toldeg= mmerge["toldeg"]
+        toldist= mmerge["toldist"]
+        metric= mmerge["metric"] 
+        
+        dfcat=  CSV.File(catalog, delim=";") |> DataFrame
+
+        dfmerge= rm_duplicated(dfcat, toldeg, toldist, metric, rmfile)
+        CSV.write(mergefile, dfmerge, delim=";")
+        println("## Catalog $mergefile created.")
+    end 
+end
 #################################### MAIN ########################
 let
     println(ARGS)
@@ -251,7 +283,6 @@ let
 
     metabuild = TOML.parsefile(ARGS[1])
     
-
     key = collect(keys(metabuild))
     println(key)
     for k in key
@@ -263,10 +294,10 @@ let
             randomfields(metabuild)
         elseif k== "gridding"
             gridding(metabuild)
+        elseif k== "merge"
+            merge(metabuild)
         end       
     end
 
-    
-    # extra(0,false)
 end
 

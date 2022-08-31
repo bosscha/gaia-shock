@@ -1,0 +1,23 @@
+## example of build parameter files
+## TOML syntax
+
+
+## General settings
+[general]
+optimization = "no"            # optimization or not needed. Acordingly information is provided.
+getvot = "yes"                  # download the votable
+rmvot = "yes"                   # remov or not the votable
+release = "RC-test"             # label for the new release objects
+catalog = "catalog.csv"         # catalog filename with the needed fields
+
+wdir = "./test"                     # working directory
+# votdir = "pathtovotdirectory"  # optional
+
+[random]
+fields = 50
+extrafile = "random.ext"
+radius = 2.0
+tol = 0.2
+mode=  "galactic"               # random field distribution  (uniform|galactic)
+bscale= 10.0                    # b scale for galactic distribution
+

@@ -1,0 +1,62 @@
+## default parameters for extraction (MCMC+DBSCAN)
+##
+
+prefile    = "ocres"                  # prefix for the result files
+
+## extra init for standalone
+##
+optim           = "no"              ## yes|no for weighting/dbscan optimization
+pca             = "yes"             ## yes|no to add accordingly the PC components and PC vector file
+zpt             = "yes"             ## apply Zero point offset correction for parallax (Lindengren 2020)
+
+mindist         = 0.0               ## minimum distance to filter stars in pc
+maxdist         = 100000.0          ## maximum distance to filter stars in pc
+
+### MCMC
+###
+minQc           = 2.6                     ## minimum Qc metric in MCMC
+minQn           = 20                      ## minimum Qn metric in MCMC
+maxQn           = 5000                    ## maximum Qn metric in MCMC
+forcedminstars  = 15                      ## minimum stars forced if not reached
+mingoodsolution = 10                      ## minimum good solution for Q in check_qminqstar
+niterqminq      = 1000                     ## iterions for check_qminqstar  (*30 for the actual numer of iterations)
+
+nburnout        = 500                    ## burn-in iterations
+nchain          = 3000                   ## MCMC chains
+maxiter         = 20000
+
+### Cycle parameters
+###
+cyclemax            = 5         ## maximum of cycless
+minstarstop         = 15        ## condition to stop cycling
+minchainreached     = 100       ## minimum chain to analyze solution
+qcminstop           = 1.0       ## more condition on Qc to stop cycling after the first pass
+wratiominstop       = 0.05       ## minimum ratio btwn w3d and wvel (otherwise not an OC)
+
+
+## prior settings
+##
+epsmean         = 2.5                     ## epsilon mean
+epsdisp         = 1.5                     ## epsilon dispersion
+min_nei         = 10                     ## min_nei mean
+min_cl          = 15                      ## min_cl mean
+ncoredisp       = 10                      ## dispersion for min_nei and min_cl
+w3dmean         = 6.0                     ## 2D/3D weight  mean
+w3ddisp         = 4.0                     ## 2D/3D weight  dispersion
+wvelmean        = 6.0                     ## velocity weight  mean
+wveldisp        = 4.0                     ## velocity weight  dispersion
+whrdmean        = 2.0                     ## CMD weight mean
+whrddisp        = 1.5                     ## CMD weight dispersion
+
+## Metrics Q & find_clusters
+##
+clustermax      = 100                    ## cluster max for find_clusters, otherwise returns 0
+aperture2d      = 1.5
+maxaperture2d   = 15.0
+aperture3d      = 3.0
+maxaperture3d   = 20
+aperturev       = 3.0
+maxaperturev    = 20.0
+nboot           = 50
+
+labels          = "QcQn"                      ## metric method (Qn|Qc|QcQn) for label solutions

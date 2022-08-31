@@ -111,3 +111,74 @@ function galactic2equatorial(l,b)
     ra= radec.ra[1] ; dec= radec.dec[1]
     return(ra,dec)
 end
+################
+## remove duplicated oc from a df
+## 
+## df: catalog DataFrame
+## toldeg: tolerance in degree for the position RA,dec
+## toldist: tolerance in parsec for the distance
+## metric: metric (Qn|Edgm) to choose the oc
+## rmfile: remove permanently the oc and plot files
+##
+function rm_duplicated(df, toldeg, toldist, metric= "Qn", rmfile= false)
+    println("## Removing duplicated stellar clusters...")
+    dfmerge= df
+
+    s= size(dfmerge)
+    ndrop= []
+
+    for i in 1:s[1]
+        for j in i+1:s[1]
+            ra1= dfmerge[i,"ra"]
+            ra2= dfmerge[j,"ra"]
+            dec1= dfmerge[i,"dec"]
+            dec2= dfmerge[j,"dec"]
+            dist1= dfmerge[i,"distance"]
+            dist2= dfmerge[j,"distance"] 
+            
+            if abs(ra1-ra2) < toldeg && abs(dec1-dec2) < toldeg && abs(dist1-dist2) < toldist
+                if metric == "Qn"
+                    n1= dfmerge[i,"nstars"]
+                    n2= dfmerge[j,"nstars"]
+                    if n1 > n2 && j ∉ ndrop
+                        push!(ndrop,j)
+                    elseif i ∉ ndrop
+                        push!(ndrop,i) 
+                    end
+                elseif metric == "Edgm"
+                    edg1= dfmerge[i,"edgratm"]
+                    edg2= dfmerge[j,"edgratm"]
+                    if edg2 > edg1 && j ∉ ndrop
+                        push!(ndrop,j)
+                    elseif i ∉ ndrop
+                        push!(ndrop,i) 
+                    end
+                end
+            end
+        end
+    end
+    sort!(ndrop)
+    debug_red(ndrop)
+   
+    if rmfile
+        for i in ndrop
+            name1= dfmerge[i,"votname"]
+            cycle1= dfmerge[i,"cycle"]
+            
+            wildoc= @sprintf("./oc/%s.%d.*.csv",name1,cycle1)
+            wildplot= @sprintf("./plotSelect/%s.%d.*.png",name1,cycle1)
+
+            rm.(glob(wildoc))            
+            rm.(glob(wildplot))
+        end
+        println("### Files with duplicated solutions removed.")
+    end
+    delete!(dfmerge,ndrop)
+
+    sdrop= size(ndrop)[1]
+    smerge= size(dfmerge)[1]
+    println("### $sdrop duplicated solutions dropped.")
+    println("### $smerge solutions left. ")
+
+    return(dfmerge)
+end

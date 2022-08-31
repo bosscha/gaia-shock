@@ -11,6 +11,7 @@ using DataFrames , Formatting, Printf , Dates ,  DelimitedFiles
 using Clustering
 using Statistics , Distributions ,Random, UUIDs
 using Distances, LightGraphs, SimpleWeightedGraphs
+using Glob
 
 ## For wavelet in imaging
 import Interpolations
@@ -83,7 +84,7 @@ export set_default_params , read_params , set_param!
 
 ## functions to be used in the build script mainly
 include("_build.jl")
-export extra , get_gaia_data , get_gaia_data_many , get_random_field , galactic2equatorial
+export extra , get_gaia_data , get_gaia_data_many , get_random_field , galactic2equatorial , rm_duplicated
 
 ## deprecated functions
 include("deprecated.jl")
