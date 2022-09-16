@@ -281,6 +281,10 @@ function merge(meta)
         toldeg= mmerge["toldeg"]
         toldist= mmerge["toldist"]
         tolndiff= mmerge["tolndiff"]
+
+        dfcat=  CSV.File(catalog, delim=";") |> DataFrame
+
+        dfchunk= get_chunks(dfcat)
     end
 
 end
