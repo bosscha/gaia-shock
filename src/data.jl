@@ -127,7 +127,7 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250],
 
         # extinction
         # fix fo EDR3, extinction not  present
-        ag[i]       = 99.  ##  convert(Float64, get(gaia,i-1).a_g_val)
+        ag[i]       =  convert(Float64, get(gaia,i-1).azero_gspphot)
 
         ## for ZPT correction
         nu_eff_used_in_astrometry[i] = convert(Float64, get(gaia,i-1).nu_eff_used_in_astrometry)
