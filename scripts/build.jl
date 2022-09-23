@@ -258,28 +258,41 @@ function merge(meta)
     catalog= mmerge["catalog"]
     mergefile= name= @sprintf("%s.merge", catalog)
     mode= mmerge["mode"]
-    if mgene["rmfile"] == "yes" rmfile= true else rmfile= false end
-
-    debug_red(rmfile)
+    
     debug_red(mergefile)
 
     if mode == "duplicate"
+        println("### Merge, removing duplicated clusters...")
         toldeg= mmerge["toldeg"]
         toldist= mmerge["toldist"]
+        tolndiff= mmerge["tolndiff"]
         metric= mmerge["metric"] 
+        println("### Merge, metric $metric")
         
         dfcat=  CSV.File(catalog, delim=";") |> DataFrame
 
-        dfmerge= rm_duplicated(dfcat, toldeg, toldist, metric, rmfile)
+        dfmerge= rm_duplicated(dfcat, toldeg, toldist, tolndiff, metric)
         CSV.write(mergefile, dfmerge, delim=";")
         println("## Catalog $mergefile created.")
     end 
+
+    if mode == "chunk"
+        println("### Merge, merging chunks of the same physical cluster...")
+        toldeg= mmerge["toldeg"]
+        toldist= mmerge["toldist"]
+        tolndiff= mmerge["tolndiff"]
+
+        dfcat=  CSV.File(catalog, delim=";") |> DataFrame
+
+        dfchunk= get_chunks(dfcat)
+    end
+
 end
 #################################### MAIN ########################
 let
     println(ARGS)
     println("####################")
-    println("### testing build...")
+    println("### Building Gaia results...")
 
     metabuild = TOML.parsefile(ARGS[1])
     

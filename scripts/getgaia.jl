@@ -70,7 +70,7 @@ function get_gaia_data(radius, tol, ra, dec, name, rect, table= "gaiadr3.gaia_so
     println("## Votable saved in: $filedst")
 
 end
-function coord_galactic(longi, lati)
+function coord_galactic(longi, lati)job= gaia.Gaia.launch_job_async(adql, dump_to_file=true)
     c = coord.SkyCoord(l=longi*u.degree, b=lati*u.degree,frame="galactic")
     ct= c.transform_to("fk5")
     return(ct.ra[1], ct.dec[1])

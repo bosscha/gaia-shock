@@ -119,9 +119,9 @@ end
 ## toldist: tolerance in parsec for the distance
 ## metric: metric (Qn|Edgm) to choose the oc
 ## rmfile: remove permanently the oc and plot files
+## tolndiff: minimum difference relative between N for two candidates
 ##
-function rm_duplicated(df, toldeg, toldist, metric= "Qn", rmfile= false)
-    println("## Removing duplicated stellar clusters...")
+function rm_duplicated(df, toldeg, toldist, tolndiff, metric= "Qn", rmfile= false)
     dfmerge= df
 
     s= size(dfmerge)
@@ -129,25 +129,29 @@ function rm_duplicated(df, toldeg, toldist, metric= "Qn", rmfile= false)
 
     for i in 1:s[1]
         for j in i+1:s[1]
-            ra1= dfmerge[i,"ra"]
-            ra2= dfmerge[j,"ra"]
-            dec1= dfmerge[i,"dec"]
-            dec2= dfmerge[j,"dec"]
+            ra1= dfmerge[i,"ra"] ; dec1= dfmerge[i,"dec"]
+            ra2= dfmerge[j,"ra"] ; dec2= dfmerge[j,"dec"]
             dist1= dfmerge[i,"distance"]
             dist2= dfmerge[j,"distance"] 
+            n1= dfmerge[i,"nstars"]
+            n2= dfmerge[j,"nstars"]
+            edg1= dfmerge[i,"edgratm"]
+            edg2= dfmerge[j,"edgratm"]
+            name1= dfmerge[i,"votname"]
+            name2= dfmerge[j,"votname"]
             
-            if abs(ra1-ra2) < toldeg && abs(dec1-dec2) < toldeg && abs(dist1-dist2) < toldist
+            if abs(ra1-ra2) < toldeg && abs(dec1-dec2) < toldeg && abs(dist1-dist2) < toldist && name1 != name2
+                if min(n1,n2) / max(n1,n2) < tolndiff
+                    println("## Warning merge, two candidates have large N difference...")
+                end
+
                 if metric == "Qn"
-                    n1= dfmerge[i,"nstars"]
-                    n2= dfmerge[j,"nstars"]
                     if n1 > n2 && j ∉ ndrop
                         push!(ndrop,j)
                     elseif i ∉ ndrop
                         push!(ndrop,i) 
                     end
                 elseif metric == "Edgm"
-                    edg1= dfmerge[i,"edgratm"]
-                    edg2= dfmerge[j,"edgratm"]
                     if edg2 > edg1 && j ∉ ndrop
                         push!(ndrop,j)
                     elseif i ∉ ndrop
@@ -181,4 +185,49 @@ function rm_duplicated(df, toldeg, toldist, metric= "Qn", rmfile= false)
     println("### $smerge solutions left. ")
 
     return(dfmerge)
+end
+################
+## get various chunks of the same dataset belonging to the same physical stellar cluster
+## 
+## df: catalog DataFrame
+##
+function get_chunks(df)
+    debug_red("Testing!!!")
+    dfmerge= df
+
+    s= size(dfmerge)
+    ndrop= []
+
+    for i in 1:s[1]
+        for j in i+1:s[1]
+            ra1= dfmerge[i,"ra"] ; dec1= dfmerge[i,"dec"]
+            ra2= dfmerge[j,"ra"] ; dec2= dfmerge[j,"dec"]
+            dist1= dfmerge[i,"distance"]
+            dist2= dfmerge[j,"distance"] 
+            n1= dfmerge[i,"nstars"]
+            n2= dfmerge[j,"nstars"]
+            edg1= dfmerge[i,"edgratm"]
+            edg2= dfmerge[j,"edgratm"]
+            name1= dfmerge[i,"votname"]
+            name2= dfmerge[j,"votname"]
+            vl1= dfmerge[i,"vl"] ; vb1= dfmerge[i,"vb"] 
+            vl2= dfmerge[j,"vl"] ; vb2= dfmerge[j,"vb"] 
+
+            cdot= (vl1*vl2+vb1*vb2) / (vl1*vl1+vb1*vb1)
+
+            toldeg= 0.5
+            toldist=30
+            
+            if abs(ra1-ra2) < toldeg && abs(dec1-dec2) < toldeg && abs(dist1-dist2) < toldist && name1 == name2
+                debug_red(cdot)
+                if min(n1,n2) / max(n1,n2) < 0
+                    println("## Warning merge, two candidates have large N difference...")
+                end
+
+                
+            end
+        end
+    end
+
+
 end
