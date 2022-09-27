@@ -43,6 +43,9 @@ function parse_commandline()
         "--qmetric", "-q"
             help = "Q metric method to choose best solution in final DBSCAN clusters. The options are: Qc, Qn, QcQn, QcQnhigh"
             arg_type = String
+        "--qc"
+        help = "minimum Qc for the optimisation (default=2.7)"
+        arg_type = Float64
         "--w3d"
             help = "XYZ weighting"
             arg_type = Float64
@@ -115,6 +118,7 @@ let
     w3d= parsed_args["w3d"]
     wvel= parsed_args["wvel"]
     whrd= parsed_args["whrd"]
+    qc= parsed_args["qc"]
 
     if parsed_args["o"] opt="yes" else opt= "no" end
     if parsed_args["pca"] pca="yes" else pca= "no" end
@@ -156,6 +160,7 @@ let
     if w3d != nothing m.w3d= w3d end
     if wvel != nothing m.wvel= wvel end
     if whrd != nothing m.whrd= whrd end
+    if qc != nothing m.minQc= qc end   
 
     extra(m, isoptimize)
 end

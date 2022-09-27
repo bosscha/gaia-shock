@@ -89,8 +89,11 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250],
     astrometric_params_solved= zeros(ngaia)
     zcorr= zeros(ngaia)
 
-    ## Extinction A_G
+    ## Extinction A_0, E(B-R),  iron abundance(dex)
     ag= zeros(ngaia)
+    a0= zeros(ngaia)
+    ebmr= zeros(ngaia)
+    mh= zeros(ngaia)
 
     for i in 1:ngaia
 
@@ -125,9 +128,11 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250],
         rp[i]       = convert(Float64, get(gaia,i-1).phot_rp_mean_mag)
         bp[i]       = convert(Float64, get(gaia,i-1).phot_bp_mean_mag)
 
-        # extinction
-        # fix fo EDR3, extinction not  present
-        ag[i]       =  convert(Float64, get(gaia,i-1).azero_gspphot)
+        # extinction,  reddening, iron abundance
+        ag[i]       =  convert(Float64, get(gaia,i-1).ag_gspphot)
+        a0[i]       =  convert(Float64, get(gaia,i-1).azero_gspphot)
+        ebmr[i]     =  convert(Float64, get(gaia,i-1).ebpminrp_gspphot)
+        mh[i]       = convert(Float64, get(gaia,i-1).mh_gspphot)
 
         ## for ZPT correction
         nu_eff_used_in_astrometry[i] = convert(Float64, get(gaia,i-1).nu_eff_used_in_astrometry)
@@ -174,7 +179,7 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250],
 
     ## Df of the filtered dat
     ndata = length(distance[ifinal])
-    s = Df(ndata, zeros(8,ndata), zeros(15,ndata) , zeros(8,ndata) , zeros(1,ndata))
+    s = Df(ndata, zeros(8,ndata), zeros(17,ndata) , zeros(8,ndata) , zeros(1,ndata))
 
     s.data[1,:] = lgal[ifinal]
     s.data[2,:] = bgal[ifinal]
@@ -199,6 +204,9 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250],
     s.raw[12,:] = bp[ifinal]
     s.raw[13,:] = radialvel[ifinal]
     s.raw[14,:] = ag[ifinal]
+    s.raw[15,:] = a0[ifinal]
+    s.raw[16,:] = ebmr[ifinal]
+    s.raw[17,:] = mh[ifinal]
 
     ## Errors ..
     s.err[1,:] = parallax_error[ifinal]
@@ -445,6 +453,9 @@ function export_df(votname, ocdir, df , dfcart, labels , labelmax, pc, m::GaiaCl
     rp= df.raw[11,labels[labelmax]]
     bp= df.raw[12,labels[labelmax]]
     ag= df.raw[14,labels[labelmax]]
+    a0= df.raw[15,labels[labelmax]]
+    ebmr= df.raw[16,labels[labelmax]]
+    mh= df.raw[17,labels[labelmax]]
 
     source_id= df.sourceid[1,labels[labelmax]]
 
@@ -472,7 +483,7 @@ function export_df(votname, ocdir, df , dfcart, labels , labelmax, pc, m::GaiaCl
 
     oc= DataFrame(sourceid=source_id,ra=ra,dec=dec,l=l,b=b, parallax=parallax, distance=d,
         pmra=pmra, pmdec=pmdec, X=X,Y=Y,Z=Z,vl=vl,
-        vb=vb,vrad=vrad, Xg=xg,Yg=yg,Zg=zg,gbar=gbar,rp=rp,bp=bp, ag=ag)
+        vb=vb,vrad=vrad, Xg=xg,Yg=yg,Zg=zg,gbar=gbar,rp=rp,bp=bp, ag=ag, a0=a0, ebmr=ebmr, mh=mh)
 
     spc= size(pc)
     if m.pca == "yes" && s[1] == spc[2]
