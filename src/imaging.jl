@@ -1,4 +1,4 @@
-## function to perform imaging opetation
+## functions to perform imaging computation
 ##
 
 b3spline1d = [1/16 , 1/4 , 3/8 , 1/4 ,  1/16]
