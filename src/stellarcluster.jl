@@ -899,14 +899,33 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
                 pc, pcres= compute_PC(df, dfcart, labels, labelmax)
 
 
-
                 if m.pca == "no"
-                    export_df("$votname.$cycle", m.ocdir, df , dfcart , labels , labelmax, pc, m)
+                    oc= export_df("$votname.$cycle", m.ocdir, df , dfcart , labels , labelmax, pc, m)
                 elseif m.pca == "yes"
                     println("## PCA components added to the oc")
-                    export_df("$votname.$cycle", m.ocdir, df , dfcart , labels , labelmax, pc, m)
+                    oc= export_df("$votname.$cycle", m.ocdir, df , dfcart , labels , labelmax, pc, m)
                 end
                 println("## label $labelmax written as an oc solution...")
+
+                ### isochrone fitting...
+                if m.iso == "yes"
+                    println("## Performing isochrone fitting on the solution...")
+                    oc, age, feh, iso= perform_isochrone_fitting(oc)
+
+                    name= split("$votname.$cycle",".")
+                    infix= ""
+                    for iname in name
+                        if iname != "vot"
+                            infix *= iname*"."
+                        end
+                    end
+                    infix1 = infix * "oc.mass.csv" ; filename= @sprintf("%s/%s",m.ocdir, infix1)
+                    CSV.write(filename,oc,delim=';')
+                    infix2 = infix * "isochrone.csv" ; filename= @sprintf("%s/%s",m.ocdir, infix2)
+                    CSV.write(filename,iso,delim=';')
+                    println("## Isochrone $filename saved...")
+                end
+                ###
 
                 edgeratio1, edgeratio2= edge_ratio(dfcart, labels[labelmax])
                 scproperties = get_properties_SC2(labels[labelmax] , df, dfcart)
@@ -974,7 +993,7 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
                 ## score only makes sense for optimization, otherwise set to 1.
                 if optim k= score_cycle(qc, nmax, nchain, iter) else k= 1. end
                 @printf("## score cycle %d: %3.3f \n",cycle, k)
-
+            
                 extraplot= DataFrame(cycle=cycle, score_cycle=k, qc=qc, votname=votname, pc1=pcres[1],pc2=pcres[2], pc3=pcres[3], xg=Xgm, yg=Ygm,zg=Zgm, uuid= m.uuid)
 
                 plot_cluster2(m.plotdir, "$votname.$cycle", labels[labelmax], scproperties,

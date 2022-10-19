@@ -369,7 +369,9 @@ function plot_cluster2(plotdir, voname, indx, sc::GaiaClustering.SCproperties2, 
     PyPlot.plt.subplot(3, 3, 7 )
     PyPlot.plt.axis("on")
     xx = df.data[7,indx]
-    yy = -df.data[6,indx]
+    yy = df.data[6,indx]
+    ymin= minimum(yy) ; ymax= maximum(yy)
+    PyPlot.plt.ylim(ymax,ymin)
     PyPlot.plt.scatter(xx, yy , s = 1.0 )
     PyPlot.plt.xlabel("G-Rp")
     PyPlot.plt.ylabel("G")
@@ -378,7 +380,9 @@ function plot_cluster2(plotdir, voname, indx, sc::GaiaClustering.SCproperties2, 
     PyPlot.plt.subplot(3, 3, 8 )
     PyPlot.plt.axis("on")
     xx = df.data[8,indx] .+ df.data[7,indx]
-    yy = -df.data[6,indx]
+    yy = df.data[6,indx]
+    ymin= minimum(yy) ; ymax= maximum(yy)
+    PyPlot.plt.ylim(ymax,ymin)
     PyPlot.plt.scatter(xx, yy , s = 1.0 )
     PyPlot.plt.xlabel("Bp-Rp")
     PyPlot.plt.ylabel("G")
@@ -488,10 +492,12 @@ function plot_rawdata(plotdir, voname, indx, sc::GaiaClustering.SCproperties2, d
     PyPlot.plt.subplot(3, 3, 7 )
     PyPlot.plt.axis("on")
     xx = df.data[7,iter]
-    yy = -df.data[6,iter]
+    yy = df.data[6,iter]
     PyPlot.plt.scatter(xx, yy , s = 0.1 )
     xx = df.data[7,indx]
-    yy = -df.data[6,indx]
+    yy = df.data[6,indx]
+    ymin= minimum(yy) ; ymax= maximum(yy)
+    PyPlot.plt.ylim(ymax,ymin)
     PyPlot.plt.scatter(xx, yy , s = 1, c="r", alpha=0.5 )
     PyPlot.plt.xlabel("G-Rp")
     PyPlot.plt.ylabel("G")
@@ -615,11 +621,25 @@ function plot_astrom(plotdir, voname, indx, sc::GaiaClustering.SCproperties2, df
     PyPlot.plt.subplot(3, 3, 7 )
     PyPlot.plt.axis("on")
     xx = df.data[7,indx]
-    yy = -df.data[6,indx]
+    yy = df.data[6,indx]
+    ymin= minimum(yy) ; ymax= maximum(yy)
+    PyPlot.plt.ylim(ymax,ymin)
     PyPlot.plt.scatter(xx, yy , s = 1.0 )
     PyPlot.plt.xlabel("G-Rp")
     PyPlot.plt.ylabel("G")
     PyPlot.plt.grid(true)
+
+    PyPlot.plt.subplot(3, 3, 8 )
+    PyPlot.plt.axis("on")
+    xx = df.data[8,indx] .+ df.data[7,indx]
+    yy = df.data[6,indx]
+    ymin= minimum(yy) ; ymax= maximum(yy)
+    PyPlot.plt.ylim(ymax,ymin)
+    PyPlot.plt.scatter(xx, yy , s = 1.0 )
+    PyPlot.plt.xlabel("Bp-Rp")
+    PyPlot.plt.ylabel("G")
+    PyPlot.plt.grid(true)
+
 
 
     figname = plotdir*"/"*voname*".astrom.png"

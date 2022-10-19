@@ -10,8 +10,8 @@ using DataFrames , Formatting, Printf , Dates ,  DelimitedFiles
 
 using Clustering
 using Statistics , Distributions ,Random, UUIDs
-using Distances, LightGraphs, SimpleWeightedGraphs
-using Glob
+using Distances, LightGraphs, SimpleWeightedGraphs, NearestNeighbors
+using Glob , GZip
 
 ## For wavelet in imaging
 import Interpolations
@@ -24,7 +24,7 @@ using PyCall , PyPlot
 using VoronoiCells
 import GeometryBasics as gb
 
-VERSION= "1.6.4-dev"
+VERSION= "1.7.0-dev"
 
 ## include all the types
 include("types.jl")
@@ -81,6 +81,10 @@ export zagreb_first, zagreb_second
 ## metadata methods
 include("metadata.jl")
 export set_default_params , read_params , set_param!
+
+## functions for isochrone fitting
+include("isochrones.jl")
+export mist_df ,  read_isochrones, update_mag , weight_cmd, dist_cmd2iso , fit_isochrone , read_serial_mist , update_nan_oc , get_star_mass ,  perform_isochrone_fitting
 
 ## functions to be used in the build script mainly
 include("_build.jl")

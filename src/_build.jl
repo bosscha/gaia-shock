@@ -162,7 +162,6 @@ function rm_duplicated(df, toldeg, toldist, tolndiff, metric= "Qn", rmfile= fals
         end
     end
     sort!(ndrop)
-    debug_red(ndrop)
    
     if rmfile
         for i in ndrop
