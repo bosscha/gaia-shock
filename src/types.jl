@@ -168,6 +168,7 @@ mutable struct meta
     ocdir::String
     votname::String
     prefile::String
+    isomodel::String
     uuid::UUID
 
     optim::String

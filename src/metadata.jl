@@ -17,6 +17,7 @@ function set_default_params()::meta
     def.ocdir= "."
     def.votname = "test.vot"
     def.prefile= "ocres"
+    def.isomodel= "."
 
     ## placeholder for the uuid
     def.uuid= UUID("cfc395e8-590f-11e8-1f13-43a2532b2fa8")
@@ -131,6 +132,7 @@ function set_param!(def, parstr,value)
     if parstr == "votname" def.votname= value end
     if parstr == "prefile" def.prefile= value end
     if parstr == "uuid" def.uuid= value end
+    if parstr == "isomodel" def.isomodel= value end
 
     if parstr == "optim" def.optim= value end
     if parstr == "pca" def.pca= value end

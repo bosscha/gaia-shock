@@ -910,7 +910,8 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
                 ### isochrone fitting...
                 if m.iso == "yes"
                     println("## Performing isochrone fitting on the solution...")
-                    oc, age, feh, iso= perform_isochrone_fitting(oc)
+                    oc, age, feh, feh_gaia, iso= perform_isochrone_fitting(oc, m.isomodel)
+                    agemyr= 10^age / 1e6
 
                     name= split("$votname.$cycle",".")
                     infix= ""
@@ -924,6 +925,9 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
                     infix2 = infix * "isochrone.csv" ; filename= @sprintf("%s/%s",m.ocdir, infix2)
                     CSV.write(filename,iso,delim=';')
                     println("## Isochrone $filename saved...")
+                else
+                    ### placeholder for isochrone fitting
+                    agemyr= -99 ; feh= -99 ; feh_gaia= -99
                 end
                 ###
 
@@ -967,7 +971,11 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
                 insertcols!(scdf, 21, :V => uvw[2])
                 insertcols!(scdf, 21, :U => uvw[1])
 
-                
+                ## isochrone fitting, if not, placeholder..
+                insertcols!(scdf, 7, :feh_gaia => feh_gaia)
+                insertcols!(scdf, 7, :feh => feh)
+                insertcols!(scdf, 7, :age => agemyr) 
+
                 if optim
                     insertcols!(res, 2,  :cycle => cycle)
                     push!(mcmclist, res)

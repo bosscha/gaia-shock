@@ -194,15 +194,10 @@ function read_serial_mist(isodir)
     arrIso=Any[]
 
     println("### Reading isochrone MIST models..")
-    f= glob("iso_mist..*gz",isodir)
+    f= glob("iso_mist..*",isodir)
 
     for file in f
-        # df= CSV.File(file) |> DataFrame
-
-        df = GZip.open(file, "r") do io
-            CSV.read(io)
-        end
-
+        df= CSV.File(file) |> DataFrame
         push!(arrIso, df)
     end
    return(arrIso)
@@ -258,12 +253,13 @@ end
 ################################################
 ## wrapper function to perform fit_isochrone fitting
 ## df: oc solution for the cycle
-function perform_isochrone_fitting(df)
+function perform_isochrone_fitting(df, isomodeldir)
     df= update_mag(df,false)
     oc= filter(:G => G -> !any(f -> f(G), (ismissing, isnothing, isnan)), df)
 
     ## reading isochrone model
-    arrIso = read_serial_mist("/home/stephane/Science/GAIA/products/standalone/isochrones/MIST_serial")
+    debug_red(isomodeldir)
+    arrIso = read_serial_mist(isomodeldir)
 
     wgt= weight_cmd(oc, 0.25, 1)
     age, feh, iso= fit_isochrone(oc,arrIso, wgt)
@@ -271,6 +267,7 @@ function perform_isochrone_fitting(df)
     df= update_nan_oc(df)
     df= get_star_mass(df, iso)
 
-    return(df , age, feh, iso)
+    feh_gaia= median(df.mh)
+    return(df , age, feh, feh_gaia, iso)
 
 end

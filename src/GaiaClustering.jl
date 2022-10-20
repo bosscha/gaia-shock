@@ -11,7 +11,7 @@ using DataFrames , Formatting, Printf , Dates ,  DelimitedFiles
 using Clustering
 using Statistics , Distributions ,Random, UUIDs
 using Distances, LightGraphs, SimpleWeightedGraphs, NearestNeighbors
-using Glob , GZip
+using Glob , GZip , FileIO , CSVFiles
 
 ## For wavelet in imaging
 import Interpolations
