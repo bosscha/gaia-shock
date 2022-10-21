@@ -41,7 +41,7 @@ function set_default_params()::meta
 
     ## MCMC
     ##
-    def.minQc    = 2.7
+    def.minQc    = 2.6
     def.minQn    = 40
     def.maxQn    = 5000
     def.forcedminstars = 30

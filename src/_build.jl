@@ -214,6 +214,8 @@ function get_chunks(df)
 
             cdot= (vl1*vl2+vb1*vb2) / (vl1*vl1+vb1*vb1)
 
+            distcmd= distance_cmd(dfmerge[i,:], dfmerge[j,:])
+
             toldeg= 0.5
             toldist=30
             
@@ -229,4 +231,26 @@ function get_chunks(df)
     end
 
 
+end
+#######################################
+##### distance of two CMDs
+#### df1, df2: two solutions
+function distance_cmd(df1, df2)
+    debug_red(df1["gbar"])
+
+    n= length(iso.Gaia_G_EDR3)
+
+    dfref= zeros(2,n)
+    dfref[1,:] = iso.Gaia_BPmRP_EDR3
+    dref[2,:] = iso.Gaia_G_EDR3
+
+    kdtree = KDTree(dref; leafsize = 10)
+
+    npts= length(df.G)
+    pts= zeros(2,npts)
+    pts[1,:] = df.BmR0
+    pts[2,:] = df.G
+
+    idxs, dists = knn(kdtree, pts, 1, true)
+    total= sum(dists)
 end

@@ -912,6 +912,10 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
                     println("## Performing isochrone fitting on the solution...")
                     oc, age, feh, feh_gaia, iso= perform_isochrone_fitting(oc, m.isomodel)
                     agemyr= 10^age / 1e6
+                    total_mass= sum(oc.star_mass)
+
+                    txt_iso= DataFrame(age=agemyr, feh= feh, feh_gaia= feh_gaia, total_mass=total_mass, cycle=cycle,  votname=votname)
+                    plot_isochrone(m.plotdir, "$votname.$cycle", oc, iso, txt_iso , false)
 
                     name= split("$votname.$cycle",".")
                     infix= ""

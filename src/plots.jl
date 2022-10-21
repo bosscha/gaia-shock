@@ -646,3 +646,54 @@ function plot_astrom(plotdir, voname, indx, sc::GaiaClustering.SCproperties2, df
     PyPlot.plt.savefig(figname)
     if showplot PyPlot.plt.show() end
 end
+
+###### plot the isochrone solution and CMD
+## df : oc solution with isochrone
+## iso : isochrone solution
+## txt : dataframe with text field
+function plot_isochrone(plotdir, voname, df, iso , txt_iso, showplot = true)
+    patch= pyimport("matplotlib.patches")
+    ymin= min(minimum(df.G), minimum(iso.Gaia_G_EDR3)) ; ymax= max(maximum(df.G), maximum(iso.Gaia_G_EDR3))
+
+    PyPlot.plt.rcParams["font.size"]= 25
+    PyPlot.plt.figure(figsize=(13.0,12.0))
+
+    PyPlot.plt.subplot(2, 2, 1)
+
+    ymin= minimum(df.G) ; ymax= maximum(df.G)
+    PyPlot.plt.ylim(ymax,ymin)
+    PyPlot.plt.scatter(df.BmR0, df.G , s = 1.0 )
+    PyPlot.plt.plot(iso.Gaia_BPmRP_EDR3 , iso.Gaia_G_EDR3, linewidth=2, color="C1")
+    PyPlot.plt.xlabel("Bp - Rp")
+    PyPlot.plt.ylabel("G")
+    PyPlot.plt.grid(true)
+
+    axt= PyPlot.plt.subplot(2, 2, 2)
+    PyPlot.plt.axis("off")
+
+    ## text to display
+    dct= Dict("color"=> "black", "fontsize"=> 10)
+    text =[]
+    v= "$(txt_iso.votname[1])" ; txt = "Votable : $v" ; push!(text,txt)
+    v= "$(txt_iso.cycle[1])" ; txt = "Cycle : $v" ; push!(text,txt)
+    v = length(df.G) ; txt = "N stars : $v" ; push!(text,txt)
+    v = fmt("3.1f", txt_iso.total_mass[1]) ; txt = "Total Mass : $v (Msol)" ; push!(text,txt) 
+    v = fmt("3.1f", txt_iso.age[1]) ; txt = "Age : $v (Myr)" ; push!(text,txt)
+    v = fmt("3.2f", txt_iso.feh[1]); txt = "[Fe/H] : $v" ; push!(text,txt) 
+    v = fmt("3.2f", txt_iso.feh_gaia[1]); txt = "[Fe/H] (Gaia): $v" ; push!(text,txt) 
+
+    show_text(-0.01, -0.1, text , 0.5 )
+
+    rec= patch.Rectangle((-0.07, -0.15), 1.0, 0.6, color="salmon", alpha= 0.4, clip_on=false)
+    axt.add_artist(rec)
+
+    PyPlot.plt.subplot(2, 2, 3)
+    nbins= 50
+    h = PyPlot.plt.hist(df.mh,nbins, alpha=0.75)
+    PyPlot.plt.xlabel("[Fe/H] (Gaia)")
+    PyPlot.plt.grid(true)
+
+    figname = plotdir*"/"*voname*".isochrone.png"
+    PyPlot.plt.savefig(figname)
+    if showplot PyPlot.plt.show() end
+end
