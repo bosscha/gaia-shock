@@ -260,7 +260,7 @@ function perform_isochrone_fitting(df, isomodeldir)
     oc= filter(:G => G -> !any(f -> f(G), (ismissing, isnothing, isnan)), df)
 
     ## reading isochrone model
-    if isomodeldir == ""
+    if isomodeldir == "" 
         println("## Set to default isochrone models...")
         rootdir =  ENV["GAIA_ROOT"]
         isomodeldir= joinpath(rootdir,"run/data/isochrones")
