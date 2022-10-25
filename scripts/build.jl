@@ -263,6 +263,8 @@ function merge(meta)
 
     if mode == "duplicate"
         println("### Merge, removing duplicated clusters...")
+        debug_red(mmerge)
+
         toldeg= mmerge["toldeg"]
         toldist= mmerge["toldist"]
         tolndiff= mmerge["tolndiff"]
@@ -284,7 +286,8 @@ function merge(meta)
 
         dfcat=  CSV.File(catalog, delim=";") |> DataFrame
 
-        dfchunk= get_chunks(dfcat)
+        debug_red("### Not implemented yet ...")
+        # dfchunk= get_chunks(dfcat)
     end
 
 end

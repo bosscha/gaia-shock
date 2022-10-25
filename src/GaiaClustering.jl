@@ -96,5 +96,5 @@ export abc_mcmc_dbscan_full , check_qminqstar_full , find_clusters
 
 ## testing functions
 include("testing.jl")
-export __plot_check , __plot_nstars
+export __plot_check , __plot_nstars , __tail_stars
 end

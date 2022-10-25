@@ -1021,9 +1021,16 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
                 println("###")
                 println("### subtracting BEST solution from Df...")
                 dfnew, dfcartnew= remove_stars(df, dfcart, labels[labelmax])
+
+                ###testing tails...
+                debug_red("Testing tails")
+                __tail_stars(df, dfcart, dfnew, dfcartnew, labels[labelmax])
+                #################
+                
                 df= dfnew
                 dfcart= dfcartnew
 
+          
                 ########################### STOP conditions #########
                 FLAG= 0
                 if nmax < m.minstarstop

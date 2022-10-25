@@ -57,7 +57,7 @@ function get_gaia_data(radius, tol, ra, dec, name, rect, table= "gaiadr3.gaia_so
 end
 
 ########
-## call many time to the gaia archive. gaia object passed
+## call many times to the gaia archive. gaia object passed
 function get_gaia_data_many(gaia, radius, tol, ra, dec, name, rect, table= "gaiadr3.gaia_source")
 
     if rect
@@ -184,53 +184,6 @@ function rm_duplicated(df, toldeg, toldist, tolndiff, metric= "Qn", rmfile= fals
     println("### $smerge solutions left. ")
 
     return(dfmerge)
-end
-################
-## get various chunks of the same dataset belonging to the same physical stellar cluster
-## 
-## df: catalog DataFrame
-##
-function get_chunks(df)
-    debug_red("Testing!!!")
-    dfmerge= df
-
-    s= size(dfmerge)
-    ndrop= []
-
-    for i in 1:s[1]
-        for j in i+1:s[1]
-            ra1= dfmerge[i,"ra"] ; dec1= dfmerge[i,"dec"]
-            ra2= dfmerge[j,"ra"] ; dec2= dfmerge[j,"dec"]
-            dist1= dfmerge[i,"distance"]
-            dist2= dfmerge[j,"distance"] 
-            n1= dfmerge[i,"nstars"]
-            n2= dfmerge[j,"nstars"]
-            edg1= dfmerge[i,"edgratm"]
-            edg2= dfmerge[j,"edgratm"]
-            name1= dfmerge[i,"votname"]
-            name2= dfmerge[j,"votname"]
-            vl1= dfmerge[i,"vl"] ; vb1= dfmerge[i,"vb"] 
-            vl2= dfmerge[j,"vl"] ; vb2= dfmerge[j,"vb"] 
-
-            cdot= (vl1*vl2+vb1*vb2) / (vl1*vl1+vb1*vb1)
-
-            distcmd= distance_cmd(dfmerge[i,:], dfmerge[j,:])
-
-            toldeg= 0.5
-            toldist=30
-            
-            if abs(ra1-ra2) < toldeg && abs(dec1-dec2) < toldeg && abs(dist1-dist2) < toldist && name1 == name2
-                debug_red(cdot)
-                if min(n1,n2) / max(n1,n2) < 0
-                    println("## Warning merge, two candidates have large N difference...")
-                end
-
-                
-            end
-        end
-    end
-
-
 end
 #######################################
 ##### distance of two CMDs

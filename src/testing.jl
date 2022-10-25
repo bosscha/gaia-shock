@@ -28,3 +28,120 @@ function __plot_nstars(nstarh,plotfile="test-stats-votable.png", plotdir= ".")
     PyPlot.plt.savefig(plotdir*"/"*plotfile)
     PyPlot.plt.show()
 end
+
+function __plot_tail(df, filename)
+    PyPlot.plt.figure(figsize=(12.0,10.0))
+
+    PyPlot.plt.subplot(2, 2, 1 , xlim=[-100,100])
+    PyPlot.plt.scatter(df.Y, df.X, s = 0.1 )
+    PyPlot.plt.xlabel("Y (pc)")
+    PyPlot.plt.ylabel("X (pc)")
+    PyPlot.plt.grid(true)
+
+    PyPlot.plt.subplot(2, 2, 2 , xlim=[-100,100])
+    PyPlot.plt.scatter(df.Z, df.X, s = 0.1 )
+    PyPlot.plt.xlabel("Z (pc)")
+    PyPlot.plt.ylabel("X (pc)")
+    PyPlot.plt.grid(true)
+
+    PyPlot.plt.subplot(2, 2, 3 , xlim=[-100,100])
+    PyPlot.plt.scatter(df.Y, df.Z, s = 0.1 )
+    PyPlot.plt.xlabel("Y (pc)")
+    PyPlot.plt.ylabel("Z (pc)")
+    PyPlot.plt.grid(true)
+
+    PyPlot.plt.subplot(2, 2, 4 , ylim= [12, -2] )
+    PyPlot.plt.scatter(df.BmR0, df.G, s = 0.1 )
+    PyPlot.plt.xlabel("B-R")
+    PyPlot.plt.ylabel("G")
+    PyPlot.plt.grid(true)
+
+    PyPlot.plt.savefig(filename)
+end
+
+## testing stars with very similars with very similar cmd
+function __tail_stars(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, dfnew::GaiaClustering.Df, dfcartnew::GaiaClustering.Df, idx)
+    debug_red("entering testing tail...")
+    doc= __transform_df(df, dfcart, idx)
+
+    s=dfnew.ndata
+    s1= length(dfnew.data[4,:])
+    debug_red("$s $s1")
+    dnew= __transform_df(dfnew, dfcartnew, 1:s)
+
+    xcenter= median(doc.X) ; ycenter= median(doc.Y) ;  zcenter= median(doc.Z)
+    dnew.X = dnew.X .- xcenter ; dnew.Y = dnew.Y .- ycenter ; dnew.Z = dnew.Z .- zcenter
+    vlc= median(doc.vl) ; vbc= median(doc.vb) ; vrc= median(doc.vrad)
+
+    radiusMax= 500  ## distance max to oc
+    r2= radiusMax*radiusMax
+
+    velocityMax= 10 ## velocity difference max
+    v2= velocityMax*velocityMax
+
+    dnewrad=filter(row -> (row.X*row.X+row.Y*row.Y+row.Y+row.Z*row.Z) < r2, dnew)
+    dnewvel=filter(row -> ((row.vl .- vlc)*(row.vl .- vlc) + (row.vb .- vbc)*(row.vb .- vbc)) < v2, dnewrad)
+    
+    s= length(dfnew.data[1, :])
+    srad= length(dnewrad.X)
+    svel= length(dnewvel.X)
+
+    debug_red("Filtering..")
+    debug_red("$s $srad $svel")
+
+
+    __plot_tail(dnew, "test_tail1")
+    __plot_tail(dnewrad, "test_tail2")
+    __plot_tail(dnewvel, "test_tail3")
+
+
+    __distance_cmd(doc, dnew)
+
+
+end
+
+function __transform_df(df,dfcart, idx)
+    X= dfcart.data[1, idx]
+    Y= dfcart.data[2, idx]
+    Z= dfcart.data[3, idx]
+    dist= df.data[3,idx]
+    vl= df.data[4,idx]
+    vb= df.data[5,idx]
+    vrad= df.raw[13,idx]
+    gbar= df.raw[10,idx]
+    rp= df.raw[11,idx]
+    bp= df.raw[12,idx]
+    ag= df.raw[14,idx]
+    a0= df.raw[15,idx]
+    ebmr= df.raw[16,idx]
+    source_id= df.sourceid[1,idx]
+
+    gbar0 = gbar .- ag
+    BmR0 = bp .- rp .- ebmr
+    ## absolute magnitude
+    G = gbar0 .+ 5 .- 5log10.(dist)
+
+    dft= DataFrame(X=X,Y=Y,Z=Z,dist=dist,vl=vl,vb=vb,vrad=vrad,gbar=gbar,rp=rp,bp=bp,ag=ag,a0=a0,ebmr=ebmr,gbar0=gbar0,BmR0=BmR0, G=G, sourceid=source_id)
+
+    return(dft)
+end
+
+##### distance of two CMDs
+#### df1, df2: two solutions
+function __distance_cmd(df1, df2)
+
+    n= length(df1.X)
+    dfref= zeros(2,n)
+    dfref[1,:] = df1.BmR0
+    dfref[2,:] = df1.G
+
+    kdtree = KDTree(dref; leafsize = 10)
+
+    npts= length(df2.G)
+    pts= zeros(2,npts)
+    pts[1,:] = df2.BmR0
+    pts[2,:] = df2.G
+
+    idxs, dists = knn(kdtree, pts, 1, true)
+    total= sum(dists)
+end
