@@ -17,7 +17,7 @@ using Glob , GZip , FileIO , CSVFiles
 import Interpolations
 using  Images, Base
 
-using  StatsBase , CSV,  Distances , MultivariateStats
+using  StatsBase , CSV,  Distances , MultivariateStats , FHist
 
 using PyCall , PyPlot
 
@@ -82,6 +82,10 @@ export zagreb_first, zagreb_second
 include("metadata.jl")
 export set_default_params , read_params , set_param!
 
+## tail methods
+include("tail.jl")
+# export
+
 ## functions for isochrone fitting
 include("isochrones.jl")
 export mist_df ,  read_isochrones, update_mag , weight_cmd, dist_cmd2iso , fit_isochrone , read_serial_mist , update_nan_oc , get_star_mass ,  perform_isochrone_fitting
@@ -96,5 +100,5 @@ export abc_mcmc_dbscan_full , check_qminqstar_full , find_clusters
 
 ## testing functions
 include("testing.jl")
-export __plot_check , __plot_nstars , __tail_stars
+export __plot_check , __plot_nstars , __tail_stars , __density_count
 end

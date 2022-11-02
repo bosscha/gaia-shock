@@ -175,6 +175,7 @@ mutable struct meta
     pca::String
     zpt::String
     iso::String
+    tail::String
     w3d::Float64
     wvel::Float64
     whrd::Float64
@@ -200,6 +201,10 @@ mutable struct meta
     minchainreached::Int
     qcminstop::Float64
     wratiominstop::Float64
+
+    maxRadTail::Float64
+    maxVelTail::Float64
+    maxDistCmdTail::Float64
 
     epsmean::Float64
     epsdisp::Float64

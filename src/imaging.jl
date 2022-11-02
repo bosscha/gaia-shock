@@ -16,7 +16,7 @@ function atrous(im, levels , kernel1d = b3spline1d, verbose = true)
          
         for lev in 1:levels    
             if verbose
-                println("##WT--A Trous--Plane: $lev")
+                println("## WT--A Trous--Plane: $lev")
             end    
         
             kernel2d = zeros(length(ker),length(ker))
@@ -35,7 +35,7 @@ function atrous(im, levels , kernel1d = b3spline1d, verbose = true)
     
         ## LSP ###
         if verbose
-            println("##WT--A Trous--LSP ($(levels+1))")
+            println("## WT--A Trous--LSP ($(levels+1))")
         end
         
         push!(w, approx)
@@ -83,11 +83,11 @@ function thresholdingWav(wt, d::UnivariateDistribution , σ = 3 , kernel1d=b3spl
     nw = size(wt)
     nxy = size(wt[1])
     
-    println("##WT--Thresholding the WT")
+    println("## WT--Thresholding the WT")
     if length(σ) == nw[1]
         threshold = σ
     else
-        println("##WT--Simulating the noise in the WT.")
+        println("## WT--Simulating the noise in the WT.")
         threshold = zeros(nw[1])
         noise = rand(d , nxy[1] , nxy[2])
         wsimul = atrous(noise , nw[1]-1 , kernel1d , false)

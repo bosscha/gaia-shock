@@ -204,6 +204,6 @@ function distance_cmd(df1, df2)
     pts[1,:] = df.BmR0
     pts[2,:] = df.G
 
-    idxs, dists = knn(kdtree, pts, 1, true)
+    idxs, dists = nn(kdtree, pts)
     total= sum(dists)
 end

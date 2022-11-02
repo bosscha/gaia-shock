@@ -895,9 +895,13 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
 
                 labelmax , nmax, qc = find_cluster_label2(labels, df, dfcart, m)
 
+                ### if 2nd step extraction ("tail") is requested, here it goes...
+                if m.tail == "yes"
+                    println("## Performing 2nd step for extraction (tails, clumps, etc) ...")
+                end
+
                 ## Principal components
                 pc, pcres= compute_PC(df, dfcart, labels, labelmax)
-
 
                 if m.pca == "no"
                     oc= export_df("$votname.$cycle", m.ocdir, df , dfcart , labels , labelmax, pc, m)

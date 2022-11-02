@@ -29,7 +29,7 @@ function __plot_nstars(nstarh,plotfile="test-stats-votable.png", plotdir= ".")
     PyPlot.plt.show()
 end
 
-function __plot_tail(df, filename)
+function __plot_tail(df, doc, filename)
     PyPlot.plt.figure(figsize=(12.0,10.0))
 
     PyPlot.plt.subplot(2, 2, 1 , xlim=[-100,100])
@@ -52,12 +52,28 @@ function __plot_tail(df, filename)
 
     PyPlot.plt.subplot(2, 2, 4 , ylim= [12, -2] )
     PyPlot.plt.scatter(df.BmR0, df.G, s = 0.1 )
+    PyPlot.plt.scatter(doc.BmR0, doc.G, s = 0.1 , color="r")
     PyPlot.plt.xlabel("B-R")
     PyPlot.plt.ylabel("G")
     PyPlot.plt.grid(true)
 
     PyPlot.plt.savefig(filename)
 end
+
+
+function __plot_dist_cmd(dist, plotfile="test-dist_cmd.png", plotdir= ".")
+    println("## plotting cmd dist distribution...")
+    PyPlot.plt.figure(figsize=(9.0,8.0))
+    PyPlot.plt.subplot(1, 1, 1 )
+    nbins = 50
+    PyPlot.plt.hist(dist,nbins, range = [0,0.50],  color = "g", alpha=0.8 ,density=false)
+    PyPlot.plt.xlabel("Distance CMD")
+    PyPlot.plt.ylabel("N")
+    PyPlot.plt.grid(true)
+    PyPlot.plt.savefig(plotdir*"/"*plotfile)
+    # PyPlot.plt.show()
+end
+
 
 ## testing stars with very similars with very similar cmd
 function __tail_stars(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, dfnew::GaiaClustering.Df, dfcartnew::GaiaClustering.Df, idx)
@@ -89,15 +105,31 @@ function __tail_stars(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, dfnew::G
     debug_red("Filtering..")
     debug_red("$s $srad $svel")
 
+    __plot_tail(dnew, doc, "test_tail1")
+    __plot_tail(dnewrad, doc , "test_tail2")
+    __plot_tail(dnewvel, doc , "test_tail3")
 
-    __plot_tail(dnew, "test_tail1")
-    __plot_tail(dnewrad, "test_tail2")
-    __plot_tail(dnewvel, "test_tail3")
+    doc= filter(:BmR0 => x -> !(ismissing(x) || isnothing(x) || isnan(x)), doc)
+    dnewvel= filter(:BmR0 => x -> !(ismissing(x) || isnothing(x) || isnan(x)), dnewvel)
 
+    idx , dist= __distance_cmd(doc,dnewvel)
+    println(length(dnewvel.G))
+    println(length(dist))
 
-    __distance_cmd(doc, dnew)
+    ## cut with cmd
+    cmdDistMax= 0.05
+    idc= findall(x->(x< cmdDistMax),dist)
+    __plot_dist_cmd(dist)
+    s= length(idc)
+    debug_red("CMD dist condition: $s")
 
-
+    dnewcmd= dnewvel[idc,:]
+    # println(idx[idc])
+    __plot_tail(dnewcmd, doc,  "test_tail4")
+    __density_count(dnewcmd.Y, dnewcmd.Z)
+    
+    
+     a += 0
 end
 
 function __transform_df(df,dfcart, idx)
@@ -128,20 +160,63 @@ end
 
 ##### distance of two CMDs
 #### df1, df2: two solutions
+#### cut= maximum distance to cut
 function __distance_cmd(df1, df2)
-
     n= length(df1.X)
     dfref= zeros(2,n)
     dfref[1,:] = df1.BmR0
     dfref[2,:] = df1.G
 
-    kdtree = KDTree(dref; leafsize = 10)
+    kdtree = KDTree(dfref; leafsize = 20)
 
     npts= length(df2.G)
     pts= zeros(2,npts)
     pts[1,:] = df2.BmR0
     pts[2,:] = df2.G
 
-    idxs, dists = knn(kdtree, pts, 1, true)
-    total= sum(dists)
+    idxs, dists = nn(kdtree, pts)
+    idx= collect(Iterators.flatten(idxs))
+    dist= collect(Iterators.flatten(dists))
+    idx=collect(1:npts)
+    return(idx , dist)
+end
+
+function __density_count(xx, yy, nbin=10, xrange=[-100,100],yrange=[-100,100])
+    data = (xx,yy)
+    debug_red("density..")
+    edg=[-50:1:50,-50:1,50]
+    # h = fit(Histogram, data , (-50:50, -50:50), nbins=20)
+
+    xmax= 100 ; ymax= 100
+    h = FHist.Hist2D((xx,yy), (-xmax:2:xmax, -ymax:2:ymax))
+
+    wav= atrous(h.hist.weights, 5)
+    # wavFilt= thresholdingWav(wav,Normal())
+    rec= addWav(wav,3,6)
+    nrec= size(rec)[1]
+
+    PyPlot.plt.figure(figsize=(9.0,8.0))
+    PyPlot.plt.subplot(1, 1, 1 )
+    # PyPlot.plt.contour(h.weights, colors="black")
+
+    vmin, vmax=  __level_dens(rec , 0.5, 10)
+    nlev= 20
+
+    PyPlot.plt.contour(rec, nlev, vmin=vmin, vmax=vmax, linewidths= 0.2, colors= "black") 
+    # PyPlot.plt.xticks([])
+
+    PyPlot.plt.savefig("test_density.png")
+
+end
+
+function __level_dens(dens,sigmin= 3, sigmax= 20, clip= 10)
+
+    # sigma-clipping
+    sigfirst= std(dens)
+    mfirst= median(dens)
+    sigfinal= std(dens[dens .< clip*sigfirst])
+    vmin= sigmin*sigfinal
+    vmax= sigmax*sigfinal
+
+    return(vmin, vmax)
 end
