@@ -895,7 +895,9 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
 
                 labelmax , nmax, qc = find_cluster_label2(labels, df, dfcart, m)
 
-                ### if 2nd step extraction ("tail") is requested, here it goes...
+                debug_red(typeof(labels))
+
+                ### tail, if 2nd step extraction ("tail") is requested, here it goes...
                 if m.tail == "yes"
                     println("## Performing 2nd step for extraction (tails, clumps, etc) ...")
                 end
@@ -1028,7 +1030,7 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
 
                 ###testing tails...
                 debug_red("Testing tails")
-                __tail_stars(df, dfcart, dfnew, dfcartnew, labels[labelmax])
+                tail_stars(df, dfcart, dfnew, dfcartnew, labels[labelmax], m)
                 #################
                 
                 df= dfnew

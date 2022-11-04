@@ -44,7 +44,7 @@ function __plot_tail(df, doc, filename)
     PyPlot.plt.ylabel("X (pc)")
     PyPlot.plt.grid(true)
 
-    PyPlot.plt.subplot(2, 2, 3 , xlim=[-100,100])
+    PyPlot.plt.subplot(2, 2, 3 , xlim=[-100,100] , ylim=[-100,100])
     PyPlot.plt.scatter(df.Y, df.Z, s = 0.1 )
     PyPlot.plt.xlabel("Y (pc)")
     PyPlot.plt.ylabel("Z (pc)")
@@ -75,8 +75,8 @@ function __plot_dist_cmd(dist, plotfile="test-dist_cmd.png", plotdir= ".")
 end
 
 
-## testing stars with very similars with very similar cmd
-function __tail_stars(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, dfnew::GaiaClustering.Df, dfcartnew::GaiaClustering.Df, idx)
+## testing stars with very similar cmd
+function(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, dfnew::GaiaClustering.Df, dfcartnew::GaiaClustering.Df, idx)
     debug_red("entering testing tail...")
     doc= __transform_df(df, dfcart, idx)
 
@@ -181,29 +181,47 @@ function __distance_cmd(df1, df2)
     return(idx , dist)
 end
 
-function __density_count(xx, yy, nbin=10, xrange=[-100,100],yrange=[-100,100])
-    data = (xx,yy)
+function __density_count(xx, yy, nbin=100, xrange=[-100,100],yrange=[-100,100])
+    data = (xx,yy) 
+    stepx= (xrange[2]-xrange[1])/nbin
+    stepy= (yrange[2]-yrange[1])/nbin 
     debug_red("density..")
-    edg=[-50:1:50,-50:1,50]
-    # h = fit(Histogram, data , (-50:50, -50:50), nbins=20)
 
-    xmax= 100 ; ymax= 100
-    h = FHist.Hist2D((xx,yy), (-xmax:2:xmax, -ymax:2:ymax))
+    h = FHist.Hist2D((xx,yy), (xrange[1]:stepx:xrange[2], yrange[1]:stepy:yrange[2]))
 
     wav= atrous(h.hist.weights, 5)
     # wavFilt= thresholdingWav(wav,Normal())
     rec= addWav(wav,3,6)
-    nrec= size(rec)[1]
+    rec= permutedims(rec, [2, 1])
+    nrec= size(rec)
+    println(nrec)
+    nticks= 4
+
+    xti= [] ; yti= [] ; xv=[] ; yv=[]
+    dx= (xrange[2]-xrange[1])/nticks  ; dy= (yrange[2]-yrange[1])/nticks
+    dxi= (nrec[1]-1)/nticks ; dyi= (nrec[2]-1)/nticks
+
+    for i in 1:(nticks+1)
+        xx= xrange[1] + (i-1)*dx  ; sx= @sprintf("%3.0f",xx) ; xi= (i-1)*dxi
+        yy= yrange[1] + (i-1)*dy  ; sy= @sprintf("%3.0f",yy) ; yi= (i-1)*dyi
+        push!(xti, sx) ; push!(xv, xi)
+        push!(yti, sy) ;  push!(yv, yi) 
+    end
+    println(yv)
+    println(yti)
+
 
     PyPlot.plt.figure(figsize=(9.0,8.0))
-    PyPlot.plt.subplot(1, 1, 1 )
-    # PyPlot.plt.contour(h.weights, colors="black")
+    ax= PyPlot.plt.subplot(1, 1, 1 )
 
-    vmin, vmax=  __level_dens(rec , 0.5, 10)
+    println("toto...")
+    println(ax)
+    ax.set_xticks(xv) ;  ax.set_xticklabels(xti)
+    ax.set_yticks(yv) ;  ax.set_yticklabels(yti)
+
+    vmin, vmax=  __level_dens(rec , 0.1, 5, norm="log")
     nlev= 20
-
     PyPlot.plt.contour(rec, nlev, vmin=vmin, vmax=vmax, linewidths= 0.2, colors= "black") 
-    # PyPlot.plt.xticks([])
 
     PyPlot.plt.savefig("test_density.png")
 
