@@ -84,7 +84,7 @@ export set_default_params , read_params , set_param!
 
 ## tail methods
 include("tail.jl")
-# export
+export tail_stars , transform_df , distance_cmd_tail
 
 ## functions for isochrone fitting
 include("isochrones.jl")
@@ -100,5 +100,5 @@ export abc_mcmc_dbscan_full , check_qminqstar_full , find_clusters
 
 ## testing functions
 include("testing.jl")
-export __plot_check , __plot_nstars , __tail_stars , __density_count
+export __plot_check , __plot_nstars , __tail_stars , __density_count , __level_dens
 end
