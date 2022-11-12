@@ -62,7 +62,6 @@ end
 
 
 function __plot_dist_cmd(dist, plotfile="test-dist_cmd.png", plotdir= ".")
-    println("## plotting cmd dist distribution...")
     PyPlot.plt.figure(figsize=(9.0,8.0))
     PyPlot.plt.subplot(1, 1, 1 )
     nbins = 50
@@ -237,4 +236,25 @@ function __level_dens(dens,sigmin= 3, sigmax= 20, clip= 10)
     vmax= sigmax*sigfinal
 
     return(vmin, vmax)
+end
+
+function __plot_surface_density(xx,yy, plotfile)
+
+    r2d, dens, err2d= density2D(xx,yy,20)
+
+    PyPlot.plt.figure(figsize=(9.0,8.0))
+    ax= PyPlot.plt.subplot(1, 1, 1 )
+
+    ax.set_yscale("log")
+    ax.set_xscale("log")
+    PyPlot.plt.xlim(r2d[1]*0.9, r2d[end]*1.1)
+    PyPlot.plt.ylim(minimum(dens[dens .> 0])*0.5,maximum(dens)*1.5)
+    PyPlot.plt.grid("on")
+    PyPlot.plt.xlabel("radius (pc)")
+    PyPlot.plt.ylabel("ρ")
+    PyPlot.plt.scatter(r2d, dens , s=4, facecolor="blue" )
+    PyPlot.plt.errorbar(r2d, dens, yerr=2 .* err2d, linewidth=0.5)
+
+
+    PyPlot.plt.savefig(plotfile)
 end

@@ -641,7 +641,6 @@ function plot_astrom(plotdir, voname, indx, sc::GaiaClustering.SCproperties2, df
     PyPlot.plt.grid(true)
 
 
-
     figname = plotdir*"/"*voname*".astrom.png"
     PyPlot.plt.savefig(figname)
     if showplot PyPlot.plt.show() end
@@ -694,6 +693,81 @@ function plot_isochrone(plotdir, voname, df, iso , txt_iso, showplot = true)
     PyPlot.plt.grid(true)
 
     figname = plotdir*"/"*voname*".isochrone.png"
+    PyPlot.plt.savefig(figname)
+    if showplot PyPlot.plt.show() end
+end
+
+### plot the step 2  process (tails, etc)
+### dist: distance to CMD
+
+function plot_tail(plotdir, voname, dftail , dist,  fit, err, found, dfinfo; showplot=false)
+    patch= pyimport("matplotlib.patches")
+
+    PyPlot.plt.rcParams["font.size"]= 25
+    PyPlot.plt.figure(figsize=(13.0,12.0))
+
+    PyPlot.plt.subplot(3, 2, 1)
+    PyPlot.plt.axis("on")
+    xx = dftail.Y
+    yy = dftail.Z
+    ymin= minimum(yy) ; ymax= maximum(yy)
+    PyPlot.plt.ylim(ymax,ymin)
+    PyPlot.plt.scatter(xx, yy , s = 1.0 )
+    PyPlot.plt.xlabel("Y")
+    PyPlot.plt.ylabel("Z")
+    PyPlot.plt.grid(true)
+
+    PyPlot.plt.subplot(3, 2, 2)
+    nbins = 50
+    PyPlot.plt.hist(dist,nbins, range = [0,0.50],  color = "g", alpha=0.8 ,density=false)
+    PyPlot.plt.xlabel("Distance CMD")
+    PyPlot.plt.ylabel("N")
+    PyPlot.plt.grid(true)
+
+    if found
+        nbin= 10
+        r2d,ρ2d,err2d= density2D(dftail.Y, dftail.Z, nbin)
+
+        ρ2dfit= model_rad(r2d, fit, fdens1)
+        dct= Dict("color"=> "black", "fontsize"=> 11)
+       
+        ax= PyPlot.subplot(3, 2, 3)
+        ax.set_yscale("log")
+        ax.set_xscale("log")
+        ax.set_xlim(r2d[1]*0.9, r2d[end]*1.1)
+        ax.set_ylim(minimum(ρ2d[ρ2d .> 0])*0.2,maximum(ρ2d)*1.5)
+        PyPlot.grid("on")
+        PyPlot.scatter(r2d, ρ2d , s=4, facecolor="blue" )
+        PyPlot.errorbar(r2d, ρ2d, yerr=2 .* err2d, linewidth=0.5)
+    
+        PyPlot.plot(r2d, ρ2dfit, "k-", linewidth=1)
+    end
+
+    ## text to display
+    axt= PyPlot.plt.subplot(3, 2, 5)
+    PyPlot.plt.axis("off")
+    dct= Dict("color"=> "black", "fontsize"=> 10)
+
+    text =[]
+    v= "$voname" ; txt = "Votable : $v" ; push!(text,txt)
+    v= "$(dfinfo.cycle[1])" ; txt = "Cycle : $v" ; push!(text,txt)
+    v = dfinfo.nstep1[1] ; txt = "N Step 1 : $v" ; push!(text,txt)
+    v = dfinfo.nstep2[1] ; txt = "N Step 2 : $v" ; push!(text,txt)
+    v = dfinfo.ntotal[1] ; txt = "N Total : $v" ; push!(text,txt)
+    if found
+        v = fit.m ; txt = "Fit m : $v" ; push!(text,txt)
+        v = fit.s ; txt = "Fit s : $v (pc)" ; push!(text,txt)
+        v = fit.C ; txt = "Fit C : $v (*/pc2)" ; push!(text,txt)
+    end
+
+    show_text(-0.01, -0.1, text , 0.9)
+
+    rec= patch.Rectangle((-0.07, -0.15), 1.0, 1.0, color="salmon", alpha= 0.4, clip_on=false)
+    axt.add_artist(rec)
+
+
+    figname = plotdir*"/"*voname*".$(dfinfo.cycle[1])"*".tail.png"
+    debug_red(figname)
     PyPlot.plt.savefig(figname)
     if showplot PyPlot.plt.show() end
 end

@@ -2,14 +2,16 @@
 ## Apply a cut in radius, velocity and a match with the first CMD 
 
 ## testing stars with very similar cmd
-function tail_stars(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, dfnew::GaiaClustering.Df, dfcartnew::GaiaClustering.Df, idx,  m::GaiaClustering.meta)
+function tail_stars(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, dfnew::GaiaClustering.Df, dfcartnew::GaiaClustering.Df, idx,  
+    m::GaiaClustering.meta ; cycle=1, plot=true)
     debug_red("entering  tail...")
-    doc= __transform_df(df, dfcart, idx)
+    doc= transform_df(df, dfcart, idx)
+
+    ## source id for the full solution, starting with the old one...
 
     s=dfnew.ndata
     s1= length(dfnew.data[4,:])
-    debug_red("$s $s1")
-    dnew= __transform_df(dfnew, dfcartnew, 1:s)
+    dnew= transform_df(dfnew, dfcartnew, 1:s)
 
     xcenter= median(doc.X) ; ycenter= median(doc.Y) ;  zcenter= median(doc.Z)
     dnew.X = dnew.X .- xcenter ; dnew.Y = dnew.Y .- ycenter ; dnew.Z = dnew.Z .- zcenter
@@ -31,31 +33,56 @@ function tail_stars(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, dfnew::Gai
     debug_red("Filtering..")
     debug_red("$s $srad $svel")
 
-    __plot_tail(dnew, doc, "test_tail1")
-    __plot_tail(dnewrad, doc , "test_tail2")
-    __plot_tail(dnewvel, doc , "test_tail3")
-
     doc= filter(:BmR0 => x -> !(ismissing(x) || isnothing(x) || isnan(x)), doc)
     dnewvel= filter(:BmR0 => x -> !(ismissing(x) || isnothing(x) || isnan(x)), dnewvel)
 
-    idx , dist= __distance_cmd(doc,dnewvel)
-    println(length(dnewvel.G))
-    println(length(dist))
+    idx_tail , dist= distance_cmd_tail(doc,dnewvel)
 
     ## cut with cmd
     cmdDistMax= m.maxDistCmdTail
     idc= findall(x->(x< cmdDistMax),dist)
-    __plot_dist_cmd(dist)
-    s= length(idc)
-    debug_red("CMD dist condition: $s")
 
     dnewcmd= dnewvel[idc,:]
-    # println(idx[idc])
+
+    sid_final= vcat(df.sourceid[1,idx],dnewcmd.sourceid) 
+    
+    label_newsolution= []
+
+    sold= size(idx)[1] ; snew= size(idc)[1]
+    println("### Tail solutions step 1: $sold")
+    println("### Tail solutions step 2: $snew")
+
+    for sid in sid_final
+        inew= findall(x-> x == sid, df.sourceid[1,:])
+        if length(inew) > 1 || length(inew) == 0
+            println("### Warning,there is duplicated id  in the solution ... ")
+        else
+            push!(label_newsolution, inew[1])
+        end
+    end
+
+    __plot_dist_cmd(dist)
+    __plot_surface_density(dnewcmd.Y, dnewcmd.Z,"test_surface_density.png")
+
     __plot_tail(dnewcmd, doc,  "test_tail4")
-    density_count(dnewcmd.Y, dnewcmd.Z, 256)
+    # density_count(dnewcmd.Y, dnewcmd.Z, 128)
+    if plot 
+        println("### Plot the step 2 results...")
+        votname= basename(m.votname)
+        nstep1= sold[1] ; nstep2= snew[1] ; ntotal= nstep1+nstep2
+
+        ## fit density2D to Cauchy
+        nbin= 10
+        fit, err, found=  spatialParameter("", nbin=nbin, verbose=false, niter=10000, dfoc=dnewcmd)
+
+        dfinfo= DataFrame(cycle=cycle, nstep1=nstep1, nstep2=nstep2, ntotal=ntotal)
+        plot_tail(m.plotdir, votname, dnewcmd, dist, fit, err, found, dfinfo)
+    end
+
+    labels= [label_newsolution]     ## index for solution
+    labelmax= 1                     ## solution is label 1
     
-    
-     a += 0
+    return(labels,  labelmax)
 end
 
 function transform_df(df,dfcart, idx)
@@ -107,7 +134,7 @@ function distance_cmd_tail(df1, df2)
     return(idx , dist)
 end
 
-function density_count(xx, yy, nbin=100, xrange=[-100,100],yrange=[-100,100])
+function density_count(xx, yy, nbin=128, xrange=[-100,100],yrange=[-100,100])
     data = (xx,yy) 
     stepx= (xrange[2]-xrange[1])/nbin
     stepy= (yrange[2]-yrange[1])/nbin 
@@ -116,13 +143,13 @@ function density_count(xx, yy, nbin=100, xrange=[-100,100],yrange=[-100,100])
     h = FHist.Hist2D((xx,yy), (xrange[1]:stepx:xrange[2], yrange[1]:stepy:yrange[2]))
     dens= h.hist.weights ./ (stepx*stepy)
 
-    wav= atrous(dens, 5)
+    wav= atrous(dens, 7)
     # wavFilt= thresholdingWav(wav,Normal())
-    rec= addWav(wav,4,6)
+    rec= addWav(wav,4,8)
     rec= permutedims(rec, [2, 1])
     nrec= size(rec)
     println(nrec)
-    
+
     nticks= 4
     xti= [] ; yti= [] ; xv=[] ; yv=[]
     dx= (xrange[2]-xrange[1])/nticks  ; dy= (yrange[2]-yrange[1])/nticks

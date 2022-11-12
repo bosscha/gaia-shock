@@ -43,7 +43,7 @@ export voronoi
 ## stelllar cluster analysis
 include("stellarcluster.jl")
 export metric , clusters , find_clusters2 , find_cluster_label, get_properties_SC , metric2 ,
-find_cluster_label2, get_metrics,  get_properties_SC2, cycle_extraction, score_cycle ,
+find_cluster_label2, get_metrics,  get_properties_SC2,  score_cycle ,
 remove_stars , edge_ratio, save_cycle , compute_PC , cycle_extraction_optim, save_cycle_optim
 
 ## MCMC for gaia
@@ -55,7 +55,7 @@ check_qminqstar_full2, create_DFchain, extraction_mcmc
 ## plotting functions
 include("plots.jl")
 export show_text , plot_dbscan_mcmc , plot_cluster , plot_dbscanfull_mcmc , plot_cluster2 ,
-plot_rawdata, plot_astrom
+plot_rawdata, plot_astrom, plot_tail
 
 ## imaging functions
 include("imaging.jl")
@@ -84,7 +84,7 @@ export set_default_params , read_params , set_param!
 
 ## tail methods
 include("tail.jl")
-export tail_stars , transform_df , distance_cmd_tail
+export tail_stars , transform_df , distance_cmd_tail , surface_density
 
 ## functions for isochrone fitting
 include("isochrones.jl")
@@ -96,9 +96,9 @@ export extra , get_gaia_data , get_gaia_data_many , get_random_field , galactic2
 
 ## deprecated functions
 include("deprecated.jl")
-export abc_mcmc_dbscan_full , check_qminqstar_full , find_clusters
+export abc_mcmc_dbscan_full , check_qminqstar_full , find_clusters , cycle_extraction
 
 ## testing functions
 include("testing.jl")
-export __plot_check , __plot_nstars , __tail_stars , __density_count , __level_dens
+export __plot_check , __plot_nstars , __tail_stars , __density_count , __level_dens, __plot_surface_density
 end

@@ -151,7 +151,7 @@ let
 
     m.optim= opt
     m.votname= votable
-    m.pca= pca ; m.zpt= zpt ; m.iso= iso
+    m.pca= pca ; m.zpt= zpt ; m.iso= iso ; m.tail= tail
 
     if m.optim == "yes"
         isoptimized= true

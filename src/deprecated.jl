@@ -256,3 +256,162 @@ function find_clusters(df::GaiaClustering.Df, dfcart::GaiaClustering.Df , m::Gai
         return(qc, qstar)
     end
 end
+##################
+function cycle_extraction(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, m::GaiaClustering.meta)
+    let
+        println("############### cycle_extraction #########")
+
+        votname= m.votname
+        cyclerun= true ; cycle= 1 ; FLAG= 0
+
+        sclist= [] ; mcmclist= [] ; perflist= [] ; chainlist= []
+
+        println("##")
+        while cyclerun
+            FLAG= -1
+            tstart= now()
+            println("###############")
+            print("## "); println(blue("starting cycle $cycle ..."))
+            @printf("## starting time: %s \n",tstart)
+            ## extraction one cycle.. MCMC optimization
+            mc , iter, FLAGmcmc= abc_mcmc_dbscan_full2(dfcart, m)
+            println("## ABC/MCMC flag: $FLAGmcmc")
+            nchain= length(mc.qc)
+            println("## $iter iterations performed...")
+            println("## $nchain chains")
+
+            if FLAGmcmc== -1 || nchain > m.minchainreached
+                println("## optimization completed..")
+                println("## analyzing solutions...")
+                plot_dbscanfull_mcmc(m.plotdir, "$votname.$cycle", mc , false)
+
+                ## get the cluster and plot it
+                println("## extracting the cluster using DBSCAN/WEIGHTING with:")
+                res= extraction_mcmc(mc, m.votname)
+                eps= res.epsm[1]
+                min_nei= trunc(Int,res.mneim[1] + 0.5)
+                min_cl= trunc(Int,res.mclm[1] + 0.5)
+                w3d= res.w3dm[1]
+                wvel= res.wvelm[1]
+                whrd= res.whrdm[1]
+
+                mres = GaiaClustering.modelfull(eps,min_nei,min_cl,w3d,wvel,whrd)
+                dfcartnorm = getDfcartnorm(dfcart, mres)
+                labels = clusters(dfcartnorm.data ,eps  , 20, min_nei, min_cl)
+                labelmax , nmax, qc = find_cluster_label2(labels, df, dfcart, m)
+                println("## label $labelmax written to oc...")
+                export_df("$votname.$cycle", m.ocdir, df , dfcart , labels , labelmax)
+
+                ## Principal components
+                pc, pcres= compute_PC(df, dfcart, labels, labelmax)
+
+                edgeratio1, edgeratio2= edge_ratio(dfcart, labels[labelmax])
+                scproperties = get_properties_SC2(labels[labelmax] , df, dfcart)
+                scdf= convertStruct2Df(scproperties)
+                insertcols!(scdf, 1, :votname => votname)
+                s=size(scdf)
+                insertcols!(scdf, 2, :cycle => cycle)
+                insertcols!(scdf, 3, :pc3 => pcres[3])
+                insertcols!(scdf, 3, :pc2 => pcres[2])
+                insertcols!(scdf, 3, :pc1 => pcres[1])
+
+                insertcols!(res, 2,  :cycle => cycle)
+                push!(sclist, scdf)
+                push!(mcmclist, res)
+
+                ## create DF chain
+                dfchain= create_DFchain(mc, votname, cycle)
+                push!(chainlist,dfchain)
+
+                println("###")
+                println("### solution label: $labelmax")
+                print("### "); println(red(@sprintf("PC1: %3.1f , PC2: %3.1f , PC3: %3.1f", pcres[1], pcres[2], pcres[3])))
+                println("### Offdeg: $(scproperties.offdeg)")
+                println("### Edge ratio: $(scproperties.edgratm)")
+                println("### N stars: $nmax")
+                println("### Qc: $qc")
+                println("###")
+
+                k= score_cycle(qc, nmax, nchain, iter)
+                @printf("## score cycle %d: %3.3f \n",cycle, k)
+
+                extraplot= DataFrame(cycle=cycle, score_cycle=k, qc=qc, votname=votname, pc1=pcres[1],pc2=pcres[2], pc3=pcres[3])
+
+                plot_cluster2(m.plotdir, "$votname.$cycle", labels[labelmax], scproperties,
+                    dfcart , false, extraplot)
+
+                jump= 50  # how many stars to jump in the plot
+                plot_rawdata(m.plotdir, "$votname.$cycle", labels[labelmax], scproperties,
+                    dfcart , pc, jump, false, extraplot)
+
+                println("###")
+                println("### subtracting BEST solution from Df...")
+                dfnew, dfcartnew= remove_stars(df, dfcart, labels[labelmax])
+                df= dfnew
+                dfcart= dfcartnew
+
+                ########################### STOP conditions #########
+                FLAG= 0
+                if nmax < m.minstarstop
+                    FLAG= FLAG | (1<<0)
+                    println("### extraction stopped at cycle $cycle")
+                    println("### nmax too low...")
+                    cyclerun= false
+                end
+                if cycle == m.cyclemax
+                    FLAG= FLAG | (1<<1)
+                    println("### extraction stopped at cycle $cycle")
+                    println("### cyclemax reached...")
+                    cyclerun= false
+                end
+                if qc < m.qcminstop
+                    FLAG= FLAG | (1<<2)
+                    println("### extraction stopped at cycle $cycle")
+                    println("### Qc too low...")
+                    cyclerun= false
+                end
+                if w3d/wvel < m.wratiominstop || wvel/w3d < m.wratiominstop
+                    FLAG= FLAG | (1<<3)
+                    println("### extraction stopped at cycle $cycle")
+                    println("### weight ratio too low...")
+                    cyclerun= false
+                end
+                if FLAGmcmc == 3 && nchain > m.minchainreached
+                    FLAG= FLAG | (1<<4)
+                    println("## extraction stopped at cycle $cycle")
+                    println("## chain iteration not performed completely but sufficient to keep...")
+                    cyclerun= false
+                end
+                #####################################################
+                ## Time
+                tend= now()
+                duration= Dates.value(tend-tstart) / (1000*1)
+                nstar= size(df.raw)[2]
+                timeperiterstar= duration / (iter*nstar)
+                timeperchainstar= duration / (nchain*nstar)
+                @printf("## \n")
+                @printf("## Time: \n")
+                @printf("## duration per cycle %3.3f sec \n", duration)
+                @printf("## duration per iteration*star %3.3e sec \n", timeperiterstar)
+                @printf("## duration per chain*star %3.3e sec \n", timeperchainstar)
+                @printf("##\n")
+
+                ## log the results of performances
+                dfout= DataFrame(votname=votname, cycle=cycle, nstar=nstar, qc=qc, nmax=nmax, nchain=nchain, iter=iter,
+                scorecycle=k, duration=duration, timeperiterstar=timeperiterstar ,
+                timeperchainstar= timeperchainstar )
+                push!(perflist, dfout)
+
+                cycle += 1
+            else
+                println("## nothing found, stopped...")
+                FLAG= 0
+                cyclerun= false
+            end
+        end
+        if cycle >= 2
+            save_cycle(sclist, mcmclist, perflist, chainlist, m)
+        end
+        return(cycle-1, FLAG)
+    end
+end

@@ -4,17 +4,21 @@
 ## extract parameters
 ##
 
-function spatialParameter(ocfile, ntest=10 , nbin=20, niter=10000 ,verbose=true, nburnin= 5000)
+function spatialParameter(ocfile ; ntest=10 , nbin=20, niter=10000 ,verbose=true, nburnin= 5000 , dfoc=-1)
     let
         solC= []; sols= []; solm= []
         ηBest= 1e9 ; θBest= 0
         fitfound= false
 
-        oc= CSV.read(ocfile, delim= ";")
-        if verbose println("## file $ocfile read...") end
+        if dfoc == -1
+            oc= CSV.read(ocfile, DataFrame ,  delim= ";")
+            if verbose println("## file $ocfile read...") end
+        else
+            oc=dfoc
+        end
 
         ## binned density
-        r2d,ρ2d,err2d= density2D(oc.Y, oc.Z, nbin)    ## binned radius
+        r2d,ρ2d,err2d= density2D(oc.Y, oc.Z, nbin)    ## binned radius, default in log
         # r3d,ρ3d,err3d= density3D(oc.X, oc.Y, oc.Z, nbin)
 
         ## local density
@@ -24,9 +28,7 @@ function spatialParameter(ocfile, ntest=10 , nbin=20, niter=10000 ,verbose=true,
         # rad_3d, loc_3d= locdens3d(oc.X,oc.Y, oc.Z, nloc)
 
         oc2d= sc2dcentered(length(oc.Y), oc.Y, oc.Z, rad_2d, loc_2d , nbin , r2d, ρ2d, err2d )
-
-        println(oc2d.densbin)
-        # println(oc2d.densbinerr)
+   
         if verbose println("## Density profiles computed...") end
 
         ## prior estimation
@@ -102,6 +104,9 @@ function priorGuess(rad, dens)
     m= 3
     mdisp= 2
 
+    # King 
+    # m=1.5 ; mdisp= 0.0001
+    
     C= maximum(dens)
     Cdisp= C/2
 
@@ -126,7 +131,7 @@ function areaDisk(r)
     return(π * r^2)
 end
 
-function density2D(x , y , nbin=10)
+function density2D(x , y , nbin=10; norm="log")
     center= [mean(x) ; mean(y)]
 
     nxy= length(x)
@@ -141,11 +146,23 @@ function density2D(x , y , nbin=10)
 
     ρ= [] ; radius= [] ; err= []
     rmax= maximum(r)
-    dr= rmax/nbin
     r0=0
 
+    if norm == "log"
+        rmin= 0.5
+        dlogr= (log10(rmax) - log10(rmin)) /nbin
+        rlogmin= log10(rmin)
+    else
+        dr= rmax/nbin
+    end
+
+
     for i in 1:nbin
-        r1= i*dr
+        if norm == "log"
+            r1= 10^(rlogmin+i*dlogr)
+        else
+            r1= i*dr
+        end
         indr= (r .> r0) .& (r .<= r1)
         nstar= count(indr)
         dens= nstar/(areaDisk(r1)-areaDisk(r0))
