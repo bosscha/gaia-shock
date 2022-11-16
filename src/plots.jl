@@ -700,7 +700,7 @@ end
 ### plot the step 2  process (tails, etc)
 ### dist: distance to CMD
 
-function plot_tail(plotdir, voname, dftail , dist,  fit, err, found, dfinfo; showplot=false)
+function plot_tail(plotdir, voname, dftail , dfstep1, dfstep2, dist,  fit, err, found, dfinfo; showplot=false)
     patch= pyimport("matplotlib.patches")
 
     PyPlot.plt.rcParams["font.size"]= 25
@@ -708,27 +708,46 @@ function plot_tail(plotdir, voname, dftail , dist,  fit, err, found, dfinfo; sho
 
     PyPlot.plt.subplot(3, 2, 1)
     PyPlot.plt.axis("on")
-    xx = dftail.Y
-    yy = dftail.Z
+    xx = dftail.Y   ; x1= dfstep1.Y ; x2= dfstep1.Y
+    yy = dftail.Z   ; y1= dfstep1.Z ; y2= dfstep1.Z
     ymin= minimum(yy) ; ymax= maximum(yy)
-    PyPlot.plt.ylim(ymax,ymin)
-    PyPlot.plt.scatter(xx, yy , s = 1.0 )
-    PyPlot.plt.xlabel("Y")
-    PyPlot.plt.ylabel("Z")
+    PyPlot.plt.ylim(ymin,ymax)
+    # PyPlot.plt.scatter(xx, yy , s = 1.0 )
+    PyPlot.plt.scatter(x1, y1 , s = 1.0 , c= "red" )
+    PyPlot.plt.scatter(x2, y2 , s = 1.0 , c= "blue")
+    PyPlot.plt.xlabel("Y (pc)")
+    PyPlot.plt.ylabel("Z (pc)")
     PyPlot.plt.grid(true)
 
-    PyPlot.plt.subplot(3, 2, 2)
+    PyPlot.plt.subplot(3, 2,6)
     nbins = 50
     PyPlot.plt.hist(dist,nbins, range = [0,0.50],  color = "g", alpha=0.8 ,density=false)
-    PyPlot.plt.xlabel("Distance CMD")
+    PyPlot.plt.xlabel("CMD Distance")
     PyPlot.plt.ylabel("N")
     PyPlot.plt.grid(true)
 
     if found
-        nbin= 10
+        nbin= 20
         r2d,ρ2d,err2d= density2D(dftail.Y, dftail.Z, nbin)
 
         ρ2dfit= model_rad(r2d, fit, fdens1)
+        dct= Dict("color"=> "black", "fontsize"=> 11)
+       
+        ax= PyPlot.subplot(3, 2, 3)
+        ax.set_yscale("log")
+        ax.set_xscale("log")
+        ax.set_xlim(r2d[1]*0.9, r2d[end]*1.1)
+        ax.set_ylim(minimum(ρ2d[ρ2d .> 0])*0.2,maximum(ρ2d)*2)
+        PyPlot.grid("on")
+        PyPlot.scatter(r2d, ρ2d , s=4, facecolor="blue" )
+        PyPlot.errorbar(r2d, ρ2d, yerr=2 .* err2d, linewidth=0.5)
+    
+        PyPlot.plot(r2d, ρ2dfit, "r--", linewidth=1)
+    else
+        println("### No fit found for the radial surface density...")
+        nbin= 20
+        r2d,ρ2d,err2d= density2D(dftail.Y, dftail.Z, nbin)
+
         dct= Dict("color"=> "black", "fontsize"=> 11)
        
         ax= PyPlot.subplot(3, 2, 3)
@@ -739,25 +758,81 @@ function plot_tail(plotdir, voname, dftail , dist,  fit, err, found, dfinfo; sho
         PyPlot.grid("on")
         PyPlot.scatter(r2d, ρ2d , s=4, facecolor="blue" )
         PyPlot.errorbar(r2d, ρ2d, yerr=2 .* err2d, linewidth=0.5)
-    
-        PyPlot.plot(r2d, ρ2dfit, "k-", linewidth=1)
     end
 
-    ## text to display
+    ## surface density...
+    ## 
+    data = (dftail.Y, dftail.Z) 
+    xmax= max(maximum(dftail.Y), maximum(-dftail.Y))
+    ymax= max(maximum(dftail.Z), maximum(-dftail.Z))
+    xymax= max(xmax,ymax)
+    val= ceil(xymax/10)*10
+    xrange=[-val,val] ; yrange= xrange 
+
+    nbxy= 128
+    stepx= (xrange[2]-xrange[1])/nbxy ; stepy= (yrange[2]-yrange[1])/nbxy
+
+    h = FHist.Hist2D(data, (xrange[1]:stepx:xrange[2], yrange[1]:stepy:yrange[2]))
+    dens= h.hist.weights ./ (stepx*stepy)
+
+    wav= atrous(dens, 7)            ## wavelet transform for smoothing
+    rec= addWav(wav,4,8)            ## reconstruction
+    rec= permutedims(rec, [2, 1])
+    nrec= size(rec)
+
+    nticks= 4
+    xti= [] ; yti= [] ; xv=[] ; yv=[]
+    dx= (xrange[2]-xrange[1])/nticks  ; dy= (yrange[2]-yrange[1])/nticks
+    dxi= (nrec[1]-1)/nticks ; dyi= (nrec[2]-1)/nticks
+    
+    for i in 1:(nticks+1)
+        xx= xrange[1] + (i-1)*dx  ; sx= @sprintf("%3.0f",xx) ; xi= (i-1)*dxi
+        yy= yrange[1] + (i-1)*dy  ; sy= @sprintf("%3.0f",yy) ; yi= (i-1)*dyi
+        push!(xti, sx) ; push!(xv, xi)
+        push!(yti, sy) ;  push!(yv, yi) 
+    end
+    
+    ax= PyPlot.plt.subplot(3, 2, 2 )
+    ax.set_xticks(xv) ;  ax.set_xticklabels(xti)
+    ax.set_yticks(yv) ;  ax.set_yticklabels(yti)
+    ax.set_aspect(1)
+    ax.set_xlabel("Y (pc)")
+    ax.set_ylabel("Z (pc)")
+
+    lev=  level_dens(rec , 0.05,5,8)
+
+    PyPlot.plt.contourf(rec, lev    , cmap="gist_stern_r")
+    PyPlot.plt.contour(rec, lev, linewidths= 0.2, colors= "blue") 
+
+    ### CMD plot
+    PyPlot.plt.subplot(3, 2, 4)
+    PyPlot.plt.axis("on")
+    xx = filter(!isnan,dftail.BmR0)
+    yy = filter(!isnan,dftail.G)
+    ymin= minimum(yy) ; ymax= maximum(yy)
+    PyPlot.plt.ylim(ymax,ymin)
+    PyPlot.plt.scatter(xx, yy , s = 1.0 )
+    PyPlot.plt.xlabel("BmR0")
+    PyPlot.plt.ylabel("G")
+    PyPlot.plt.grid(true)
+
+    ### text to display...
     axt= PyPlot.plt.subplot(3, 2, 5)
     PyPlot.plt.axis("off")
     dct= Dict("color"=> "black", "fontsize"=> 10)
 
+    dist= median(filter(!isnan,dftail.dist))
     text =[]
     v= "$voname" ; txt = "Votable : $v" ; push!(text,txt)
     v= "$(dfinfo.cycle[1])" ; txt = "Cycle : $v" ; push!(text,txt)
+    v= "$dist" ; txt = "Distance : $v pc" ; push!(text,txt)
     v = dfinfo.nstep1[1] ; txt = "N Step 1 : $v" ; push!(text,txt)
     v = dfinfo.nstep2[1] ; txt = "N Step 2 : $v" ; push!(text,txt)
     v = dfinfo.ntotal[1] ; txt = "N Total : $v" ; push!(text,txt)
     if found
-        v = fit.m ; txt = "Fit m : $v" ; push!(text,txt)
-        v = fit.s ; txt = "Fit s : $v (pc)" ; push!(text,txt)
-        v = fit.C ; txt = "Fit C : $v (*/pc2)" ; push!(text,txt)
+        v = fit.m ; txt = @sprintf("Fit m : %3.3f (%3.3f)",v, err.m) ; push!(text,txt)
+        v = fit.s ; txt = @sprintf("Fit s : %3.3f (%3.3f) (pc)",v, err.s) ; push!(text,txt)
+        v = fit.C ; txt = @sprintf("Fit C : %3.3f (%3.3f) (*/pc2)",v, err.C) ; push!(text,txt)
     end
 
     show_text(-0.01, -0.1, text , 0.9)
@@ -770,4 +845,26 @@ function plot_tail(plotdir, voname, dftail , dist,  fit, err, found, dfinfo; sho
     debug_red(figname)
     PyPlot.plt.savefig(figname)
     if showplot PyPlot.plt.show() end
+end
+## levels of a density image
+function level_dens(dens,sigmin= 3, sigmax= 20, clip= 5)
+
+    # sigma-clipping
+    sigfirst= std(dens)
+    mfirst= median(dens)
+    sigfinal= std(dens[dens .< clip*sigfirst])
+    vmin= sigmin*sigfinal
+    vmax= sigmax*sigfinal
+
+    nlev= 15
+    vmin= log10(vmin)
+    vmax= log10(maximum(dens))
+    dlogv= (vmax-vmin) /nlev
+    
+    lev=[]
+    for i in 1:nlev
+        v1= 10^(vmin+i*dlogv)
+        push!(lev,v1)
+    end
+    return(lev)
 end
