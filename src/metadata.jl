@@ -42,7 +42,7 @@ function set_default_params()::meta
 
     ## parameters for 2nd step extraction ("tail")
     def.maxRadTail      = 250.0             ## cut in radius (pc) from the center of the oc candidate (step 1)
-    def.maxVelTail      = 10.0              ## cut in velocity (km/s) from the velocity of the oc candidate (step 1)
+    def.maxVelTail      = 5.0               ## cut in velocity (km/s) from the velocity of the oc candidate (step 1)
     def.maxDistCmdTail  = 0.05              ## maximum distance to the CMD of the oc candidate (step 1)
 
     ## MCMC

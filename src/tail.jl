@@ -60,27 +60,43 @@ function tail_stars(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, dfnew::Gai
             push!(label_newsolution, inew[1])
         end
     end
+    
+    ## labels for step 2 solution
+    label_step2= []
+    for sid in dnewcmd.sourceid
+        inew= findall(x-> x == sid, df.sourceid[1,:])
+        if length(inew) > 1 || length(inew) == 0
+            println("### Warning,there is duplicated id  in the solution ... ")
+        else
+            push!(label_step2, inew[1])
+        end
+    end
 
-    __plot_dist_cmd(dist)
-    __plot_surface_density(dnewcmd.Y, dnewcmd.Z,"test_surface_density.png")
+    ## final results
+    dfres= transform_df(df, dfcart,label_newsolution)
+    dfstep1= doc
+    dfstep2= dnewcmd
 
-    __plot_tail(dnewcmd, doc,  "test_tail4")
+    #__plot_dist_cmd(dist)
+    #__plot_surface_density(dnewcmd.Y, dnewcmd.Z,"test_surface_density.png")
+
+    # __plot_tail(dnewcmd, doc,  "test_tail4")
     # density_count(dnewcmd.Y, dnewcmd.Z, 128)
     if plot 
         println("### Plot the step 2 results...")
         votname= basename(m.votname)
         nstep1= sold[1] ; nstep2= snew[1] ; ntotal= nstep1+nstep2
-
+        
         ## fit density2D to Cauchy
-        nbin= 10
-        fit, err, found=  spatialParameter("", nbin=nbin, verbose=false, niter=10000, dfoc=dnewcmd)
+        nbin= 25
+        fit, err, found=  spatialParameter("", nbin=nbin, verbose=false, niter=15000, dfoc=dfres)
 
         dfinfo= DataFrame(cycle=cycle, nstep1=nstep1, nstep2=nstep2, ntotal=ntotal)
-        plot_tail(m.plotdir, votname, dnewcmd, dist, fit, err, found, dfinfo)
+        plot_tail(m.plotdir, votname, dfres, dfstep1, dfstep2 ,  dist, fit, err, found,  dfinfo)
     end
 
-    labels= [label_newsolution]     ## index for solution
-    labelmax= 1                     ## solution is label 1
+    labels= [label_newsolution, idx, label_step2]     ## index for solution
+    labelmax= 1                                       ## solution is label 1, step 1 label 2, step 2 label 3
     
     return(labels,  labelmax)
 end
@@ -161,9 +177,6 @@ function density_count(xx, yy, nbin=128, xrange=[-100,100],yrange=[-100,100])
         push!(xti, sx) ; push!(xv, xi)
         push!(yti, sy) ;  push!(yv, yi) 
     end
-    println(yv)
-    println(yti)
-
 
     PyPlot.plt.figure(figsize=(9.0,8.0))
     ax= PyPlot.plt.subplot(1, 1, 1 )

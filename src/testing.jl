@@ -226,7 +226,7 @@ function __density_count(xx, yy, nbin=100, xrange=[-100,100],yrange=[-100,100])
 
 end
 
-function __level_dens(dens,sigmin= 3, sigmax= 20, clip= 10)
+function __level_dens(dens,sigmin= 3, sigmax= 20, clip= 5)
 
     # sigma-clipping
     sigfirst= std(dens)
@@ -235,7 +235,17 @@ function __level_dens(dens,sigmin= 3, sigmax= 20, clip= 10)
     vmin= sigmin*sigfinal
     vmax= sigmax*sigfinal
 
-    return(vmin, vmax)
+    nlev= 15
+    vmin= log10(vmin)
+    vmax= log10(maximum(dens))
+    dlogv= (vmax-vmin) /nlev
+    
+    lev=[]
+    for i in 1:nlev
+        v1= 10^(vmin+i*dlogv)
+        push!(lev,v1)
+    end
+    return(lev)
 end
 
 function __plot_surface_density(xx,yy, plotfile)
