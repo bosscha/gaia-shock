@@ -1,6 +1,6 @@
 ## function for the 2nd step of extraction.
 ## Apply a cut in radius, velocity and a match with the first CMD 
-
+## dfnew: df removed from the step1 solution
 ## testing stars with very similar cmd
 function tail_stars(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, dfnew::GaiaClustering.Df, dfcartnew::GaiaClustering.Df, idx,  
     m::GaiaClustering.meta ; cycle=1, plot=true)
@@ -10,11 +10,13 @@ function tail_stars(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, dfnew::Gai
     ## source id for the full solution, starting with the old one...
 
     s=dfnew.ndata
+    debug_red(s)
     s1= length(dfnew.data[4,:])
     dnew= transform_df(dfnew, dfcartnew, 1:s)
 
+    debug_red(median(dnew.Y))
+
     xcenter= median(doc.X) ; ycenter= median(doc.Y) ;  zcenter= median(doc.Z)
-    dnew.X = dnew.X .- xcenter ; dnew.Y = dnew.Y .- ycenter ; dnew.Z = dnew.Z .- zcenter
     vlc= median(doc.vl) ; vbc= median(doc.vb) ; vrc= median(doc.vrad)
 
     radiusMax= m.maxRadTail  ## distance max to oc
@@ -23,7 +25,7 @@ function tail_stars(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, dfnew::Gai
     velocityMax= m.maxVelTail ## velocity difference max
     v2= velocityMax*velocityMax
 
-    dnewrad=filter(row -> (row.X*row.X+row.Y*row.Y+row.Y+row.Z*row.Z) < r2, dnew)
+    dnewrad=filter(row -> ((row.X-xcenter)*(row.X-xcenter)+(row.Y-ycenter)*(row.Y-ycenter)+(row.Z-zcenter)*(row.Z-zcenter)) < r2, dnew)
     dnewvel=filter(row -> ((row.vl .- vlc)*(row.vl .- vlc) + (row.vb .- vbc)*(row.vb .- vbc)) < v2, dnewrad)
     
     s= length(dfnew.data[1, :])
@@ -76,6 +78,11 @@ function tail_stars(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, dfnew::Gai
     dfres= transform_df(df, dfcart,label_newsolution)
     dfstep1= doc
     dfstep2= dnewcmd
+    dfstep2= transform_df(df, dfcart,label_step2)
+
+    debug_red(median(dfres.Y))
+    debug_red(median(dfstep1.Y))
+   #  debug_red(median(dfstep2.Y))
 
     #__plot_dist_cmd(dist)
     #__plot_surface_density(dnewcmd.Y, dnewcmd.Z,"test_surface_density.png")
@@ -90,9 +97,10 @@ function tail_stars(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, dfnew::Gai
         ## fit density2D to Cauchy
         nbin= 25
         fit, err, found=  spatialParameter("", nbin=nbin, verbose=false, niter=15000, dfoc=dfres)
+        fit1, err1, found1=  spatialParameter("", nbin=nbin, verbose=false, niter=15000, dfoc=doc)
 
         dfinfo= DataFrame(cycle=cycle, nstep1=nstep1, nstep2=nstep2, ntotal=ntotal)
-        plot_tail(m.plotdir, votname, dfres, dfstep1, dfstep2 ,  dist, fit, err, found,  dfinfo)
+        plot_tail(m.plotdir, votname, dfres, dfstep1, dfstep2 ,  dist, fit, err, found, fit1, err1, found1, dfinfo)
     end
 
     labels= [label_newsolution, idx, label_step2]     ## index for solution

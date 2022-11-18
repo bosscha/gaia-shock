@@ -132,7 +132,7 @@ function areaDisk(r)
 end
 
 function density2D(x , y , nbin=10; norm="log")
-    center= [mean(x) ; mean(y)]
+    center= [median(x) ; median(y)]
 
     nxy= length(x)
     A= Array{Float64}(undef,2,nxy)
@@ -182,8 +182,7 @@ function density2D(x , y , nbin=10; norm="log")
 end
 
 function density3D(x , y , z, nbin=10)
-    center= [mean(x) ; mean(y) ; mean(z)]
-    println(center)
+    center= [median(x) ; median(y) ; median(z)]
 
     nxy= length(x)
     A= Array{Float64}(undef,3,nxy)

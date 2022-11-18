@@ -746,7 +746,9 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
 
                     dfnew, dfcartnew= remove_stars(df, dfcart, labels[labelmax])
                     println("### Return the new full solution in label 1")
-                    labels, labelmax= tail_stars(df, dfcart, dfnew, dfcartnew, labels[labelmax], m, cycle=cycle)
+                    
+                    ## labelmax 1: full solution, 2: step1 solution, 3: step2 solution
+                    labels, labelmax= tail_stars(df, dfcart, dfnew, dfcartnew, labels[labelmax], m, cycle=cycle)                    
                 end
 
                 ## Principal components

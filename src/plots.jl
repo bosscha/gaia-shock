@@ -286,8 +286,8 @@ function plot_cluster2(plotdir, voname, indx, sc::GaiaClustering.SCproperties2, 
     PyPlot.plt.figure(figsize=(13.0,12.0))
     PyPlot.plt.subplot(3, 3, 1 , xlim = [-20,20] , ylim = [-20,20])
 
-    xx = df.data[2,indx] .- mean(df.data[2,indx])
-    yy = df.data[3,indx] .- mean(df.data[3,indx])
+    xx = df.data[2,indx] .- median(df.data[2,indx])
+    yy = df.data[3,indx] .- median(df.data[3,indx])
     PyPlot.plt.scatter(xx, yy , s = 1.0 )
     PyPlot.plt.xlabel("Y (pc)")
     PyPlot.plt.ylabel("Z (pc)")
@@ -295,14 +295,14 @@ function plot_cluster2(plotdir, voname, indx, sc::GaiaClustering.SCproperties2, 
 
     PyPlot.plt.subplot(3, 3, 2 , ylim = [-20,20])
     xx = df.data[1,indx]
-    yy = df.data[3,indx] .- mean(df.data[3,indx])
+    yy = df.data[3,indx] .- median(df.data[3,indx])
     PyPlot.plt.scatter(xx, yy , s = 1.0 )
     PyPlot.plt.xlabel("X (pc)")
     PyPlot.plt.ylabel("Z (pc)")
     PyPlot.plt.grid(true)
 
     PyPlot.plt.subplot(3, 3, 4 , xlim = [-20,20])
-    xx = df.data[2,indx] .- mean(df.data[2,indx])
+    xx = df.data[2,indx] .- median(df.data[2,indx])
     yy = df.data[1,indx]
     PyPlot.plt.scatter(xx, yy , s = 1.0 )
     PyPlot.plt.xlabel("Y (pc)")
@@ -700,7 +700,7 @@ end
 ### plot the step 2  process (tails, etc)
 ### dist: distance to CMD
 
-function plot_tail(plotdir, voname, dftail , dfstep1, dfstep2, dist,  fit, err, found, dfinfo; showplot=false)
+function plot_tail(plotdir, voname, dftail , dfstep1, dfstep2, dist,  fit, err, found, fit1, err1, found1, dfinfo; showplot=false)
     patch= pyimport("matplotlib.patches")
 
     PyPlot.plt.rcParams["font.size"]= 25
@@ -708,9 +708,12 @@ function plot_tail(plotdir, voname, dftail , dfstep1, dfstep2, dist,  fit, err, 
 
     PyPlot.plt.subplot(3, 2, 1)
     PyPlot.plt.axis("on")
-    xx = dftail.Y   ; x1= dfstep1.Y ; x2= dfstep1.Y
-    yy = dftail.Z   ; y1= dfstep1.Z ; y2= dfstep1.Z
+
+    xcenter= median(dfstep1.X) ; ycenter= median(dfstep1.Y) ; zcenter= median(dfstep1.Z)
+    xx = dftail.Y .- ycenter  ; x1= dfstep1.Y .- ycenter ; x2= dfstep2.Y .- ycenter
+    yy = dftail.Z .- zcenter  ; y1= dfstep1.Z .- zcenter ; y2= dfstep2.Z .- zcenter
     ymin= minimum(yy) ; ymax= maximum(yy)
+
     PyPlot.plt.ylim(ymin,ymax)
     # PyPlot.plt.scatter(xx, yy , s = 1.0 )
     PyPlot.plt.scatter(x1, y1 , s = 1.0 , c= "red" )
@@ -729,7 +732,6 @@ function plot_tail(plotdir, voname, dftail , dfstep1, dfstep2, dist,  fit, err, 
     if found
         nbin= 20
         r2d,ρ2d,err2d= density2D(dftail.Y, dftail.Z, nbin)
-
         ρ2dfit= model_rad(r2d, fit, fdens1)
         dct= Dict("color"=> "black", "fontsize"=> 11)
        
@@ -739,15 +741,20 @@ function plot_tail(plotdir, voname, dftail , dfstep1, dfstep2, dist,  fit, err, 
         ax.set_xlim(r2d[1]*0.9, r2d[end]*1.1)
         ax.set_ylim(minimum(ρ2d[ρ2d .> 0])*0.2,maximum(ρ2d)*2)
         PyPlot.grid("on")
-        PyPlot.scatter(r2d, ρ2d , s=4, facecolor="blue" )
+        PyPlot.scatter(r2d, ρ2d , s=4, facecolor="green" )
         PyPlot.errorbar(r2d, ρ2d, yerr=2 .* err2d, linewidth=0.5)
-    
-        PyPlot.plot(r2d, ρ2dfit, "r--", linewidth=1)
+        PyPlot.plot(r2d, ρ2dfit, "g--", linewidth=1.0, label= "Full")
+
+        ## Step 1 fit...
+        if found1
+            r2d1,ρ2d1,err2d1= density2D(dfstep1.Y, dfstep1.Z, nbin)
+            ρ2dfit1= model_rad(r2d1, fit1, fdens1)
+            PyPlot.plot(r2d1, ρ2dfit1, "r--", linewidth=1.0, label= "Step1")
+        end
     else
         println("### No fit found for the radial surface density...")
         nbin= 20
         r2d,ρ2d,err2d= density2D(dftail.Y, dftail.Z, nbin)
-
         dct= Dict("color"=> "black", "fontsize"=> 11)
        
         ax= PyPlot.subplot(3, 2, 3)
@@ -759,12 +766,25 @@ function plot_tail(plotdir, voname, dftail , dfstep1, dfstep2, dist,  fit, err, 
         PyPlot.scatter(r2d, ρ2d , s=4, facecolor="blue" )
         PyPlot.errorbar(r2d, ρ2d, yerr=2 .* err2d, linewidth=0.5)
     end
+    ax.set_xlabel("R (pc)")
+    ax.set_ylabel("ρ")
+
+    ## radial density for step2 to evaluate contamination...
+    if size(dfstep2.X)[1] > 2
+        nbin=20
+        rad2, rho2, err2= density2D(dfstep2.Y, dfstep2.Z, nbin)
+        PyPlot.scatter(rad2, rho2 , s=4, facecolor="magenta" )
+        PyPlot.errorbar(rad2, rho2, yerr=2 .* err2, linewidth=0.5)
+        PyPlot.plot(rad2, rho2, "m-.", linewidth=1.0, label= "Step2")
+        PyPlot.plt.legend(loc="lower left")
+    end
+
 
     ## surface density...
     ## 
-    data = (dftail.Y, dftail.Z) 
-    xmax= max(maximum(dftail.Y), maximum(-dftail.Y))
-    ymax= max(maximum(dftail.Z), maximum(-dftail.Z))
+    data = (xx, yy)   ## plot not physical, see above for definition
+    xmax= max(maximum(xx), maximum(xx))
+    ymax= max(maximum(yy), maximum(-yy))
     xymax= max(xmax,ymax)
     val= ceil(xymax/10)*10
     xrange=[-val,val] ; yrange= xrange 
@@ -807,11 +827,13 @@ function plot_tail(plotdir, voname, dftail , dfstep1, dfstep2, dist,  fit, err, 
     ### CMD plot
     PyPlot.plt.subplot(3, 2, 4)
     PyPlot.plt.axis("on")
-    xx = filter(!isnan,dftail.BmR0)
-    yy = filter(!isnan,dftail.G)
+    xx = filter(!isnan,dftail.BmR0) ; x1= filter(!isnan,dfstep1.BmR0); x2= filter(!isnan,dfstep2.BmR0)
+    yy = filter(!isnan,dftail.G) ; y1= filter(!isnan,dfstep1.G) ; y2= filter(!isnan,dfstep2.G)
     ymin= minimum(yy) ; ymax= maximum(yy)
     PyPlot.plt.ylim(ymax,ymin)
-    PyPlot.plt.scatter(xx, yy , s = 1.0 )
+    # PyPlot.plt.scatter(xx, yy , s = 1.0 )
+    PyPlot.plt.scatter(x1, y1 , s = 0.1 , c= "red" )
+    PyPlot.plt.scatter(x2, y2 , s = 0.1 , c= "blue")
     PyPlot.plt.xlabel("BmR0")
     PyPlot.plt.ylabel("G")
     PyPlot.plt.grid(true)
@@ -825,7 +847,7 @@ function plot_tail(plotdir, voname, dftail , dfstep1, dfstep2, dist,  fit, err, 
     text =[]
     v= "$voname" ; txt = "Votable : $v" ; push!(text,txt)
     v= "$(dfinfo.cycle[1])" ; txt = "Cycle : $v" ; push!(text,txt)
-    v= "$dist" ; txt = "Distance : $v pc" ; push!(text,txt)
+    v= dist ; txt = @sprintf("Distance : %3.1f pc", v) ; push!(text,txt)
     v = dfinfo.nstep1[1] ; txt = "N Step 1 : $v" ; push!(text,txt)
     v = dfinfo.nstep2[1] ; txt = "N Step 2 : $v" ; push!(text,txt)
     v = dfinfo.ntotal[1] ; txt = "N Total : $v" ; push!(text,txt)
@@ -834,10 +856,16 @@ function plot_tail(plotdir, voname, dftail , dfstep1, dfstep2, dist,  fit, err, 
         v = fit.s ; txt = @sprintf("Fit s : %3.3f (%3.3f) (pc)",v, err.s) ; push!(text,txt)
         v = fit.C ; txt = @sprintf("Fit C : %3.3f (%3.3f) (*/pc2)",v, err.C) ; push!(text,txt)
     end
+    if found1
+        v = fit1.m ; txt = @sprintf("Step1 Fit m : %3.3f (%3.3f)",v, err1.m) ; push!(text,txt)
+        v = fit1.s ; txt = @sprintf("Step1 Fit s : %3.3f (%3.3f) (pc)",v, err1.s) ; push!(text,txt)
+        v = fit1.C ; txt = @sprintf("Step1 Fit C : %3.3f (%3.3f) (*/pc2)",v, err1.C) ; push!(text,txt)
+    end
 
-    show_text(-0.01, -0.1, text , 0.9)
 
-    rec= patch.Rectangle((-0.07, -0.15), 1.0, 1.0, color="salmon", alpha= 0.4, clip_on=false)
+    show_text(-0.01, -0.1, text , 1.1)
+
+    rec= patch.Rectangle((-0.07, -0.15), 1.0, 1.15, color="salmon", alpha= 0.4, clip_on=false)
     axt.add_artist(rec)
 
 
@@ -846,6 +874,7 @@ function plot_tail(plotdir, voname, dftail , dfstep1, dfstep2, dist,  fit, err, 
     PyPlot.plt.savefig(figname)
     if showplot PyPlot.plt.show() end
 end
+
 ## levels of a density image
 function level_dens(dens,sigmin= 3, sigmax= 20, clip= 5)
 
