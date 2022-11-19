@@ -172,7 +172,6 @@ function density_count(xx, yy, nbin=128, xrange=[-100,100],yrange=[-100,100])
     rec= addWav(wav,4,8)
     rec= permutedims(rec, [2, 1])
     nrec= size(rec)
-    println(nrec)
 
     nticks= 4
     xti= [] ; yti= [] ; xv=[] ; yv=[]

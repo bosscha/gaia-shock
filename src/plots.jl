@@ -852,14 +852,15 @@ function plot_tail(plotdir, voname, dftail , dfstep1, dfstep2, dist,  fit, err, 
     v = dfinfo.nstep2[1] ; txt = "N Step 2 : $v" ; push!(text,txt)
     v = dfinfo.ntotal[1] ; txt = "N Total : $v" ; push!(text,txt)
     if found
-        v = fit.m ; txt = @sprintf("Fit m : %3.3f (%3.3f)",v, err.m) ; push!(text,txt)
-        v = fit.s ; txt = @sprintf("Fit s : %3.3f (%3.3f) (pc)",v, err.s) ; push!(text,txt)
-        v = fit.C ; txt = @sprintf("Fit C : %3.3f (%3.3f) (*/pc2)",v, err.C) ; push!(text,txt)
-    end
-    if found1
-        v = fit1.m ; txt = @sprintf("Step1 Fit m : %3.3f (%3.3f)",v, err1.m) ; push!(text,txt)
-        v = fit1.s ; txt = @sprintf("Step1 Fit s : %3.3f (%3.3f) (pc)",v, err1.s) ; push!(text,txt)
-        v = fit1.C ; txt = @sprintf("Step1 Fit C : %3.3f (%3.3f) (*/pc2)",v, err1.C) ; push!(text,txt)
+        if found1
+            v1 = fit1.m ; v = fit.m ; txt = @sprintf("m : %3.3f (%3.3f) [%3.3f (%3.3f)]",v, err.m,v1,err1.m) ; push!(text,txt)
+            v1 = fit1.s ; v = fit.s ; txt = @sprintf("s : %3.3f (%3.3f) [%3.3f (%3.3f)] (pc)",v, err.s,v1,err1.s) ; push!(text,txt)
+            v1 = fit1.C; v = fit.C ; txt = @sprintf("C : %3.3f (%3.3f) [%3.3f (%3.3f)] (*/pc2) ",v, err.C,v1,err1.C) ; push!(text,txt)
+        else
+            v = fit.m ; txt = @sprintf("m : %3.3f (%3.3f)",v, err.m) ; push!(text,txt)
+            v = fit.s ; txt = @sprintf("s : %3.3f (%3.3f) (pc)",v, err.s) ; push!(text,txt)
+            v = fit.C ; txt = @sprintf("C : %3.3f (%3.3f) (*/pc2)",v, err.C) ; push!(text,txt)
+        end
     end
 
 
