@@ -10,21 +10,21 @@ using DataFrames , Formatting, Printf , Dates ,  DelimitedFiles
 
 using Clustering
 using Statistics , Distributions ,Random, UUIDs
-using Distances, LightGraphs, SimpleWeightedGraphs
-using Glob
+using Distances, LightGraphs, SimpleWeightedGraphs, NearestNeighbors
+using Glob , GZip , FileIO , CSVFiles
 
 ## For wavelet in imaging
 import Interpolations
 using  Images, Base
 
-using  StatsBase , CSV,  Distances , MultivariateStats
+using  StatsBase , CSV,  Distances , MultivariateStats , FHist
 
 using PyCall , PyPlot
 
 using VoronoiCells
 import GeometryBasics as gb
 
-VERSION= "1.6.4-dev"
+VERSION= "1.7.0"
 
 ## include all the types
 include("types.jl")
@@ -43,7 +43,7 @@ export voronoi
 ## stelllar cluster analysis
 include("stellarcluster.jl")
 export metric , clusters , find_clusters2 , find_cluster_label, get_properties_SC , metric2 ,
-find_cluster_label2, get_metrics,  get_properties_SC2, cycle_extraction, score_cycle ,
+find_cluster_label2, get_metrics,  get_properties_SC2,  score_cycle ,
 remove_stars , edge_ratio, save_cycle , compute_PC , cycle_extraction_optim, save_cycle_optim
 
 ## MCMC for gaia
@@ -55,7 +55,7 @@ check_qminqstar_full2, create_DFchain, extraction_mcmc
 ## plotting functions
 include("plots.jl")
 export show_text , plot_dbscan_mcmc , plot_cluster , plot_dbscanfull_mcmc , plot_cluster2 ,
-plot_rawdata, plot_astrom
+plot_rawdata, plot_astrom, plot_tail
 
 ## imaging functions
 include("imaging.jl")
@@ -82,15 +82,23 @@ export zagreb_first, zagreb_second
 include("metadata.jl")
 export set_default_params , read_params , set_param!
 
+## tail methods
+include("tail.jl")
+export tail_stars , transform_df , distance_cmd_tail , surface_density
+
+## functions for isochrone fitting
+include("isochrones.jl")
+export mist_df ,  read_isochrones, update_mag , weight_cmd, dist_cmd2iso , fit_isochrone , read_serial_mist , update_nan_oc , get_star_mass ,  perform_isochrone_fitting
+
 ## functions to be used in the build script mainly
 include("_build.jl")
 export extra , get_gaia_data , get_gaia_data_many , get_random_field , galactic2equatorial , rm_duplicated, get_chunks
 
 ## deprecated functions
 include("deprecated.jl")
-export abc_mcmc_dbscan_full , check_qminqstar_full , find_clusters
+export abc_mcmc_dbscan_full , check_qminqstar_full , find_clusters , cycle_extraction
 
 ## testing functions
 include("testing.jl")
-export __plot_check , __plot_nstars
+export __plot_check , __plot_nstars , __tail_stars , __density_count , __level_dens, __plot_surface_density
 end

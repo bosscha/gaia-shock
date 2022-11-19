@@ -30,5 +30,7 @@ Pkg.add("MultivariateStats")
 Pkg.add("ArgParse")
 Pkg.add("VoronoiCells")
 Pkg.add("GeometryBasics")
+Pkg.add("NearestNeighbors")
+Pkg.add("GZip")
 
 println("## Package installation for GaiaClustering done...")

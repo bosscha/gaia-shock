@@ -286,8 +286,8 @@ function plot_cluster2(plotdir, voname, indx, sc::GaiaClustering.SCproperties2, 
     PyPlot.plt.figure(figsize=(13.0,12.0))
     PyPlot.plt.subplot(3, 3, 1 , xlim = [-20,20] , ylim = [-20,20])
 
-    xx = df.data[2,indx] .- mean(df.data[2,indx])
-    yy = df.data[3,indx] .- mean(df.data[3,indx])
+    xx = df.data[2,indx] .- median(df.data[2,indx])
+    yy = df.data[3,indx] .- median(df.data[3,indx])
     PyPlot.plt.scatter(xx, yy , s = 1.0 )
     PyPlot.plt.xlabel("Y (pc)")
     PyPlot.plt.ylabel("Z (pc)")
@@ -295,14 +295,14 @@ function plot_cluster2(plotdir, voname, indx, sc::GaiaClustering.SCproperties2, 
 
     PyPlot.plt.subplot(3, 3, 2 , ylim = [-20,20])
     xx = df.data[1,indx]
-    yy = df.data[3,indx] .- mean(df.data[3,indx])
+    yy = df.data[3,indx] .- median(df.data[3,indx])
     PyPlot.plt.scatter(xx, yy , s = 1.0 )
     PyPlot.plt.xlabel("X (pc)")
     PyPlot.plt.ylabel("Z (pc)")
     PyPlot.plt.grid(true)
 
     PyPlot.plt.subplot(3, 3, 4 , xlim = [-20,20])
-    xx = df.data[2,indx] .- mean(df.data[2,indx])
+    xx = df.data[2,indx] .- median(df.data[2,indx])
     yy = df.data[1,indx]
     PyPlot.plt.scatter(xx, yy , s = 1.0 )
     PyPlot.plt.xlabel("Y (pc)")
@@ -369,7 +369,9 @@ function plot_cluster2(plotdir, voname, indx, sc::GaiaClustering.SCproperties2, 
     PyPlot.plt.subplot(3, 3, 7 )
     PyPlot.plt.axis("on")
     xx = df.data[7,indx]
-    yy = -df.data[6,indx]
+    yy = df.data[6,indx]
+    ymin= minimum(yy) ; ymax= maximum(yy)
+    PyPlot.plt.ylim(ymax,ymin)
     PyPlot.plt.scatter(xx, yy , s = 1.0 )
     PyPlot.plt.xlabel("G-Rp")
     PyPlot.plt.ylabel("G")
@@ -378,7 +380,9 @@ function plot_cluster2(plotdir, voname, indx, sc::GaiaClustering.SCproperties2, 
     PyPlot.plt.subplot(3, 3, 8 )
     PyPlot.plt.axis("on")
     xx = df.data[8,indx] .+ df.data[7,indx]
-    yy = -df.data[6,indx]
+    yy = df.data[6,indx]
+    ymin= minimum(yy) ; ymax= maximum(yy)
+    PyPlot.plt.ylim(ymax,ymin)
     PyPlot.plt.scatter(xx, yy , s = 1.0 )
     PyPlot.plt.xlabel("Bp-Rp")
     PyPlot.plt.ylabel("G")
@@ -488,10 +492,12 @@ function plot_rawdata(plotdir, voname, indx, sc::GaiaClustering.SCproperties2, d
     PyPlot.plt.subplot(3, 3, 7 )
     PyPlot.plt.axis("on")
     xx = df.data[7,iter]
-    yy = -df.data[6,iter]
+    yy = df.data[6,iter]
     PyPlot.plt.scatter(xx, yy , s = 0.1 )
     xx = df.data[7,indx]
-    yy = -df.data[6,indx]
+    yy = df.data[6,indx]
+    ymin= minimum(yy) ; ymax= maximum(yy)
+    PyPlot.plt.ylim(ymax,ymin)
     PyPlot.plt.scatter(xx, yy , s = 1, c="r", alpha=0.5 )
     PyPlot.plt.xlabel("G-Rp")
     PyPlot.plt.ylabel("G")
@@ -615,9 +621,22 @@ function plot_astrom(plotdir, voname, indx, sc::GaiaClustering.SCproperties2, df
     PyPlot.plt.subplot(3, 3, 7 )
     PyPlot.plt.axis("on")
     xx = df.data[7,indx]
-    yy = -df.data[6,indx]
+    yy = df.data[6,indx]
+    ymin= minimum(yy) ; ymax= maximum(yy)
+    PyPlot.plt.ylim(ymax,ymin)
     PyPlot.plt.scatter(xx, yy , s = 1.0 )
     PyPlot.plt.xlabel("G-Rp")
+    PyPlot.plt.ylabel("G")
+    PyPlot.plt.grid(true)
+
+    PyPlot.plt.subplot(3, 3, 8 )
+    PyPlot.plt.axis("on")
+    xx = df.data[8,indx] .+ df.data[7,indx]
+    yy = df.data[6,indx]
+    ymin= minimum(yy) ; ymax= maximum(yy)
+    PyPlot.plt.ylim(ymax,ymin)
+    PyPlot.plt.scatter(xx, yy , s = 1.0 )
+    PyPlot.plt.xlabel("Bp-Rp")
     PyPlot.plt.ylabel("G")
     PyPlot.plt.grid(true)
 
@@ -625,4 +644,257 @@ function plot_astrom(plotdir, voname, indx, sc::GaiaClustering.SCproperties2, df
     figname = plotdir*"/"*voname*".astrom.png"
     PyPlot.plt.savefig(figname)
     if showplot PyPlot.plt.show() end
+end
+
+###### plot the isochrone solution and CMD
+## df : oc solution with isochrone
+## iso : isochrone solution
+## txt : dataframe with text field
+function plot_isochrone(plotdir, voname, df, iso , txt_iso, showplot = true)
+    patch= pyimport("matplotlib.patches")
+    ymin= min(minimum(df.G), minimum(iso.Gaia_G_EDR3)) ; ymax= max(maximum(df.G), maximum(iso.Gaia_G_EDR3))
+
+    PyPlot.plt.rcParams["font.size"]= 25
+    PyPlot.plt.figure(figsize=(13.0,12.0))
+
+    PyPlot.plt.subplot(2, 2, 1)
+
+    ymin= minimum(df.G) ; ymax= maximum(df.G)
+    PyPlot.plt.ylim(ymax,ymin)
+    PyPlot.plt.scatter(df.BmR0, df.G , s = 1.0 )
+    PyPlot.plt.plot(iso.Gaia_BPmRP_EDR3 , iso.Gaia_G_EDR3, linewidth=2, color="C1")
+    PyPlot.plt.xlabel("Bp - Rp")
+    PyPlot.plt.ylabel("G")
+    PyPlot.plt.grid(true)
+
+    axt= PyPlot.plt.subplot(2, 2, 2)
+    PyPlot.plt.axis("off")
+
+    ## text to display
+    dct= Dict("color"=> "black", "fontsize"=> 10)
+    text =[]
+    v= "$(txt_iso.votname[1])" ; txt = "Votable : $v" ; push!(text,txt)
+    v= "$(txt_iso.cycle[1])" ; txt = "Cycle : $v" ; push!(text,txt)
+    v = length(df.G) ; txt = "N stars : $v" ; push!(text,txt)
+    v = fmt("3.1f", txt_iso.total_mass[1]) ; txt = "Total Mass : $v (Msol)" ; push!(text,txt) 
+    v = fmt("3.1f", txt_iso.age[1]) ; txt = "Age : $v (Myr)" ; push!(text,txt)
+    v = fmt("3.2f", txt_iso.feh[1]); txt = "[Fe/H] : $v" ; push!(text,txt) 
+    v = fmt("3.2f", txt_iso.feh_gaia[1]); txt = "[Fe/H] (Gaia): $v" ; push!(text,txt) 
+
+    show_text(-0.01, -0.1, text , 0.5 )
+
+    rec= patch.Rectangle((-0.07, -0.15), 1.0, 0.6, color="salmon", alpha= 0.4, clip_on=false)
+    axt.add_artist(rec)
+
+    PyPlot.plt.subplot(2, 2, 3)
+    nbins= 50
+    h = PyPlot.plt.hist(df.mh,nbins, alpha=0.75)
+    PyPlot.plt.xlabel("[Fe/H] (Gaia)")
+    PyPlot.plt.grid(true)
+
+    figname = plotdir*"/"*voname*".isochrone.png"
+    PyPlot.plt.savefig(figname)
+    if showplot PyPlot.plt.show() end
+end
+
+### plot the step 2  process (tails, etc)
+### dist: distance to CMD
+
+function plot_tail(plotdir, voname, dftail , dfstep1, dfstep2, dist,  fit, err, found, fit1, err1, found1, dfinfo; showplot=false)
+    patch= pyimport("matplotlib.patches")
+
+    PyPlot.plt.rcParams["font.size"]= 25
+    PyPlot.plt.figure(figsize=(13.0,12.0))
+
+    PyPlot.plt.subplot(3, 2, 1)
+    PyPlot.plt.axis("on")
+
+    xcenter= median(dfstep1.X) ; ycenter= median(dfstep1.Y) ; zcenter= median(dfstep1.Z)
+    xx = dftail.Y .- ycenter  ; x1= dfstep1.Y .- ycenter ; x2= dfstep2.Y .- ycenter
+    yy = dftail.Z .- zcenter  ; y1= dfstep1.Z .- zcenter ; y2= dfstep2.Z .- zcenter
+    ymin= minimum(yy) ; ymax= maximum(yy)
+
+    PyPlot.plt.ylim(ymin,ymax)
+    # PyPlot.plt.scatter(xx, yy , s = 1.0 )
+    PyPlot.plt.scatter(x1, y1 , s = 1.0 , c= "red" )
+    PyPlot.plt.scatter(x2, y2 , s = 1.0 , c= "blue")
+    PyPlot.plt.xlabel("Y (pc)")
+    PyPlot.plt.ylabel("Z (pc)")
+    PyPlot.plt.grid(true)
+
+    PyPlot.plt.subplot(3, 2,6)
+    nbins = 50
+    PyPlot.plt.hist(dist,nbins, range = [0,0.50],  color = "g", alpha=0.8 ,density=false)
+    PyPlot.plt.xlabel("CMD Distance")
+    PyPlot.plt.ylabel("N")
+    PyPlot.plt.grid(true)
+
+    if found
+        nbin= 20
+        r2d,ρ2d,err2d= density2D(dftail.Y, dftail.Z, nbin)
+        ρ2dfit= model_rad(r2d, fit, fdens1)
+        dct= Dict("color"=> "black", "fontsize"=> 11)
+       
+        ax= PyPlot.subplot(3, 2, 3)
+        ax.set_yscale("log")
+        ax.set_xscale("log")
+        ax.set_xlim(r2d[1]*0.9, r2d[end]*1.1)
+        ax.set_ylim(minimum(ρ2d[ρ2d .> 0])*0.2,maximum(ρ2d)*2)
+        PyPlot.grid("on")
+        PyPlot.scatter(r2d, ρ2d , s=4, facecolor="green" )
+        PyPlot.errorbar(r2d, ρ2d, yerr=2 .* err2d, linewidth=0.5)
+        PyPlot.plot(r2d, ρ2dfit, "g--", linewidth=1.0, label= "Full")
+
+        ## Step 1 fit...
+        if found1
+            r2d1,ρ2d1,err2d1= density2D(dfstep1.Y, dfstep1.Z, nbin)
+            ρ2dfit1= model_rad(r2d1, fit1, fdens1)
+            PyPlot.plot(r2d1, ρ2dfit1, "r--", linewidth=1.0, label= "Step1")
+        end
+    else
+        println("### No fit found for the radial surface density...")
+        nbin= 20
+        r2d,ρ2d,err2d= density2D(dftail.Y, dftail.Z, nbin)
+        dct= Dict("color"=> "black", "fontsize"=> 11)
+       
+        ax= PyPlot.subplot(3, 2, 3)
+        ax.set_yscale("log")
+        ax.set_xscale("log")
+        ax.set_xlim(r2d[1]*0.9, r2d[end]*1.1)
+        ax.set_ylim(minimum(ρ2d[ρ2d .> 0])*0.2,maximum(ρ2d)*1.5)
+        PyPlot.grid("on")
+        PyPlot.scatter(r2d, ρ2d , s=4, facecolor="blue" )
+        PyPlot.errorbar(r2d, ρ2d, yerr=2 .* err2d, linewidth=0.5)
+    end
+    ax.set_xlabel("R (pc)")
+    ax.set_ylabel("ρ")
+
+    ## radial density for step2 to evaluate contamination...
+    if size(dfstep2.X)[1] > 2
+        nbin=20
+        rad2, rho2, err2= density2D(dfstep2.Y, dfstep2.Z, nbin)
+        PyPlot.scatter(rad2, rho2 , s=4, facecolor="magenta" )
+        PyPlot.errorbar(rad2, rho2, yerr=2 .* err2, linewidth=0.5)
+        PyPlot.plot(rad2, rho2, "m-.", linewidth=1.0, label= "Step2")
+        PyPlot.plt.legend(loc="lower left")
+    end
+
+
+    ## surface density...
+    ## 
+    data = (xx, yy)   ## plot not physical, see above for definition
+    xmax= max(maximum(xx), maximum(xx))
+    ymax= max(maximum(yy), maximum(-yy))
+    xymax= max(xmax,ymax)
+    val= ceil(xymax/10)*10
+    xrange=[-val,val] ; yrange= xrange 
+
+    nbxy= 128
+    stepx= (xrange[2]-xrange[1])/nbxy ; stepy= (yrange[2]-yrange[1])/nbxy
+
+    h = FHist.Hist2D(data, (xrange[1]:stepx:xrange[2], yrange[1]:stepy:yrange[2]))
+    dens= h.hist.weights ./ (stepx*stepy)
+
+    wav= atrous(dens, 7)            ## wavelet transform for smoothing
+    rec= addWav(wav,4,8)            ## reconstruction
+    rec= permutedims(rec, [2, 1])
+    nrec= size(rec)
+
+    nticks= 4
+    xti= [] ; yti= [] ; xv=[] ; yv=[]
+    dx= (xrange[2]-xrange[1])/nticks  ; dy= (yrange[2]-yrange[1])/nticks
+    dxi= (nrec[1]-1)/nticks ; dyi= (nrec[2]-1)/nticks
+    
+    for i in 1:(nticks+1)
+        xx= xrange[1] + (i-1)*dx  ; sx= @sprintf("%3.0f",xx) ; xi= (i-1)*dxi
+        yy= yrange[1] + (i-1)*dy  ; sy= @sprintf("%3.0f",yy) ; yi= (i-1)*dyi
+        push!(xti, sx) ; push!(xv, xi)
+        push!(yti, sy) ;  push!(yv, yi) 
+    end
+    
+    ax= PyPlot.plt.subplot(3, 2, 2 )
+    ax.set_xticks(xv) ;  ax.set_xticklabels(xti)
+    ax.set_yticks(yv) ;  ax.set_yticklabels(yti)
+    ax.set_aspect(1)
+    ax.set_xlabel("Y (pc)")
+    ax.set_ylabel("Z (pc)")
+
+    lev=  level_dens(rec , 0.05,5,8)
+
+    PyPlot.plt.contourf(rec, lev    , cmap="gist_stern_r")
+    PyPlot.plt.contour(rec, lev, linewidths= 0.2, colors= "blue") 
+
+    ### CMD plot
+    PyPlot.plt.subplot(3, 2, 4)
+    PyPlot.plt.axis("on")
+    xx = filter(!isnan,dftail.BmR0) ; x1= filter(!isnan,dfstep1.BmR0); x2= filter(!isnan,dfstep2.BmR0)
+    yy = filter(!isnan,dftail.G) ; y1= filter(!isnan,dfstep1.G) ; y2= filter(!isnan,dfstep2.G)
+    ymin= minimum(yy) ; ymax= maximum(yy)
+    PyPlot.plt.ylim(ymax,ymin)
+    # PyPlot.plt.scatter(xx, yy , s = 1.0 )
+    PyPlot.plt.scatter(x1, y1 , s = 0.1 , c= "red" )
+    PyPlot.plt.scatter(x2, y2 , s = 0.1 , c= "blue")
+    PyPlot.plt.xlabel("BmR0")
+    PyPlot.plt.ylabel("G")
+    PyPlot.plt.grid(true)
+
+    ### text to display...
+    axt= PyPlot.plt.subplot(3, 2, 5)
+    PyPlot.plt.axis("off")
+    dct= Dict("color"=> "black", "fontsize"=> 10)
+
+    dist= median(filter(!isnan,dftail.dist))
+    text =[]
+    v= "$voname" ; txt = "Votable : $v" ; push!(text,txt)
+    v= "$(dfinfo.cycle[1])" ; txt = "Cycle : $v" ; push!(text,txt)
+    v= dist ; txt = @sprintf("Distance : %3.1f pc", v) ; push!(text,txt)
+    v = dfinfo.nstep1[1] ; txt = "N Step 1 : $v" ; push!(text,txt)
+    v = dfinfo.nstep2[1] ; txt = "N Step 2 : $v" ; push!(text,txt)
+    v = dfinfo.ntotal[1] ; txt = "N Total : $v" ; push!(text,txt)
+    if found
+        if found1
+            v1 = fit1.m ; v = fit.m ; txt = @sprintf("m : %3.3f (%3.3f) [%3.3f (%3.3f)]",v, err.m,v1,err1.m) ; push!(text,txt)
+            v1 = fit1.s ; v = fit.s ; txt = @sprintf("s : %3.3f (%3.3f) [%3.3f (%3.3f)] (pc)",v, err.s,v1,err1.s) ; push!(text,txt)
+            v1 = fit1.C; v = fit.C ; txt = @sprintf("C : %3.3f (%3.3f) [%3.3f (%3.3f)] (*/pc2) ",v, err.C,v1,err1.C) ; push!(text,txt)
+        else
+            v = fit.m ; txt = @sprintf("m : %3.3f (%3.3f)",v, err.m) ; push!(text,txt)
+            v = fit.s ; txt = @sprintf("s : %3.3f (%3.3f) (pc)",v, err.s) ; push!(text,txt)
+            v = fit.C ; txt = @sprintf("C : %3.3f (%3.3f) (*/pc2)",v, err.C) ; push!(text,txt)
+        end
+    end
+
+
+    show_text(-0.01, -0.1, text , 1.1)
+
+    rec= patch.Rectangle((-0.07, -0.15), 1.0, 1.15, color="salmon", alpha= 0.4, clip_on=false)
+    axt.add_artist(rec)
+
+
+    figname = plotdir*"/"*voname*".$(dfinfo.cycle[1])"*".tail.png"
+    debug_red(figname)
+    PyPlot.plt.savefig(figname)
+    if showplot PyPlot.plt.show() end
+end
+
+## levels of a density image
+function level_dens(dens,sigmin= 3, sigmax= 20, clip= 5)
+
+    # sigma-clipping
+    sigfirst= std(dens)
+    mfirst= median(dens)
+    sigfinal= std(dens[dens .< clip*sigfirst])
+    vmin= sigmin*sigfinal
+    vmax= sigmax*sigfinal
+
+    nlev= 15
+    vmin= log10(vmin)
+    vmax= log10(maximum(dens))
+    dlogv= (vmax-vmin) /nlev
+    
+    lev=[]
+    for i in 1:nlev
+        v1= 10^(vmin+i*dlogv)
+        push!(lev,v1)
+    end
+    return(lev)
 end

@@ -34,7 +34,13 @@ function parse_commandline()
         "--zpt", "-z"
             help = "Apply Zero Point offset correction (Lindengren 2020)"
             action = :store_true
-        "--maxdist" , "-d"
+        "--iso", "-i"
+                help = "Isochrone fitting"
+                action = :store_true    
+        "--tail", "-t"
+                help = "Apply a second step to extract more isolated members (tails e.g.)"
+                action = :store_true                   
+        "--maxdist", "-d"
             help = "maximum distance for stars in pc"
             arg_type = Float64
         "--mindist"
@@ -123,6 +129,8 @@ let
     if parsed_args["o"] opt="yes" else opt= "no" end
     if parsed_args["pca"] pca="yes" else pca= "no" end
     if parsed_args["zpt"] zpt="yes" else zpt= "no" end
+    if parsed_args["iso"] iso="yes" else iso= "no" end
+    if parsed_args["tail"] tail="yes" else tail= "no" end
 
     ############
     header_extract()
@@ -133,6 +141,8 @@ let
         opt= m.optim
         pca= m.pca
         zpt= m.zpt
+        iso= m.iso
+        tail=m.tail
         if votable == nothing votable= m.votname end
     else
         println("## The default options are used.")
@@ -141,13 +151,12 @@ let
 
     m.optim= opt
     m.votname= votable
-    m.pca= pca
-    m.zpt= zpt
+    m.pca= pca ; m.zpt= zpt ; m.iso= iso ; m.tail= tail
 
     if m.optim == "yes"
-        isoptimize= true
+        isoptimized= true
     else
-        isoptimize= false
+        isoptimized= false
     end
 
     if qmetric != nothing m.labels= qmetric end
@@ -162,5 +171,5 @@ let
     if whrd != nothing m.whrd= whrd end
     if qc != nothing m.minQc= qc end   
 
-    extra(m, isoptimize)
+    extra(m, isoptimized)
 end

@@ -175,7 +175,8 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250],
     ifinal = i1 .& i2 .& i3 .& i4 .& i5 .& i6 .& i7 .& i8 .& i9 .& i10 .& i11 .& i12
 
     ## G magnitude
-    gbar =  g[ifinal] - 5 .* log10.(distance[ifinal]) .+ 17.
+    ##  gbar =  g[ifinal] - 5 .* log10.(distance[ifinal]) .+ 17.
+    gbar = g[ifinal]
 
     ## Df of the filtered dat
     ndata = length(distance[ifinal])
@@ -463,8 +464,6 @@ function export_df(votname, ocdir, df , dfcart, labels , labelmax, pc, m::GaiaCl
     #####
     maxy= maximum(Y)
     maxz= maximum(Z)   
-    debug_red("max Y: $maxy pc")
-    debug_red("max Z: $maxz pc") 
     #####
 
     # galactocentric coordinates...
@@ -506,6 +505,7 @@ function export_df(votname, ocdir, df , dfcart, labels , labelmax, pc, m::GaiaCl
     filename= @sprintf("%s/%s",ocdir, infix)
     CSV.write(filename,oc,delim=';')
     @printf("### %s created  in %s \n",filename, ocdir)
+    return(oc)
 end
 #######################################
 ## a built-in version of getdata

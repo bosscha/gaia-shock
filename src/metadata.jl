@@ -17,6 +17,7 @@ function set_default_params()::meta
     def.ocdir= "."
     def.votname = "test.vot"
     def.prefile= "ocres"
+    def.isomodel= ""
 
     ## placeholder for the uuid
     def.uuid= UUID("cfc395e8-590f-11e8-1f13-43a2532b2fa8")
@@ -26,6 +27,9 @@ function set_default_params()::meta
     def.optim           = "no"              ## yes|no for weighting/dbscan optimization
     def.pca             = "no"              ## yes|no output PCA components in oc file
     def.zpt             = "no"              ## yes|no to apply zero point correction (Lindengren 2020)
+    def.iso             = "no"              ## yes|no to perform isochrone fitting on OC solutions
+    def.tail            = "no"              ## yes|no to perform 2nd step extraction for isolated members (radius/velocity/CMD cut)
+
     # if optim no
     def.w3d             = 7.0               ## w3d weighting
     def.wvel            = 8.0               ## wvel weighting
@@ -36,9 +40,14 @@ function set_default_params()::meta
     def.maxdist         = 1e9               ## maximum distance to filter stars in pc
     def.mindist         = 0.0               ## minimum distance to filter stars in pc
 
+    ## parameters for 2nd step extraction ("tail")
+    def.maxRadTail      = 250.0             ## cut in radius (pc) from the center of the oc candidate (step 1)
+    def.maxVelTail      = 5.0               ## cut in velocity (km/s) from the velocity of the oc candidate (step 1)
+    def.maxDistCmdTail  = 0.05              ## maximum distance to the CMD of the oc candidate (step 1)
+
     ## MCMC
     ##
-    def.minQc    = 2.7
+    def.minQc    = 2.6
     def.minQn    = 40
     def.maxQn    = 5000
     def.forcedminstars = 30
@@ -129,10 +138,13 @@ function set_param!(def, parstr,value)
     if parstr == "votname" def.votname= value end
     if parstr == "prefile" def.prefile= value end
     if parstr == "uuid" def.uuid= value end
+    if parstr == "isomodel" def.isomodel= value end
 
     if parstr == "optim" def.optim= value end
     if parstr == "pca" def.pca= value end
     if parstr == "zpt" def.zpt= value end
+    if parstr == "iso" def.iso= value end
+    if parstr == "tail" def.tail= value end   
     if parstr == "w3d" def.w3d= value end
     if parstr == "wvel" def.wvel= value end
     if parstr == "whrd" def.whrd= value end
@@ -141,6 +153,12 @@ function set_param!(def, parstr,value)
     if parstr == "mnei" def.mnei= value end
     if parstr == "maxdist" def.maxdist= value end
     if parstr == "mindist" def.mindist= value end
+
+    if parstr == "maxRadTail"     def.maxRadTail= value end
+    if parstr == "maxVelTail"     def.maxVelTail= value end
+    if parstr == "maxDistCmdTail" def.maxDistCmdTail= value end
+
+
 
     if parstr == "minQc"           def.minQc= value end
     if parstr == "minQn"           def.minQn= value end
