@@ -671,6 +671,7 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
         end
         votname= basename(m.votname)       # get rid of the leading part only useful to read data
         cyclerun= true ; cycle= 1 ; FLAG= 0
+        smallest_offdeg= 1e9 ; cycle_offdeg= -1
 
         sclist= [] ; mcmclist= [] ; perflist= [] ; chainlist= []
 
@@ -746,7 +747,7 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
 
                     dfnew, dfcartnew= remove_stars(df, dfcart, labels[labelmax])
                     println("### Return the new full solution in label 1")
-                    
+
                     ## labelmax 1: full solution, 2: step1 solution, 3: step2 solution
                     labels, labelmax= tail_stars(df, dfcart, dfnew, dfcartnew, labels[labelmax], m, cycle=cycle)                    
                 end
@@ -786,13 +787,21 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
                     println("## Isochrone $filename saved...")
                 else
                     ### placeholder for isochrone fitting
-                    agemyr= -99 ; feh= -99 ; feh_gaia= -99
+                    agemyr= -99.9 ; feh= -99.9 ; feh_gaia= -99.9
                 end
                 ###
 
                 edgeratio1, edgeratio2= edge_ratio(dfcart, labels[labelmax])
                 scproperties = get_properties_SC2(labels[labelmax] , df, dfcart)
                 scdf= convertStruct2Df(scproperties)
+                
+                ## smallest offdeg...
+                if scdf.offdeg[1] < smallest_offdeg
+                    smallest_offdeg= scdf.offdeg[1]
+                    cycle_offdeg= cycle
+                end
+
+           
                 insertcols!(scdf, 1, :votname => votname)
                 insertcols!(scdf, 2, :uuid => string(m.uuid))
                 insertcols!(scdf, 3, :cycle => cycle)
@@ -866,7 +875,7 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
                 plot_cluster2(m.plotdir, "$votname.$cycle", labels[labelmax], scproperties,
                     dfcart , false, extraplot)
 
-                jump= 50  # how many stars to jump in the plot
+                jump= 50  ## stars to jump in the plot
                 plot_rawdata(m.plotdir, "$votname.$cycle", labels[labelmax], scproperties,
                     dfcart , pc, jump, false, extraplot)
 
@@ -879,8 +888,7 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
                 
                 df= dfnew
                 dfcart= dfcartnew
-
-          
+         
                 ########################### STOP conditions #########
                 FLAG= 0
                 if nmax < m.minstarstop
@@ -921,7 +929,7 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
                 nstar= size(df.raw)[2]
                 if optim timeperiterstar= duration / (iter*nstar) end
                 if optim timeperchainstar= duration / (nchain*nstar) end
-                @printf("## \n")
+                println("## ")
                 @printf("## Time: \n")
                 @printf("## duration per cycle %3.3f sec \n", duration)
                 if optim @printf("## duration per iteration*star %3.3e sec \n", timeperiterstar) end
@@ -946,10 +954,15 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
         if cycle >= 2
             save_cycle_optim(sclist, mcmclist, perflist, chainlist, m, optim)
         end
+        println("##")
+        println("## Smallest offdeg: $(smallest_offdeg) for  cycle $(cycle_offdeg) ")
+        println("## Copy cycle $(cycle_offdeg) to cycle 0")
+        copy_cycle_0(votname,cycle_offdeg)
+
         return(cycle-1, FLAG)
     end
 end
-##
+#############################
 ### save results cycle in csv
 ###
 function save_cycle(sc, mcmc, perf, chain,  m::GaiaClustering.meta)
@@ -1014,6 +1027,8 @@ function save_cycle_optim(sc, mcmc, perf, chain,  m::GaiaClustering.meta,optim)
         else
             println("## cycle $i results appended to $filesc ...")
             res= CSV.File(filesc, delim=";") |> DataFrame
+
+            debug_red(res)
             append!(res,sc[i]) ; CSV.write(filesc,res,delim=';')
             if optim
                 if !isfile(filemcmc)
@@ -1103,4 +1118,19 @@ function compute_PC(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, labels, la
         end
 
         return(Yt, pcres)
+end
+########################################################
+### copy the cycle plots with smallest offdeg to cycle 0
+function copy_cycle_0(votname, cycle_offdeg)
+    debug_red("cycle 0 ...")
+    debug_red(votname)
+    f= glob("$(votname).$(cycle_offdeg)*png")
+    if size(f)[1] > 0
+        for file in f
+            newfile= replace(file,".$(cycle_offdeg)." => ".0.")
+            debug_red(newfile)
+            cp(file,newfile, force=true)
+        end
+    end
+    debug_red(size(f))
 end

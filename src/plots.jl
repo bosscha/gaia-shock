@@ -783,7 +783,7 @@ function plot_tail(plotdir, voname, dftail , dfstep1, dfstep2, dist,  fit, err, 
     ## surface density...
     ## 
     data = (xx, yy)   ## plot not physical, see above for definition
-    xmax= max(maximum(xx), maximum(xx))
+    xmax= max(maximum(xx), maximum(-xx))
     ymax= max(maximum(yy), maximum(-yy))
     xymax= max(xmax,ymax)
     val= ceil(xymax/10)*10

@@ -158,7 +158,7 @@ function distance_cmd_tail(df1, df2)
     return(idx , dist)
 end
 
-function density_count(xx, yy, nbin=128, xrange=[-100,100],yrange=[-100,100])
+function _density_count(xx, yy, nbin=128, xrange=[-100,100],yrange=[-100,100])
     data = (xx,yy) 
     stepx= (xrange[2]-xrange[1])/nbin
     stepy= (yrange[2]-yrange[1])/nbin 
