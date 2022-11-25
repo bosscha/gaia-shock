@@ -80,15 +80,9 @@ function tail_stars(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, dfnew::Gai
     dfstep2= dnewcmd
     dfstep2= transform_df(df, dfcart,label_step2)
 
-    debug_red(median(dfres.Y))
-    debug_red(median(dfstep1.Y))
-   #  debug_red(median(dfstep2.Y))
+    labels= [label_newsolution, idx, label_step2]     ## index for solution
+    labelmax= 1                                       ## solution is label 1, step 1 label 2, step 2 label 3
 
-    #__plot_dist_cmd(dist)
-    #__plot_surface_density(dnewcmd.Y, dnewcmd.Z,"test_surface_density.png")
-
-    # __plot_tail(dnewcmd, doc,  "test_tail4")
-    # density_count(dnewcmd.Y, dnewcmd.Z, 128)
     if plot 
         println("### Plot the step 2 results...")
         votname= basename(m.votname)
@@ -100,12 +94,14 @@ function tail_stars(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, dfnew::Gai
         fit1, err1, found1=  spatialParameter("", nbin=nbin, verbose=false, niter=15000, dfoc=doc)
 
         dfinfo= DataFrame(cycle=cycle, nstep1=nstep1, nstep2=nstep2, ntotal=ntotal)
-        plot_tail(m.plotdir, votname, dfres, dfstep1, dfstep2 ,  dist, fit, err, found, fit1, err1, found1, dfinfo)
+        pc=[]
+        oc= export_df("$votname.$cycle", m.ocdir, df , dfcart , labels , labelmax, pc, m, save=false)
+        debug_red("oc..")
+        debug_red(size(oc))
+        ## plot_tail should be cleaned!! 
+        plot_tail(m.plotdir, votname, dfres, dfstep1, dfstep2 ,  dist, fit, err, found, fit1, err1, found1, dfinfo, oc)
     end
-
-    labels= [label_newsolution, idx, label_step2]     ## index for solution
-    labelmax= 1                                       ## solution is label 1, step 1 label 2, step 2 label 3
-    
+   
     return(labels,  labelmax)
 end
 

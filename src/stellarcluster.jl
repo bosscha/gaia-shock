@@ -957,7 +957,7 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
         println("##")
         println("## Smallest offdeg: $(smallest_offdeg) for  cycle $(cycle_offdeg) ")
         println("## Copy cycle $(cycle_offdeg) to cycle 0")
-        copy_cycle_0(votname,cycle_offdeg)
+        copy_cycle_0(votname,cycle_offdeg, m)
 
         return(cycle-1, FLAG)
     end
@@ -1121,16 +1121,15 @@ function compute_PC(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, labels, la
 end
 ########################################################
 ### copy the cycle plots with smallest offdeg to cycle 0
-function copy_cycle_0(votname, cycle_offdeg)
+function copy_cycle_0(votname, cycle_offdeg, m::GaiaClustering.meta)
     debug_red("cycle 0 ...")
     debug_red(votname)
-    f= glob("$(votname).$(cycle_offdeg)*png")
+    f= glob("$(votname).$(cycle_offdeg)*png", m.plotdir)
     if size(f)[1] > 0
         for file in f
-            newfile= replace(file,".$(cycle_offdeg)." => ".0.")
-            debug_red(newfile)
-            cp(file,newfile, force=true)
+            newfile= joinpath(m.plotdir,replace(file,".$(cycle_offdeg)." => ".0."))
+            src= joinpath(m.plotdir, file)
+            cp(src,newfile, force=true)
         end
     end
-    debug_red(size(f))
 end

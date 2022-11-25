@@ -435,7 +435,7 @@ end
 ####
 # Create the DataFrame to save the cluster...
 ##
-function export_df(votname, ocdir, df , dfcart, labels , labelmax, pc, m::GaiaClustering.meta)
+function export_df(votname, ocdir, df , dfcart, labels , labelmax, pc, m::GaiaClustering.meta ; save=true)
     ra= df.raw[1, labels[labelmax]]
     dec= df.raw[2,labels[labelmax]]
     l= df.data[1, labels[labelmax]]
@@ -503,8 +503,11 @@ function export_df(votname, ocdir, df , dfcart, labels , labelmax, pc, m::GaiaCl
     end
     infix *= "oc.csv"
     filename= @sprintf("%s/%s",ocdir, infix)
-    CSV.write(filename,oc,delim=';')
-    @printf("### %s created  in %s \n",filename, ocdir)
+    if save
+        CSV.write(filename,oc,delim=';')
+        @printf("### %s created  in %s \n",filename, ocdir)
+    end
+    
     return(oc)
 end
 #######################################

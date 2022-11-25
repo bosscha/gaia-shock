@@ -294,7 +294,7 @@ end
 #################################### MAIN ########################
 let
     println(ARGS)
-    println("####################")
+    println("############################")
     println("### Building Gaia results...")
 
     metabuild = TOML.parsefile(ARGS[1])
