@@ -21,6 +21,8 @@ function reprocess(meta)
     mgene= meta["general"]
     mextra= read_params(mrepro["extrafile"], false)
 
+    debug_red(haskey(mgene, "blacklist"))
+    
     cd(mgene["wdir"])
     progressfile= "_done.csv"            #progress file 
     mextra.rootdir= "./"
@@ -59,7 +61,7 @@ function reprocess(meta)
                 name= @sprintf("RA%.3fDec%.3f",ra,dec)
                 votname= @sprintf("%s-%2.1fdeg.vot",name, radius)
 
-                if votname in dfp.votname
+                if votname in dfp.votname 
                     println("## $votname skipped..")
                 else
 
@@ -253,6 +255,8 @@ function merge(meta)
     mmerge= meta["merge"]
     mgene= meta["general"]
 
+
+
     cd(mgene["wdir"])
 
     catalog= mmerge["catalog"]
@@ -314,6 +318,5 @@ let
             merge(metabuild)
         end       
     end
-
 end
 

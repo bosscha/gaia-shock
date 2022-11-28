@@ -280,7 +280,7 @@ function perform_isochrone_fitting(df, isomodeldir)
 
     df= update_nan_oc(df)
 
-    debug_red(first(iso))
+    # debug_red(first(iso))
     df= get_star_mass(df, iso)
 
     feh_gaia= median(df.mh)

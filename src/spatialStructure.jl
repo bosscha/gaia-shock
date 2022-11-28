@@ -4,7 +4,7 @@
 ## extract parameters
 ##
 
-function spatialParameter(ocfile ; ntest=10 , nbin=20, niter=10000 ,verbose=true, nburnin= 5000 , dfoc=-1)
+function spatialParameter(ocfile ; ntest=10 , nbin=20, niter=10000 ,verbose=true, nburnin= 5000 , dfoc=-1, centered=false)
     let
         solC= []; sols= []; solm= []
         ηBest= 1e9 ; θBest= 0

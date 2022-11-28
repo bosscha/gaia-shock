@@ -6,11 +6,11 @@ function tail_stars(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, dfnew::Gai
     m::GaiaClustering.meta ; cycle=1, plot=true)
     debug_red("entering  tail...")
     doc= transform_df(df, dfcart, idx)
-
+    dfstep1= doc   ## step1 before filtering
+    
     ## source id for the full solution, starting with the old one...
 
     s=dfnew.ndata
-    debug_red(s)
     s1= length(dfnew.data[4,:])
     dnew= transform_df(dfnew, dfcartnew, 1:s)
 
@@ -36,8 +36,9 @@ function tail_stars(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, dfnew::Gai
     debug_red("$s $srad $svel")
 
     doc= filter(:BmR0 => x -> !(ismissing(x) || isnothing(x) || isnan(x)), doc)
+    debug_red("doc filtered $(size(doc))")
     dnewvel= filter(:BmR0 => x -> !(ismissing(x) || isnothing(x) || isnan(x)), dnewvel)
-
+    
     idx_tail , dist= distance_cmd_tail(doc,dnewvel)
 
     ## cut with cmd
@@ -76,7 +77,7 @@ function tail_stars(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, dfnew::Gai
 
     ## final results
     dfres= transform_df(df, dfcart,label_newsolution)
-    dfstep1= doc
+   
     dfstep2= dnewcmd
     dfstep2= transform_df(df, dfcart,label_step2)
 
@@ -84,20 +85,31 @@ function tail_stars(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, dfnew::Gai
     labelmax= 1                                       ## solution is label 1, step 1 label 2, step 2 label 3
 
     if plot 
-        println("### Plot the step 2 results...")
+        println("### Plot the full results...")
         votname= basename(m.votname)
         nstep1= sold[1] ; nstep2= snew[1] ; ntotal= nstep1+nstep2
         
         ## fit density2D to Cauchy
         nbin= 25
         fit, err, found=  spatialParameter("", nbin=nbin, verbose=false, niter=15000, dfoc=dfres)
-        fit1, err1, found1=  spatialParameter("", nbin=nbin, verbose=false, niter=15000, dfoc=doc)
+
+        debug_red(median(dfres.Y))
+
+        #if snew > 0
+        debug_red("fit step1..")
+    
+        fit1, err1, found1=  spatialParameter("", nbin=nbin, verbose=false, niter=15000, dfoc=dfstep1)
+
+        #else
+        #    fit1=[0] ; err1= [0]; found1= false
+        #end  
 
         dfinfo= DataFrame(cycle=cycle, nstep1=nstep1, nstep2=nstep2, ntotal=ntotal)
         pc=[]
         oc= export_df("$votname.$cycle", m.ocdir, df , dfcart , labels , labelmax, pc, m, save=false)
         debug_red("oc..")
         debug_red(size(oc))
+
         ## plot_tail should be cleaned!! 
         plot_tail(m.plotdir, votname, dfres, dfstep1, dfstep2 ,  dist, fit, err, found, fit1, err1, found1, dfinfo, oc)
     end
@@ -142,15 +154,24 @@ function distance_cmd_tail(df1, df2)
 
     kdtree = KDTree(dfref; leafsize = 20)
 
+    debug_red("knn dref: $n")
+
     npts= length(df2.G)
     pts= zeros(2,npts)
     pts[1,:] = df2.BmR0
     pts[2,:] = df2.G
 
-    idxs, dists = nn(kdtree, pts)
-    idx= collect(Iterators.flatten(idxs))
-    dist= collect(Iterators.flatten(dists))
-    idx=collect(1:npts)
+    if n>1
+        idxs, dists = nn(kdtree, pts)
+        idx= collect(Iterators.flatten(idxs))
+        dist= collect(Iterators.flatten(dists))
+        idx=collect(1:npts)
+    else
+        println("## Warning: Reference tree is too small for KNN analysis of the CMD distance, return a fake one...")
+        idx= [1,2,3,4]
+        dist=[1e6,1e6,1e6,1e6]
+    end
+
     return(idx , dist)
 end
 

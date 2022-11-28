@@ -736,7 +736,6 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
 
                 labelmax , nmax, qc = find_cluster_label2(labels, df, dfcart, m)
 
-                debug_red(typeof(labels))
 
                 ### tail, if step 2 extraction ("tail") is requested, here it goes...
                 if m.tail == "yes"
@@ -764,8 +763,10 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
                 println("## label $labelmax written as an oc solution...")
 
                 ### isochrone fitting...
-                if m.iso == "yes"
+                minptsiso= 10  # minimum pts to fit..
+                if m.iso == "yes" && count(!isnan, oc.ag) > minptsiso
                     println("## Performing isochrone fitting on the solution...")
+                    debug_red(count(!isnan, oc.ag))
                     oc, age, feh, feh_gaia, iso= perform_isochrone_fitting(oc, m.isomodel)
                     agemyr= 10^age / 1e6
                     total_mass= sum(oc.star_mass)
@@ -1028,7 +1029,6 @@ function save_cycle_optim(sc, mcmc, perf, chain,  m::GaiaClustering.meta,optim)
             println("## cycle $i results appended to $filesc ...")
             res= CSV.File(filesc, delim=";") |> DataFrame
 
-            debug_red(res)
             append!(res,sc[i]) ; CSV.write(filesc,res,delim=';')
             if optim
                 if !isfile(filemcmc)
@@ -1127,6 +1127,7 @@ function copy_cycle_0(votname, cycle_offdeg, m::GaiaClustering.meta)
     f= glob("$(votname).$(cycle_offdeg)*png", m.plotdir)
     if size(f)[1] > 0
         for file in f
+            file= splitdir(file)[2]       ### remove leading directories
             newfile= joinpath(m.plotdir,replace(file,".$(cycle_offdeg)." => ".0."))
             src= joinpath(m.plotdir, file)
             cp(src,newfile, force=true)

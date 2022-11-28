@@ -749,7 +749,11 @@ function plot_tail(plotdir, voname, dftail , dfstep1, dfstep2, dist,  fit, err, 
         if found1
             r2d1,ρ2d1,err2d1= density2D(dfstep1.Y, dfstep1.Z, nbin)
             ρ2dfit1= model_rad(r2d1, fit1, fdens1)
-            PyPlot.plot(r2d1, ρ2dfit1, "r--", linewidth=1.0, label= "Step1")
+            debug_red(r2d1)
+            debug_red(ρ2dfit1)
+            # PyPlot.scatter(r2d1, ρ2d1 , s=4, facecolor="red" )
+            # PyPlot.errorbar(r2d1, ρ2d1, yerr=2 .* err2d1, linewidth=0.5)
+            PyPlot.plot(r2d1, ρ2dfit1, "r--", linewidth=1.0, label= "Core (step1)")
         end
     else
         println("### No fit found for the radial surface density...")
@@ -774,11 +778,11 @@ function plot_tail(plotdir, voname, dftail , dfstep1, dfstep2, dist,  fit, err, 
         nbin=20
         rad2, rho2, err2= density2D(dfstep2.Y, dfstep2.Z, nbin)
         PyPlot.scatter(rad2, rho2 , s=4, facecolor="magenta" )
-        PyPlot.errorbar(rad2, rho2, yerr=2 .* err2, linewidth=0.5)
-        PyPlot.plot(rad2, rho2, "m-.", linewidth=1.0, label= "Step2")
-        PyPlot.plt.legend(loc="lower left")
+        # PyPlot.errorbar(rad2, rho2, yerr=2 .* err2, linewidth=0.5)
+        PyPlot.plot(rad2, rho2, "m-.", linewidth=1.0, label= "Step2")  
     end
 
+    PyPlot.plt.legend(loc="lower left")
 
     ## surface density...
     ## 
@@ -852,14 +856,15 @@ function plot_tail(plotdir, voname, dftail , dfstep1, dfstep2, dist,  fit, err, 
     PyPlot.plt.axis("on")
     xx = filter(!isnan,dftail.BmR0) ; x1= filter(!isnan,dfstep1.BmR0); x2= filter(!isnan,dfstep2.BmR0)
     yy = filter(!isnan,dftail.G) ; y1= filter(!isnan,dfstep1.G) ; y2= filter(!isnan,dfstep2.G)
-    ymin= minimum(yy) ; ymax= maximum(yy)
-    PyPlot.plt.ylim(ymax,ymin)
-    # PyPlot.plt.scatter(xx, yy , s = 1.0 )
-    PyPlot.plt.scatter(x1, y1 , s = 0.1 , c= "red" )
-    PyPlot.plt.scatter(x2, y2 , s = 0.1 , c= "blue")
-    PyPlot.plt.xlabel("BmR0")
-    PyPlot.plt.ylabel("G")
-    PyPlot.plt.grid(true)
+    if size(xx)[1] > 0 && size(yy)[1] > 0
+        ymin= minimum(yy) ; ymax= maximum(yy)
+        PyPlot.plt.ylim(ymax,ymin)
+        PyPlot.plt.scatter(x1, y1 , s = 0.1 , c= "red" )
+        PyPlot.plt.scatter(x2, y2 , s = 0.1 , c= "blue")
+        PyPlot.plt.xlabel("BmR0")
+        PyPlot.plt.ylabel("G")
+        PyPlot.plt.grid(true)
+    end
 
     ### text to display...
     axt= PyPlot.plt.subplot(3, 3, 5)
