@@ -6,11 +6,11 @@ function tail_stars(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, dfnew::Gai
     m::GaiaClustering.meta ; cycle=1, plot=true)
     debug_red("entering  tail...")
     doc= transform_df(df, dfcart, idx)
-
+    dfstep1= doc   ## step1 before filtering
+    
     ## source id for the full solution, starting with the old one...
 
     s=dfnew.ndata
-    debug_red(s)
     s1= length(dfnew.data[4,:])
     dnew= transform_df(dfnew, dfcartnew, 1:s)
 
@@ -36,8 +36,9 @@ function tail_stars(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, dfnew::Gai
     debug_red("$s $srad $svel")
 
     doc= filter(:BmR0 => x -> !(ismissing(x) || isnothing(x) || isnan(x)), doc)
+    debug_red("doc filtered $(size(doc))")
     dnewvel= filter(:BmR0 => x -> !(ismissing(x) || isnothing(x) || isnan(x)), dnewvel)
-
+    
     idx_tail , dist= distance_cmd_tail(doc,dnewvel)
 
     ## cut with cmd
@@ -76,36 +77,31 @@ function tail_stars(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, dfnew::Gai
 
     ## final results
     dfres= transform_df(df, dfcart,label_newsolution)
-    dfstep1= doc
+   
     dfstep2= dnewcmd
     dfstep2= transform_df(df, dfcart,label_step2)
 
-    debug_red(median(dfres.Y))
-    debug_red(median(dfstep1.Y))
-   #  debug_red(median(dfstep2.Y))
+    labels= [label_newsolution, idx, label_step2]     ## index for solution
+    labelmax= 1                                       ## solution is label 1, step 1 -> label 2, step 2 -> label 3
 
-    #__plot_dist_cmd(dist)
-    #__plot_surface_density(dnewcmd.Y, dnewcmd.Z,"test_surface_density.png")
-
-    # __plot_tail(dnewcmd, doc,  "test_tail4")
-    # density_count(dnewcmd.Y, dnewcmd.Z, 128)
     if plot 
-        println("### Plot the step 2 results...")
+        println("### Plot the full results...")
         votname= basename(m.votname)
         nstep1= sold[1] ; nstep2= snew[1] ; ntotal= nstep1+nstep2
         
         ## fit density2D to Cauchy
         nbin= 25
-        fit, err, found=  spatialParameter("", nbin=nbin, verbose=false, niter=15000, dfoc=dfres)
-        fit1, err1, found1=  spatialParameter("", nbin=nbin, verbose=false, niter=15000, dfoc=doc)
+        fit, err, found=  spatialParameter("", nbin=nbin, verbose=false, niter=15000, dfoc=dfres)    
+        fit1, err1, found1=  spatialParameter("", nbin=nbin, verbose=false, niter=15000, dfoc=dfstep1)
 
         dfinfo= DataFrame(cycle=cycle, nstep1=nstep1, nstep2=nstep2, ntotal=ntotal)
-        plot_tail(m.plotdir, votname, dfres, dfstep1, dfstep2 ,  dist, fit, err, found, fit1, err1, found1, dfinfo)
-    end
+        pc=[]
+        oc= export_df("$votname.$cycle", m.ocdir, df , dfcart , labels , labelmax, pc, m, save=false)
 
-    labels= [label_newsolution, idx, label_step2]     ## index for solution
-    labelmax= 1                                       ## solution is label 1, step 1 label 2, step 2 label 3
-    
+        ## plot_tail should be cleaned!! 
+        plot_tail(m.plotdir, votname, dfres, dfstep1, dfstep2 ,  dist, fit, err, found, fit1, err1, found1, dfinfo, oc)
+    end
+   
     return(labels,  labelmax)
 end
 
@@ -146,19 +142,28 @@ function distance_cmd_tail(df1, df2)
 
     kdtree = KDTree(dfref; leafsize = 20)
 
+    debug_red("knn dref: $n")
+
     npts= length(df2.G)
     pts= zeros(2,npts)
     pts[1,:] = df2.BmR0
     pts[2,:] = df2.G
 
-    idxs, dists = nn(kdtree, pts)
-    idx= collect(Iterators.flatten(idxs))
-    dist= collect(Iterators.flatten(dists))
-    idx=collect(1:npts)
+    if n>1
+        idxs, dists = nn(kdtree, pts)
+        idx= collect(Iterators.flatten(idxs))
+        dist= collect(Iterators.flatten(dists))
+        idx=collect(1:npts)
+    else
+        println("## Warning: Reference tree is too small for KNN analysis of the CMD distance, return a fake one...")
+        idx= [1,2,3,4]
+        dist=[1e6,1e6,1e6,1e6]
+    end
+
     return(idx , dist)
 end
 
-function density_count(xx, yy, nbin=128, xrange=[-100,100],yrange=[-100,100])
+function _density_count(xx, yy, nbin=128, xrange=[-100,100],yrange=[-100,100])
     data = (xx,yy) 
     stepx= (xrange[2]-xrange[1])/nbin
     stepy= (yrange[2]-yrange[1])/nbin 
@@ -188,8 +193,6 @@ function density_count(xx, yy, nbin=128, xrange=[-100,100],yrange=[-100,100])
     PyPlot.plt.figure(figsize=(9.0,8.0))
     ax= PyPlot.plt.subplot(1, 1, 1 )
 
-    println("toto...")
-    println(ax)
     ax.set_xticks(xv) ;  ax.set_xticklabels(xti)
     ax.set_yticks(yv) ;  ax.set_yticklabels(yti)
 

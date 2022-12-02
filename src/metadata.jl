@@ -17,7 +17,7 @@ function set_default_params()::meta
     def.ocdir= "."
     def.votname = "test.vot"
     def.prefile= "ocres"
-    def.isomodel= ""
+    def.isomodel= "/home/stephane/Science/GAIA/products/standalone/isochrones/MIST_serial/"
 
     ## placeholder for the uuid
     def.uuid= UUID("cfc395e8-590f-11e8-1f13-43a2532b2fa8")

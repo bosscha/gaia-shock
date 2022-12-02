@@ -259,6 +259,7 @@ function perform_isochrone_fitting(df, isomodeldir)
     df= update_mag(df,false)
     oc= filter(:G => G -> !any(f -> f(G), (ismissing, isnothing, isnan)), df)
 
+
     ## reading isochrone model
     if isomodeldir == "" 
         println("## Set to default isochrone models...")
@@ -269,15 +270,17 @@ function perform_isochrone_fitting(df, isomodeldir)
     debug_red(isomodeldir)
     arrIso = read_serial_mist(isomodeldir)
 
+    if size(arrIso)[1] == 0
+            println("### Isochrone model not set properly...")
+            exit()
+    end
+
     wgt= weight_cmd(oc, 0.25, 1)
     age, feh, iso= fit_isochrone(oc,arrIso, wgt)
 
-    debug_red(size(oc))
-    debug_red(size(iso))
-
-
     df= update_nan_oc(df)
-    debug_red(first(iso))
+
+    # debug_red(first(iso))
     df= get_star_mass(df, iso)
 
     feh_gaia= median(df.mh)

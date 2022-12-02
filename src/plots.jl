@@ -700,13 +700,13 @@ end
 ### plot the step 2  process (tails, etc)
 ### dist: distance to CMD
 
-function plot_tail(plotdir, voname, dftail , dfstep1, dfstep2, dist,  fit, err, found, fit1, err1, found1, dfinfo; showplot=false)
+function plot_tail(plotdir, voname, dftail , dfstep1, dfstep2, dist,  fit, err, found, fit1, err1, found1, dfinfo ,oc; showplot=false)
     patch= pyimport("matplotlib.patches")
 
     PyPlot.plt.rcParams["font.size"]= 25
     PyPlot.plt.figure(figsize=(13.0,12.0))
 
-    PyPlot.plt.subplot(3, 2, 1)
+    PyPlot.plt.subplot(3, 3, 1)
     PyPlot.plt.axis("on")
 
     xcenter= median(dfstep1.X) ; ycenter= median(dfstep1.Y) ; zcenter= median(dfstep1.Z)
@@ -716,13 +716,13 @@ function plot_tail(plotdir, voname, dftail , dfstep1, dfstep2, dist,  fit, err, 
 
     PyPlot.plt.ylim(ymin,ymax)
     # PyPlot.plt.scatter(xx, yy , s = 1.0 )
-    PyPlot.plt.scatter(x1, y1 , s = 1.0 , c= "red" )
-    PyPlot.plt.scatter(x2, y2 , s = 1.0 , c= "blue")
+    PyPlot.plt.scatter(x1, y1 , s = 0.1 , c= "red" )
+    PyPlot.plt.scatter(x2, y2 , s = 0.1 , c= "green")
     PyPlot.plt.xlabel("Y (pc)")
     PyPlot.plt.ylabel("Z (pc)")
     PyPlot.plt.grid(true)
 
-    PyPlot.plt.subplot(3, 2,6)
+    PyPlot.plt.subplot(3, 3,6)
     nbins = 50
     PyPlot.plt.hist(dist,nbins, range = [0,0.50],  color = "g", alpha=0.8 ,density=false)
     PyPlot.plt.xlabel("CMD Distance")
@@ -735,7 +735,7 @@ function plot_tail(plotdir, voname, dftail , dfstep1, dfstep2, dist,  fit, err, 
         ρ2dfit= model_rad(r2d, fit, fdens1)
         dct= Dict("color"=> "black", "fontsize"=> 11)
        
-        ax= PyPlot.subplot(3, 2, 3)
+        ax= PyPlot.subplot(3, 3, 3)
         ax.set_yscale("log")
         ax.set_xscale("log")
         ax.set_xlim(r2d[1]*0.9, r2d[end]*1.1)
@@ -749,7 +749,11 @@ function plot_tail(plotdir, voname, dftail , dfstep1, dfstep2, dist,  fit, err, 
         if found1
             r2d1,ρ2d1,err2d1= density2D(dfstep1.Y, dfstep1.Z, nbin)
             ρ2dfit1= model_rad(r2d1, fit1, fdens1)
-            PyPlot.plot(r2d1, ρ2dfit1, "r--", linewidth=1.0, label= "Step1")
+            debug_red(r2d1)
+            debug_red(ρ2dfit1)
+            # PyPlot.scatter(r2d1, ρ2d1 , s=4, facecolor="red" )
+            # PyPlot.errorbar(r2d1, ρ2d1, yerr=2 .* err2d1, linewidth=0.5)
+            PyPlot.plot(r2d1, ρ2dfit1, "r--", linewidth=1.0, label= "Core (step1)")
         end
     else
         println("### No fit found for the radial surface density...")
@@ -757,7 +761,7 @@ function plot_tail(plotdir, voname, dftail , dfstep1, dfstep2, dist,  fit, err, 
         r2d,ρ2d,err2d= density2D(dftail.Y, dftail.Z, nbin)
         dct= Dict("color"=> "black", "fontsize"=> 11)
        
-        ax= PyPlot.subplot(3, 2, 3)
+        ax= PyPlot.subplot(3, 3, 3)
         ax.set_yscale("log")
         ax.set_xscale("log")
         ax.set_xlim(r2d[1]*0.9, r2d[end]*1.1)
@@ -774,16 +778,16 @@ function plot_tail(plotdir, voname, dftail , dfstep1, dfstep2, dist,  fit, err, 
         nbin=20
         rad2, rho2, err2= density2D(dfstep2.Y, dfstep2.Z, nbin)
         PyPlot.scatter(rad2, rho2 , s=4, facecolor="magenta" )
-        PyPlot.errorbar(rad2, rho2, yerr=2 .* err2, linewidth=0.5)
-        PyPlot.plot(rad2, rho2, "m-.", linewidth=1.0, label= "Step2")
-        PyPlot.plt.legend(loc="lower left")
+        # PyPlot.errorbar(rad2, rho2, yerr=2 .* err2, linewidth=0.5)
+        PyPlot.plot(rad2, rho2, "m-.", linewidth=1.0, label= "Step2")  
     end
 
+    PyPlot.plt.legend(loc="lower left")
 
     ## surface density...
     ## 
     data = (xx, yy)   ## plot not physical, see above for definition
-    xmax= max(maximum(xx), maximum(xx))
+    xmax= max(maximum(xx), maximum(-xx))
     ymax= max(maximum(yy), maximum(-yy))
     xymax= max(xmax,ymax)
     val= ceil(xymax/10)*10
@@ -812,7 +816,7 @@ function plot_tail(plotdir, voname, dftail , dfstep1, dfstep2, dist,  fit, err, 
         push!(yti, sy) ;  push!(yv, yi) 
     end
     
-    ax= PyPlot.plt.subplot(3, 2, 2 )
+    ax= PyPlot.plt.subplot(3, 3, 2 )
     ax.set_xticks(xv) ;  ax.set_xticklabels(xti)
     ax.set_yticks(yv) ;  ax.set_yticklabels(yti)
     ax.set_aspect(1)
@@ -824,22 +828,46 @@ function plot_tail(plotdir, voname, dftail , dfstep1, dfstep2, dist,  fit, err, 
     PyPlot.plt.contourf(rec, lev    , cmap="gist_stern_r")
     PyPlot.plt.contour(rec, lev, linewidths= 0.2, colors= "blue") 
 
+    ### Galactic coordinates
+    xx= oc.Xg ; yy=oc.Yg
+    PyPlot.plt.subplot(3, 3,7)
+    PyPlot.plt.scatter(xx, yy , s = 0.1 )
+    PyPlot.plt.xlabel("Xg (pc)")
+    PyPlot.plt.ylabel("Yg (pc)")
+    PyPlot.plt.grid(true)
+
+    xx= oc.Xg ; yy=oc.Zg
+    PyPlot.plt.subplot(3, 3,8)
+    PyPlot.plt.scatter(xx, yy , s = 0.1 )
+    PyPlot.plt.xlabel("Xg (pc)")
+    PyPlot.plt.ylabel("Zg (pc)")
+    PyPlot.plt.grid(true)
+    
+    xx= oc.Yg ; yy=oc.Zg
+    PyPlot.plt.subplot(3, 3,9)
+    PyPlot.plt.scatter(xx, yy , s = 0.1 )
+    PyPlot.plt.xlabel("Yg (pc)")
+    PyPlot.plt.ylabel("Zg (pc)")
+    PyPlot.plt.grid(true)
+
+
     ### CMD plot
-    PyPlot.plt.subplot(3, 2, 4)
+    PyPlot.plt.subplot(3, 3, 4)
     PyPlot.plt.axis("on")
     xx = filter(!isnan,dftail.BmR0) ; x1= filter(!isnan,dfstep1.BmR0); x2= filter(!isnan,dfstep2.BmR0)
     yy = filter(!isnan,dftail.G) ; y1= filter(!isnan,dfstep1.G) ; y2= filter(!isnan,dfstep2.G)
-    ymin= minimum(yy) ; ymax= maximum(yy)
-    PyPlot.plt.ylim(ymax,ymin)
-    # PyPlot.plt.scatter(xx, yy , s = 1.0 )
-    PyPlot.plt.scatter(x1, y1 , s = 0.1 , c= "red" )
-    PyPlot.plt.scatter(x2, y2 , s = 0.1 , c= "blue")
-    PyPlot.plt.xlabel("BmR0")
-    PyPlot.plt.ylabel("G")
-    PyPlot.plt.grid(true)
+    if size(xx)[1] > 0 && size(yy)[1] > 0
+        ymin= minimum(yy) ; ymax= maximum(yy)
+        PyPlot.plt.ylim(ymax,ymin)
+        PyPlot.plt.scatter(x1, y1 , s = 0.1 , c= "red" )
+        PyPlot.plt.scatter(x2, y2 , s = 0.1 , c= "blue")
+        PyPlot.plt.xlabel("BmR0")
+        PyPlot.plt.ylabel("G")
+        PyPlot.plt.grid(true)
+    end
 
     ### text to display...
-    axt= PyPlot.plt.subplot(3, 2, 5)
+    axt= PyPlot.plt.subplot(3, 3, 5)
     PyPlot.plt.axis("off")
     dct= Dict("color"=> "black", "fontsize"=> 10)
 
@@ -868,7 +896,6 @@ function plot_tail(plotdir, voname, dftail , dfstep1, dfstep2, dist,  fit, err, 
 
     rec= patch.Rectangle((-0.07, -0.15), 1.0, 1.15, color="salmon", alpha= 0.4, clip_on=false)
     axt.add_artist(rec)
-
 
     figname = plotdir*"/"*voname*".$(dfinfo.cycle[1])"*".tail.png"
     debug_red(figname)

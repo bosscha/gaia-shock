@@ -23,9 +23,12 @@ tol = 0.2
 
 ## merge settings for the catalog
 [merge]
-duplicate=  "yes"               # remove duplicated source
-toldist= 1.5                    # maximum separation in pc for the distance of the candidates
-tolsky=  0.2                    # maximum separation in degres for the sky position of the candidates
+catalog = "ocres-final.sc.csv"                     # catalog filename with the needed fields
+mode =  "duplicate"                    # merging mode: duplicate|merge|simbad)
+toldeg = 0.1                           # tolerance in degrees for position on sky (RA,Dec)
+toldist = 0.5                          # tolerance in parsec for distance
+tolndiff = 0.8                         # if relative number of stars of two candidates is lower then considered two chunks when nearby...
+metric =  "Qn"                          # metric to choose the oc of the two duplicated: Qn(max stars)|Edgm(minimum edgm if available)
 
 
 [random]

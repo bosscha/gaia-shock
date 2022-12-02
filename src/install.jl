@@ -32,5 +32,8 @@ Pkg.add("VoronoiCells")
 Pkg.add("GeometryBasics")
 Pkg.add("NearestNeighbors")
 Pkg.add("GZip")
+Pkg.add("FHist")
+Pkg.add("FileIO")
+Pkg.add("CSVFiles")
 
 println("## Package installation for GaiaClustering done...")

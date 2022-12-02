@@ -36,14 +36,18 @@ function reprocess(meta)
     else
         dfp= DataFrame(votname= String[])
     end
-        
+
+    dfblck= get_blacklist(mgene)
+
     Kdeg= 57.69
 
     if mextra.optim == "no"
         optim= false
-        println(mrepro["optsol"])
-        dfoptsol= CSV.File(mrepro["optsol"], delim=",") |> DataFrame
-        # println(dfoptsol)
+        println("## Using preprocessed file : $(mrepro["optsol"])")
+        ## delim Guess
+        fline= readline(mrepro["optsol"]) 
+        if occursin(";",fline) delimiter= ";" else delimiter= "," end
+        dfoptsol= CSV.File(mrepro["optsol"], delim=delimiter) |> DataFrame
         
         gaia= pyimport("astroquery.gaia")
 
@@ -59,19 +63,18 @@ function reprocess(meta)
                 name= @sprintf("RA%.3fDec%.3f",ra,dec)
                 votname= @sprintf("%s-%2.1fdeg.vot",name, radius)
 
-                if votname in dfp.votname
+                if votname in dfp.votname || votname in dfblck.votname
                     println("## $votname skipped..")
                 else
 
                     mextra.votname= get_gaia_data_many(gaia, radius, tol, ra, dec, name , rect)
 
-                    mextra.w3d= row.w3dm
-                    mextra.wvel= row.wvelm
-                    mextra.whrd= row.whrdm
-                    mextra.eps= row.epsm
-                    mextra.mcl= row.mclm
-                    mextra.mnei= row.mneim
-                
+                    if haskey(row, :w3dm)    mextra.w3d= row.w3dm else mextra.w3d= row.w3d end
+                    if haskey(row, :whrdm)   mextra.whrd= row.whrdm else mextra.whrd= row.whrd end
+                    if haskey(row, :epsm)    mextra.eps= row.epsm else mextra.eps= row.eps end
+                    if haskey(row, :mclm)    mextra.mcl= row.mclm else mextra.mcl= row.mcl end
+                    if haskey(row, :mneim)    mextra.mnei= row.mneim else mextra.mnei= row.mnei end
+               
                     extra(mextra, optim)
                     push!(dfp, [mextra.votname])
                     CSV.write(progressfile, dfp, delim=";")
@@ -253,6 +256,8 @@ function merge(meta)
     mmerge= meta["merge"]
     mgene= meta["general"]
 
+
+
     cd(mgene["wdir"])
 
     catalog= mmerge["catalog"]
@@ -286,15 +291,30 @@ function merge(meta)
 
         dfcat=  CSV.File(catalog, delim=";") |> DataFrame
 
-        debug_red("### Not implemented yet ...")
+        debug_red("### Use tail option in extra file...")
         # dfchunk= get_chunks(dfcat)
     end
 
 end
+#########################
+function get_blacklist(m)
+    if haskey(m, "blacklist")
+        blackfile= m["blacklist"]
+        if isfile(blackfile)              
+            dfblck=  CSV.File(progressfile, delim=",") |> DataFrame 
+            println("### Blacklist $blackfile read")
+        else
+            dfblck= DataFrame(votname= [""])
+        end
+    else
+        dfblck= DataFrame(votname= [""])
+    end
+    return(dfblck)
+end
 #################################### MAIN ########################
 let
     println(ARGS)
-    println("####################")
+    println("############################")
     println("### Building Gaia results...")
 
     metabuild = TOML.parsefile(ARGS[1])
@@ -314,6 +334,5 @@ let
             merge(metabuild)
         end       
     end
-
 end
 
