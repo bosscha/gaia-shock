@@ -748,7 +748,8 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
                     println("### Return the new full solution in label 1")
 
                     ## labelmax 1: full solution, 2: step1 solution, 3: step2 solution
-                    labels, labelmax= tail_stars(df, dfcart, dfnew, dfcartnew, labels[labelmax], m, cycle=cycle)                    
+                    labels, labelmax= tail_stars(df, dfcart, dfnew, dfcartnew, labels[labelmax], m, cycle=cycle)
+                    nmax= size(labels[labelmax])[1]                
                 end
 
                 ## Principal components
@@ -808,7 +809,7 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
                 insertcols!(scdf, 3, :cycle => cycle)
                 insertcols!(scdf, 4, :pc3 => pcres[3])
                 insertcols!(scdf, 4, :pc2 => pcres[2])
-                insertcols!(scdf, 4, :pc1 => pcres[1])
+                insertcols!(scdf, 4, :pc1 => pcres[1])đđđ
 
                 ## add solution used for DBSCAN and weighting
                 insertcols!(scdf, 30, :whrd => whrd)
@@ -839,6 +840,22 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
                 insertcols!(scdf, 21, :W => uvw[3])
                 insertcols!(scdf, 21, :V => uvw[2])
                 insertcols!(scdf, 21, :U => uvw[1])
+
+                ## if tail=yes add the properties of the core
+                if m.tail == "yes"
+                    sc_core = get_properties_SC2(labels[2] , df, dfcart)
+                    ncore= size(labels[2])[1]
+                    insertcols!(scdf, 33, :vraddisp_core => sc_core.vraddisp)
+                    insertcols!(scdf, 33, :vbdisp_core => sc_core.vbdisp)
+                    insertcols!(scdf, 33, :vldisp_core => sc_core.vldisp)                   
+                    insertcols!(scdf, 33, :zdisp_core => sc_core.zdisp)
+                    insertcols!(scdf, 33, :ydisp_core => sc_core.ydisp)
+                    insertcols!(scdf, 33, :xdisp_core => sc_core.xdisp)
+                    insertcols!(scdf, 33, :distance_core => sc_core.distance)
+                    insertcols!(scdf, 33, :dec_core => sc_core.dec)
+                    insertcols!(scdf, 33, :ra_core => sc_core.ra)
+                    insertcols!(scdf, 33, :ncore => ncore)
+                end
 
                 ## isochrone fitting, if not, placeholder..
                 insertcols!(scdf, 7, :feh_gaia => feh_gaia)

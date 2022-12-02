@@ -82,7 +82,7 @@ function tail_stars(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, dfnew::Gai
     dfstep2= transform_df(df, dfcart,label_step2)
 
     labels= [label_newsolution, idx, label_step2]     ## index for solution
-    labelmax= 1                                       ## solution is label 1, step 1 label 2, step 2 label 3
+    labelmax= 1                                       ## solution is label 1, step 1 -> label 2, step 2 -> label 3
 
     if plot 
         println("### Plot the full results...")
@@ -91,24 +91,12 @@ function tail_stars(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, dfnew::Gai
         
         ## fit density2D to Cauchy
         nbin= 25
-        fit, err, found=  spatialParameter("", nbin=nbin, verbose=false, niter=15000, dfoc=dfres)
-
-        debug_red(median(dfres.Y))
-
-        #if snew > 0
-        debug_red("fit step1..")
-    
+        fit, err, found=  spatialParameter("", nbin=nbin, verbose=false, niter=15000, dfoc=dfres)    
         fit1, err1, found1=  spatialParameter("", nbin=nbin, verbose=false, niter=15000, dfoc=dfstep1)
-
-        #else
-        #    fit1=[0] ; err1= [0]; found1= false
-        #end  
 
         dfinfo= DataFrame(cycle=cycle, nstep1=nstep1, nstep2=nstep2, ntotal=ntotal)
         pc=[]
         oc= export_df("$votname.$cycle", m.ocdir, df , dfcart , labels , labelmax, pc, m, save=false)
-        debug_red("oc..")
-        debug_red(size(oc))
 
         ## plot_tail should be cleaned!! 
         plot_tail(m.plotdir, votname, dfres, dfstep1, dfstep2 ,  dist, fit, err, found, fit1, err1, found1, dfinfo, oc)
