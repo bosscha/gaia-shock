@@ -809,7 +809,7 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
                 insertcols!(scdf, 3, :cycle => cycle)
                 insertcols!(scdf, 4, :pc3 => pcres[3])
                 insertcols!(scdf, 4, :pc2 => pcres[2])
-                insertcols!(scdf, 4, :pc1 => pcres[1])đđđ
+                insertcols!(scdf, 4, :pc1 => pcres[1])
 
                 ## add solution used for DBSCAN and weighting
                 insertcols!(scdf, 30, :whrd => whrd)

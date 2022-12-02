@@ -193,8 +193,6 @@ function _density_count(xx, yy, nbin=128, xrange=[-100,100],yrange=[-100,100])
     PyPlot.plt.figure(figsize=(9.0,8.0))
     ax= PyPlot.plt.subplot(1, 1, 1 )
 
-    println("toto...")
-    println(ax)
     ax.set_xticks(xv) ;  ax.set_xticklabels(xti)
     ax.set_yticks(yv) ;  ax.set_yticklabels(yti)
 
