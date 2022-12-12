@@ -51,10 +51,12 @@ function reprocess(meta)
         
         gaia= pyimport("astroquery.gaia")
 
+        radone= [] ; decdone= []
         for row in eachrow(dfoptsol)
             if mgene["getvot"] == "yes"
                 rect= false
                 ra= row.ra ; dec= row.dec
+                push!(radone,ra) ; push!(decdone, dec)
                 tol= mrepro["tol"] ; radius= mrepro["radius"]
 
                 estangle= Kdeg * 25 / row.distance             # estimated field size in degree (if angle small for tangent)
@@ -84,6 +86,7 @@ function reprocess(meta)
                         println("## votable $(mextra.votname) removed")
                     end
                 end
+                plot_sky(radone, decdone, radius=50, figname= "reprocess-allsky.png")
             end
         end
     end
@@ -216,19 +219,20 @@ function gridding(meta)
     end
     
     debug_red(xiter)
+    radone= [] ; decdone= []
 
     for xx in xiter[1]:xiter[3]:xiter[2]
         for yy in yiter[1]:yiter[3]:yiter[2]
-            debug_red(xx)
             if ref == "galactic"
                 ra, dec= galactic2equatorial(xx,yy)
             elseif ref == "equatorial"
                 ra= xx ; dec= yy
             end
+            push!(radone,ra)
+            push!(decdone,dec)           
 
             name= @sprintf("RA%.3fDec%.3f",ra,dec)
             votname= @sprintf("%s-%2.1fdeg.vot",name, radius)
-            debug_red(votname)
 
             if votname in dfp.votname 
                 println("## $name done...")
@@ -242,7 +246,8 @@ function gridding(meta)
                     rm(mextra.votname)
                     println("## votable $(mextra.votname) removed")
                 end
-            end
+            end           
+            plot_sky(radone,decdone , radius=20, figname="gridding-allsky.png")
         end
     end
 end
@@ -255,8 +260,6 @@ function merge(meta)
 
     mmerge= meta["merge"]
     mgene= meta["general"]
-
-
 
     cd(mgene["wdir"])
 
