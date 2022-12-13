@@ -224,8 +224,10 @@ function gridding(meta)
     for xx in xiter[1]:xiter[3]:xiter[2]
         for yy in yiter[1]:yiter[3]:yiter[2]
             if ref == "galactic"
+                println("## Starting (l,b): $xx $yy")
                 ra, dec= galactic2equatorial(xx,yy)
             elseif ref == "equatorial"
+                println("## Starting (RA,Dec): $xx $yy")
                 ra= xx ; dec= yy
             end
             push!(radone,ra)
@@ -286,16 +288,37 @@ function merge(meta)
         println("## Catalog $mergefile created.")
     end 
 
-    if mode == "chunk"
-        println("### Merge, merging chunks of the same physical cluster...")
-        toldeg= mmerge["toldeg"]
-        toldist= mmerge["toldist"]
-        tolndiff= mmerge["tolndiff"]
+    if mode == "simbad"
+        println("### Merge, searching for objects with Simbad...")
+        coord= pyimport("astropy.coordinates")
+        Simbad= pyimport("astroquery.simbad")
+
+        tolquery= mmerge["tolquery"]       ## arcmin radius for the object search
 
         dfcat=  CSV.File(catalog, delim=";") |> DataFrame
 
-        debug_red("### Use tail option in extra file...")
-        # dfchunk= get_chunks(dfcat)
+        namecla= []
+        for row in eachrow(dfcat)
+            ra= row.ra ; dec= row.dec
+            c= coord.SkyCoord(ra,dec, unit="deg")
+            res= Simbad.Simbad.query_region(c, radius="$tolquery arcmin")
+            namecl= "-"
+
+            if res !== nothing
+                for lobj in res
+                    t= split(lobj[1])
+                    if t[1]=="Cl*"
+                        namecl= t[2]*"_"*t[3]
+                        debug_red(namecl)
+                    end
+                end
+            end
+            push!(namecla,namecl)
+        end
+        dfcat[!,:name] = namecla
+
+        CSV.write(mergefile, dfcat, delim=";")
+        println("## Catalog $mergefile created.")
     end
 
 end
