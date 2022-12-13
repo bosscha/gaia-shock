@@ -925,3 +925,16 @@ function level_dens(dens,sigmin= 3, sigmax= 20, clip= 5)
     end
     return(lev)
 end
+#########
+#####plot projection
+function plot_sky(ra,dec ; radius=10, figname= "allsky.png")
+    PyPlot.plt.figure(figsize=(13.0,12.0))
+    PyPlot.plt.subplot(111,projection="aitoff")
+    PyPlot.plt.title("Sky coverage")
+    PyPlot.plt.xlabel("RA")
+    PyPlot.plt.ylabel("Dec")  
+    PyPlot.plt.grid(true)
+    r= ra * (π/180) .- π ; d= dec * (π/180)
+    PyPlot.plt.scatter(r,d,s=radius, facecolor="green", alpha=0.5)
+    PyPlot.plt.savefig(figname)
+end

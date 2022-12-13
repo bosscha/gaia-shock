@@ -51,10 +51,12 @@ function reprocess(meta)
         
         gaia= pyimport("astroquery.gaia")
 
+        radone= [] ; decdone= []
         for row in eachrow(dfoptsol)
             if mgene["getvot"] == "yes"
                 rect= false
                 ra= row.ra ; dec= row.dec
+                push!(radone,ra) ; push!(decdone, dec)
                 tol= mrepro["tol"] ; radius= mrepro["radius"]
 
                 estangle= Kdeg * 25 / row.distance             # estimated field size in degree (if angle small for tangent)
@@ -84,6 +86,7 @@ function reprocess(meta)
                         println("## votable $(mextra.votname) removed")
                     end
                 end
+                plot_sky(radone, decdone, radius=50, figname= "reprocess-allsky.png")
             end
         end
     end
@@ -216,19 +219,22 @@ function gridding(meta)
     end
     
     debug_red(xiter)
+    radone= [] ; decdone= []
 
     for xx in xiter[1]:xiter[3]:xiter[2]
         for yy in yiter[1]:yiter[3]:yiter[2]
-            debug_red(xx)
             if ref == "galactic"
+                println("## Starting (l,b): $xx $yy")
                 ra, dec= galactic2equatorial(xx,yy)
             elseif ref == "equatorial"
+                println("## Starting (RA,Dec): $xx $yy")
                 ra= xx ; dec= yy
             end
+            push!(radone,ra)
+            push!(decdone,dec)           
 
             name= @sprintf("RA%.3fDec%.3f",ra,dec)
             votname= @sprintf("%s-%2.1fdeg.vot",name, radius)
-            debug_red(votname)
 
             if votname in dfp.votname 
                 println("## $name done...")
@@ -242,7 +248,8 @@ function gridding(meta)
                     rm(mextra.votname)
                     println("## votable $(mextra.votname) removed")
                 end
-            end
+            end           
+            plot_sky(radone,decdone , radius=20, figname="gridding-allsky.png")
         end
     end
 end
@@ -255,8 +262,6 @@ function merge(meta)
 
     mmerge= meta["merge"]
     mgene= meta["general"]
-
-
 
     cd(mgene["wdir"])
 
@@ -283,16 +288,37 @@ function merge(meta)
         println("## Catalog $mergefile created.")
     end 
 
-    if mode == "chunk"
-        println("### Merge, merging chunks of the same physical cluster...")
-        toldeg= mmerge["toldeg"]
-        toldist= mmerge["toldist"]
-        tolndiff= mmerge["tolndiff"]
+    if mode == "simbad"
+        println("### Merge, searching for objects with Simbad...")
+        coord= pyimport("astropy.coordinates")
+        Simbad= pyimport("astroquery.simbad")
+
+        tolquery= mmerge["tolquery"]       ## arcmin radius for the object search
 
         dfcat=  CSV.File(catalog, delim=";") |> DataFrame
 
-        debug_red("### Use tail option in extra file...")
-        # dfchunk= get_chunks(dfcat)
+        namecla= []
+        for row in eachrow(dfcat)
+            ra= row.ra ; dec= row.dec
+            c= coord.SkyCoord(ra,dec, unit="deg")
+            res= Simbad.Simbad.query_region(c, radius="$tolquery arcmin")
+            namecl= "-"
+
+            if res !== nothing
+                for lobj in res
+                    t= split(lobj[1])
+                    if t[1]=="Cl*"
+                        namecl= t[2]*"_"*t[3]
+                        debug_red(namecl)
+                    end
+                end
+            end
+            push!(namecla,namecl)
+        end
+        dfcat[!,:name] = namecla
+
+        CSV.write(mergefile, dfcat, delim=";")
+        println("## Catalog $mergefile created.")
     end
 
 end

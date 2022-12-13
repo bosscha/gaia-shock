@@ -890,8 +890,15 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
             
                 extraplot= DataFrame(cycle=cycle, score_cycle=k, qc=qc, votname=votname, pc1=pcres[1],pc2=pcres[2], pc3=pcres[3], xg=Xgm, yg=Ygm,zg=Zgm, uuid= m.uuid)
 
-                plot_cluster2(m.plotdir, "$votname.$cycle", labels[labelmax], scproperties,
+                if m.tail == "yes"
+                    labelmax= 2 #### step1 solution
+                    plot_cluster2(m.plotdir, "$votname.$cycle", labels[labelmax], sc_core,
                     dfcart , false, extraplot)
+                else
+                    plot_cluster2(m.plotdir, "$votname.$cycle", labels[labelmax], scproperties,
+                    dfcart , false, extraplot)
+                end
+
 
                 jump= 50  ## stars to jump in the plot
                 plot_rawdata(m.plotdir, "$votname.$cycle", labels[labelmax], scproperties,
