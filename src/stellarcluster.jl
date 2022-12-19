@@ -690,6 +690,30 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
                 nchain= length(mc.qc)
                 println("## $iter iterations performed...")
                 println("## $nchain chains")
+
+                println("## optimization completed..")
+                println("## analyzing solutions...")
+                plot_dbscanfull_mcmc(m.plotdir, "$votname.$cycle", mc , false)
+
+                ## get the cluster and plot it
+                println("## extracting the cluster using DBSCAN/WEIGHTING with:")
+                res= extraction_mcmc(mc, m.votname)
+                eps= res.epsm[1]
+                min_nei= trunc(Int,res.mneim[1] + 0.5)
+                min_cl= trunc(Int,res.mclm[1] + 0.5)
+                w3d= res.w3dm[1]
+                wvel= res.wvelm[1]
+                whrd= res.whrdm[1]
+
+                mres = GaiaClustering.modelfull(eps,min_nei,min_cl,w3d,wvel,whrd)
+                dfcartnorm = getDfcartnorm(dfcart, mres)
+                labels = clusters(dfcartnorm.data ,eps  , 20, min_nei, min_cl)
+                
+                if length(labels) == 0
+                    FLAGmcmc= 0   ## to force stop even w/o optimization
+                    nchain= 0
+                    println("### no solution found with DBSCAN...")
+                end
             else
                 println("## setting the weightings/DBSCAN")
                 eps= m.eps
@@ -706,7 +730,7 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
                 if length(labels) == 0
                     FLAGmcmc= 0   ## to force stop even w/o optimization
                     nchain= 0
-                    println("### no solution with DBSCAN...")
+                    println("### no solution found with DBSCAN...")
                 else
                     FLAGmcmc= -1
                     nchain=  m.minchainreached+1
@@ -714,31 +738,11 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
             end
 
             if FLAGmcmc== -1 || nchain > m.minchainreached
-                if optim
-                    println("## optimization completed..")
-                    println("## analyzing solutions...")
-                    plot_dbscanfull_mcmc(m.plotdir, "$votname.$cycle", mc , false)
-
-                    ## get the cluster and plot it
-                    println("## extracting the cluster using DBSCAN/WEIGHTING with:")
-                    res= extraction_mcmc(mc, m.votname)
-                    eps= res.epsm[1]
-                    min_nei= trunc(Int,res.mneim[1] + 0.5)
-                    min_cl= trunc(Int,res.mclm[1] + 0.5)
-                    w3d= res.w3dm[1]
-                    wvel= res.wvelm[1]
-                    whrd= res.whrdm[1]
-
-                    mres = GaiaClustering.modelfull(eps,min_nei,min_cl,w3d,wvel,whrd)
-                    dfcartnorm = getDfcartnorm(dfcart, mres)
-                    labels = clusters(dfcartnorm.data ,eps  , 20, min_nei, min_cl)
-                end
 
                 labelmax , nmax, qc = find_cluster_label2(labels, df, dfcart, m)
 
-
                 ### tail, if step 2 extraction ("tail") is requested, here it goes...
-                if m.tail == "yes"
+                if m.tail == "yes" 
                     println("## Warning, the TAIL feature is still experimental ...")
                     println("## Performing step 2 for extraction (tails, clumps, etc) ...")
                     println("### Cut radius: $(m.maxRadTail) (pc) -- velocity: $(m.maxVelTail) (km/s) -- CMD: $(m.maxDistCmdTail) (mag)")
@@ -855,6 +859,17 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
                     insertcols!(scdf, 33, :dec_core => sc_core.dec)
                     insertcols!(scdf, 33, :ra_core => sc_core.ra)
                     insertcols!(scdf, 33, :ncore => ncore)
+                else
+                    insertcols!(scdf, 33, :vraddisp_core => scdf.vraddisp)
+                    insertcols!(scdf, 33, :vbdisp_core => scdf.vbdisp)
+                    insertcols!(scdf, 33, :vldisp_core => scdf.vldisp)                   
+                    insertcols!(scdf, 33, :zdisp_core => scdf.zdisp)
+                    insertcols!(scdf, 33, :ydisp_core => scdf.ydisp)
+                    insertcols!(scdf, 33, :xdisp_core => scdf.xdisp)
+                    insertcols!(scdf, 33, :distance_core => scdf.distance)
+                    insertcols!(scdf, 33, :dec_core => scdf.dec)
+                    insertcols!(scdf, 33, :ra_core => scdf.ra)
+                    insertcols!(scdf, 33, :ncore => scdf.nstars)
                 end
 
                 ## isochrone fitting, if not, placeholder..

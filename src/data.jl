@@ -347,7 +347,7 @@ function add_cartesian(s::Df, centering = true)::Df
         off[2] = mean(s.data[2,:])
     end
 
-    lgal = DEG2RAD .* (s.data[1,:] .- off[1])
+    lgal = DEG2RAD .* (s.data[1,:] .- off[1])       ## to be checked
     bgal = DEG2RAD .* (s.data[2,:] .- off[2])
 
     dfresult.data[1,:] = s.data[3,:] .* cos.(bgal) .* cos.(lgal)
