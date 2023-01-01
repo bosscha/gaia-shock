@@ -693,26 +693,33 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
 
                 println("## optimization completed..")
                 println("## analyzing solutions...")
-                plot_dbscanfull_mcmc(m.plotdir, "$votname.$cycle", mc , false)
 
-                ## get the cluster and plot it
-                println("## extracting the cluster using DBSCAN/WEIGHTING with:")
-                res= extraction_mcmc(mc, m.votname)
-                eps= res.epsm[1]
-                min_nei= trunc(Int,res.mneim[1] + 0.5)
-                min_cl= trunc(Int,res.mclm[1] + 0.5)
-                w3d= res.w3dm[1]
-                wvel= res.wvelm[1]
-                whrd= res.whrdm[1]
+                if length(mc.eps) > 0    ## at least 1 solution for median...
+                    plot_dbscanfull_mcmc(m.plotdir, "$votname.$cycle", mc , false)
 
-                mres = GaiaClustering.modelfull(eps,min_nei,min_cl,w3d,wvel,whrd)
-                dfcartnorm = getDfcartnorm(dfcart, mres)
-                labels = clusters(dfcartnorm.data ,eps  , 20, min_nei, min_cl)
+                    ## get the cluster and plot it
+                    println("## extracting the cluster using DBSCAN/WEIGHTING with:")
+                    res= extraction_mcmc(mc, m.votname)
+                    eps= res.epsm[1]
+                    min_nei= trunc(Int,res.mneim[1] + 0.5)
+                    min_cl= trunc(Int,res.mclm[1] + 0.5)
+                    w3d= res.w3dm[1]
+                    wvel= res.wvelm[1]
+                    whrd= res.whrdm[1]
+
+                    mres = GaiaClustering.modelfull(eps,min_nei,min_cl,w3d,wvel,whrd)
+                    dfcartnorm = getDfcartnorm(dfcart, mres)
+                    labels = clusters(dfcartnorm.data ,eps  , 20, min_nei, min_cl)
                 
-                if length(labels) == 0
-                    FLAGmcmc= 0   ## to force stop even w/o optimization
+                    if length(labels) == 0
+                        FLAGmcmc= 0   ## to force stop even w/o optimization
+                        nchain= 0
+                        println("### no solution found with DBSCAN...")
+                    end
+                else
+                    FLAGmcmc= 0   ## to force stop 
                     nchain= 0
-                    println("### no solution found with DBSCAN...")
+                    println("### No chain found ...")
                 end
             else
                 println("## setting the weightings/DBSCAN")
@@ -924,6 +931,12 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
 
                 println("###")
                 println("### subtracting BEST solution from Df...")
+                if m.tail == "yes"
+                    println("### step2 (tail) solution is subtracted also...")
+                    labelmax= 1
+                end
+                debug_red(size(labels[labelmax]))
+                debug_red(labelmax)
                 dfnew, dfcartnew= remove_stars(df, dfcart, labels[labelmax])
                 
                 df= dfnew
