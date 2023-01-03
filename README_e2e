@@ -16,5 +16,6 @@ EXTRACTION (scripts by order of execution):
 4. filter_mcmc.jl            : filter the oc within the threshold for the DBSCAN parameters.
 5. extract_allOC.jl          : extract the final OC stars using the selected DBSCAN parameters.
 
+*It is recommended to use the script extra.jl to extract individual set of data. See the wiki*
 FILES:
 blacklist-oc.csv (in $GAIA_ROOT/e2e_products) votfile blacklisted 
