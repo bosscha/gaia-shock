@@ -697,6 +697,8 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
                 if length(mc.eps) > 0    ## at least 1 solution for median...
                     plot_dbscanfull_mcmc(m.plotdir, "$votname.$cycle", mc , false)
 
+                    # __plot_mcmc_article(mc)
+
                     ## get the cluster and plot it
                     println("## extracting the cluster using DBSCAN/WEIGHTING with:")
                     res= extraction_mcmc(mc, m.votname)
@@ -750,7 +752,6 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
 
                 ### tail, if step 2 extraction ("tail") is requested, here it goes...
                 if m.tail == "yes" 
-                    println("## Warning, the TAIL feature is still experimental ...")
                     println("## Performing step 2 for extraction (tails, clumps, etc) ...")
                     println("### Cut radius: $(m.maxRadTail) (pc) -- velocity: $(m.maxVelTail) (km/s) -- CMD: $(m.maxDistCmdTail) (mag)")
                     println("### Subtracting first solution to find tails ...")

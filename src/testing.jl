@@ -62,6 +62,7 @@ end
 
 
 function __plot_dist_cmd(dist, plotfile="test-dist_cmd.png", plotdir= ".")
+    debug_red("plotting dist-cmd")
     PyPlot.plt.figure(figsize=(9.0,8.0))
     PyPlot.plt.subplot(1, 1, 1 )
     nbins = 50
@@ -71,6 +72,73 @@ function __plot_dist_cmd(dist, plotfile="test-dist_cmd.png", plotdir= ".")
     PyPlot.plt.grid(true)
     PyPlot.plt.savefig(plotdir*"/"*plotfile)
     # PyPlot.plt.show()
+end
+
+function __plot_mcmc_article(mc::mcfull)
+    debug_red("plotting mcmc article")
+    PyPlot.plt.figure(figsize=(9.0,7.0))
+    
+    nbins = 50
+    PyPlot.plt.subplot(1, 3, 1  )
+    h = PyPlot.plt.hist(mc.eps,nbins, alpha=0.75)
+    PyPlot.plt.xlabel("ϵ")
+    PyPlot.plt.grid(true)
+
+    nbins = 20
+    PyPlot.plt.subplot(1,3, 2 )
+    h = PyPlot.plt.hist(mc.mne,nbins, alpha=0.75)
+    PyPlot.plt.xlabel("min_neighbor")
+    PyPlot.plt.grid(true)
+
+    nbins = 20
+    PyPlot.plt.subplot(1,3, 3 )
+    h = PyPlot.plt.hist(mc.mcl,nbins, alpha=0.75)
+    PyPlot.plt.xlabel("min_cluster")
+    PyPlot.plt.grid(true)
+
+    PyPlot.plt.savefig("test-mcmc-dbscan.png")
+
+
+    PyPlot.plt.figure(figsize=(9.0,7.0))
+    
+    nbins = 50
+    PyPlot.plt.subplot(1, 3, 1 )
+    h = PyPlot.plt.hist(mc.w3d,nbins, alpha=0.75)
+    PyPlot.plt.xlabel("W3d")
+    PyPlot.plt.grid(true)
+
+    nbins = 50
+    PyPlot.plt.subplot(1, 3, 2 )
+    h = PyPlot.plt.hist(mc.wvel,nbins, alpha=0.75)
+    PyPlot.plt.xlabel("Wvel")
+    PyPlot.plt.grid(true)
+
+    nbins = 50
+    PyPlot.plt.subplot(1, 3, 3 )
+    h = PyPlot.plt.hist(mc.whrd,nbins, alpha=0.75)
+    PyPlot.plt.xlabel("Whrd")
+    PyPlot.plt.grid(true)
+
+    PyPlot.plt.savefig("test-mcmc-weight.png")
+
+    PyPlot.plt.figure(figsize=(9.0,7.0))
+
+    nbins = 50
+    PyPlot.plt.subplot(1, 2, 1 )
+    PyPlot.plt.axis("on")
+    PyPlot.plt.axis("on")
+    h = PyPlot.plt.hist(mc.qn,nbins, color = "g", alpha=0.75)
+    PyPlot.plt.xlabel("Qn")
+    PyPlot.plt.grid(true)
+
+    nbins = 50
+    PyPlot.plt.subplot(1, 2, 2 )
+    h = PyPlot.plt.hist(mc.qc,nbins, color="g", alpha=0.75)
+    PyPlot.plt.xlabel("Qc")
+    PyPlot.plt.grid(true)
+
+    PyPlot.plt.savefig("test-mcmc-Q.png")
+
 end
 
 

@@ -100,5 +100,5 @@ export abc_mcmc_dbscan_full , check_qminqstar_full , find_clusters , cycle_extra
 
 ## testing functions
 include("testing.jl")
-export __plot_check , __plot_nstars , __tail_stars , __density_count , __level_dens, __plot_surface_density
+export __plot_check , __plot_nstars , __tail_stars , __density_count , __level_dens, __plot_surface_density , __plot_mcmc_article
 end
