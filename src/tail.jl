@@ -41,6 +41,8 @@ function tail_stars(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, dfnew::Gai
     
     idx_tail , dist= distance_cmd_tail(doc,dnewvel)
 
+    # __plot_dist_cmd(dist)
+    
     ## cut with cmd
     cmdDistMax= m.maxDistCmdTail
     idc= findall(x->(x< cmdDistMax),dist)

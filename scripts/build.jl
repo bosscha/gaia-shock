@@ -327,7 +327,7 @@ function get_blacklist(m)
     if haskey(m, "blacklist")
         blackfile= m["blacklist"]
         if isfile(blackfile)              
-            dfblck=  CSV.File(progressfile, delim=",") |> DataFrame 
+            dfblck=  CSV.File(blackfile, delim=",") |> DataFrame 
             println("### Blacklist $blackfile read")
         else
             dfblck= DataFrame(votname= [""])
