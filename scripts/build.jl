@@ -22,11 +22,13 @@ function reprocess(meta)
     mextra= read_params(mrepro["extrafile"], false)
 
     cd(mgene["wdir"])
+
     progressfile= "_done.csv"            #progress file 
-    mextra.rootdir= "./"
-    mextra.wdir= "./"
-    mextra.plotdir= "./plotSelect"
-    mextra.ocdir= "./oc"
+
+    # if !haskey(mextra, :rootdir) mextra.rootdir= "./" end
+    # if !haskey(mextra, :wdir) mextra.wdir= "./" end
+    #if !haskey(mextra, :plotdir) mextra.plotdir= "./plotSelect" end
+    # if !haskey(mextra, :ocdir) mextra.ocdir= "./oc" end
 
     println(mrepro)
     println(mgene)
