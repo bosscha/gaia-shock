@@ -416,11 +416,13 @@ function get_properties_SC2(indx, df::GaiaClustering.Df, dfcart::GaiaClustering.
     vraddisp = 0.
     indvrad = isnotnan(df.raw[13,indx])
 
-    if length(indvrad) >  1
-        vrad = mean(df.raw[13,indx[indvrad]])
+    debug_red(indvrad)
+
+    if length(indvrad[indvrad]) >  1
+        vrad = median(df.raw[13,indx[indvrad]])
         vraddisp = std(df.raw[13,indx[indvrad]])
-    elseif length(indvrad) == 1
-        vrad     = mean(df.raw[13,indx[indvrad]])
+    elseif length(indvrad[indvrad]) == 1
+        vrad     = median(df.raw[13,indx[indvrad]])
         vraddisp = 0.
     end
 
@@ -431,7 +433,12 @@ function get_properties_SC2(indx, df::GaiaClustering.Df, dfcart::GaiaClustering.
 
     sc = SCproperties2()
     sc.nstars= nstars
-    sc.distance= 1000. / parallax
+
+    # sc.distance= 1000. / parallax
+
+    dist, sig_dist= distance_cluster(indx, df)
+    sc.distance= dist
+    sc.distance_std= sig_dist
     sc.ra= ra
     sc.dec= dec
     sc.l= l
@@ -835,6 +842,7 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
                 dg = df.data[3,labels[labelmax]]
                 lg = df.data[1,labels[labelmax]]
                 bg = df.data[2,labels[labelmax]]
+                parg = df.raw[5,labels[labelmax]]
                 xg= [] ; yg= [] ; zg= []
                 for i in 1:size(dg)[1]
                     x1 = galXYZ(lg[i],bg[i],dg[i])
@@ -896,6 +904,8 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
                 push!(sclist, scdf)
 
                 distance_lab= median(dg)
+                distance_lab2= median(1000 ./ parg)
+                debug_red("distance parallax without bstrap and weight .... $distance_lab2")
 
                 println("###")
                 println("### solution label: $labelmax")
@@ -903,7 +913,7 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
                 println("### Offdeg: $(scproperties.offdeg)")
                 println("### Edge ratio: $(scproperties.edgratm)")
                 println("### N stars: $nmax")
-                println("### Distance: $distance_lab pc")
+                println("### Distance: $distance_lab pc (no weight)")
                 println("### Qc: $qc")
                 println("###")
 
@@ -1186,4 +1196,49 @@ function copy_cycle_0(votname, cycle_offdeg, m::GaiaClustering.meta)
             cp(src,newfile, force=true)
         end
     end
+end
+
+####################################################
+### compute the distance with the bootrapped weighted parallax 
+function distance_cluster(indx, df::GaiaClustering.Df)
+    parallax = df.raw[5,indx]
+    parallax_err = df.err[1,indx]
+
+    dist_boot , sig_boot= bootstrapping_distance(parallax, parallax_err)
+
+    return(dist_boot, sig_boot)
+end
+
+
+function bootstrapping_distance(arr, err, Nboot= 50)
+    ndata= size(arr)[1]
+
+    if Nboot > ndata
+        Nboot= trunc(Int, ndata / 2)
+        println("### Warning Nbootstrapping down to $Nboot ..")
+    end
+
+    nsample= 100000
+    idx= 1:ndata
+    res= zeros(nsample)
+
+    println("## Bootstrapping the star parallax with $nsample samples of $Nboot...")
+
+    for i in 1:nsample
+        indsh= shuffle(idx)
+        para_s= arr[indsh[1:Nboot]]
+        para_err_s= err[indsh[1:Nboot]]
+
+        weight= 1 ./ (para_err_s .* para_err_s)
+        norm= sum(weight)
+        weight = weight ./ norm
+        res[i]= sum(weight .* para_s)
+    end
+
+    dist= median(1000 ./ res)
+    sig= std(1000 ./ res)
+    println("### Distance: $dist (std: $sig) pc")
+
+
+    return(dist, sig)
 end

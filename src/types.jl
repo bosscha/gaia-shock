@@ -242,6 +242,7 @@ end
 mutable struct SCproperties2
     nstars::Int
     distance::Float64
+    distance_std::Float64
     ra::Float64
     dec::Float64
     l::Float64

@@ -219,7 +219,7 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250],
     s.sourceid[1,:] = source_id[ifinal]
 
     println("## Filtering done ...")
-    println("## Stars selected: $ndata")
+    println(yellow("## Stars selected: $ndata"))
 
     return(s)
 end
@@ -457,8 +457,9 @@ function export_df(votname, ocdir, df , dfcart, labels , labelmax, pc, m::GaiaCl
     a0= df.raw[15,labels[labelmax]]
     ebmr= df.raw[16,labels[labelmax]]
     mh= df.raw[17,labels[labelmax]]
+    parallax_err= df.err[1, labels[labelmax]]
 
-    source_id= df.sourceid[1,labels[labelmax]]
+    source_id= df.sourceid[1,labels[labelmax]] 
 
 
     #####
@@ -480,7 +481,7 @@ function export_df(votname, ocdir, df , dfcart, labels , labelmax, pc, m::GaiaCl
         zg[i]= zz
     end
 
-    oc= DataFrame(sourceid=source_id,ra=ra,dec=dec,l=l,b=b, parallax=parallax, distance=d,
+    oc= DataFrame(sourceid=source_id,ra=ra,dec=dec,l=l,b=b, parallax=parallax, parallax_err=parallax_err, distance=d,
         pmra=pmra, pmdec=pmdec, X=X,Y=Y,Z=Z,vl=vl,
         vb=vb,vrad=vrad, Xg=xg,Yg=yg,Zg=zg,gbar=gbar,rp=rp,bp=bp, ag=ag, a0=a0, ebmr=ebmr, mh=mh)
 

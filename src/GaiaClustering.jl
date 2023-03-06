@@ -24,7 +24,7 @@ using PyCall , PyPlot
 using VoronoiCells
 import GeometryBasics as gb
 
-VERSION= "1.7.5"
+VERSION= "1.7.6-dev"
 
 ## include all the types
 include("types.jl")
@@ -44,7 +44,7 @@ export voronoi
 include("stellarcluster.jl")
 export metric , clusters , find_clusters2 , find_cluster_label, get_properties_SC , metric2 ,
 find_cluster_label2, get_metrics,  get_properties_SC2,  score_cycle ,
-remove_stars , edge_ratio, save_cycle , compute_PC , cycle_extraction_optim, save_cycle_optim
+remove_stars , edge_ratio, save_cycle , compute_PC , cycle_extraction_optim, save_cycle_optim , distance_cluster
 
 ## MCMC for gaia
 include("mcmc.jl")
@@ -63,7 +63,7 @@ export atrous , addWav , thresholdingWav , noiseWav
 
 ## utils methods
 include("utils.jl")
-export isnotnan , read_blacklist , convertStruct2Df , specialstr , bold , yellow, purple, cyan, red, blue, header_extract, debug_red
+export isnotnan , read_blacklist , convertStruct2Df , specialstr , bold , yellow, purple, cyan, red, blue, header_extract, debug_red, checkdir
 
 ## Mass segregation and stellar clustering
 include("massSegregation.jl")
