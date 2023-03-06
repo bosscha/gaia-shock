@@ -61,18 +61,20 @@ function __plot_tail(df, doc, filename)
 end
 
 
-function __plot_dist_cmd(dist, plotfile="test-dist_cmd.png", plotdir= ".")
+function __plot_dist_cmd(dist, plotfile="test-dist_cmd.png", plotdir= ".", ran= [0,0.5])
     debug_red("plotting dist-cmd")
     PyPlot.plt.figure(figsize=(9.0,8.0))
     PyPlot.plt.subplot(1, 1, 1 )
     nbins = 50
-    PyPlot.plt.hist(dist,nbins, range = [0,0.50],  color = "g", alpha=0.8 ,density=false)
+    PyPlot.plt.hist(dist,nbins, range = ran,  color = "g", alpha=0.8 ,density=false)
     PyPlot.plt.xlabel("Distance CMD")
     PyPlot.plt.ylabel("N")
     PyPlot.plt.grid(true)
     PyPlot.plt.savefig(plotdir*"/"*plotfile)
     # PyPlot.plt.show()
 end
+
+
 
 function __plot_mcmc_article(mc::mcfull)
     debug_red("plotting mcmc article")

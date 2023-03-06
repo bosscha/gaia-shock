@@ -21,6 +21,11 @@ function reprocess(meta)
     mgene= meta["general"]
     mextra= read_params(mrepro["extrafile"], false)
 
+    
+    checkdir(joinpath(mgene["wdir"],mextra.ocdir), joinpath(mgene["wdir"],mextra.plotdir))
+    
+    debug_red(joinpath(mgene["wdir"],mextra.plotdir))
+
     cd(mgene["wdir"])
 
     progressfile= "_done.csv"            #progress file 
@@ -76,8 +81,8 @@ function reprocess(meta)
                     if haskey(row, :w3dm)    mextra.w3d= row.w3dm else mextra.w3d= row.w3d end
                     if haskey(row, :whrdm)   mextra.whrd= row.whrdm else mextra.whrd= row.whrd end
                     if haskey(row, :epsm)    mextra.eps= row.epsm else mextra.eps= row.eps end
-                    if haskey(row, :mclm)    mextra.mcl= row.mclm else mextra.mcl= row.mcl end
-                    if haskey(row, :mneim)    mextra.mnei= row.mneim else mextra.mnei= row.mnei end
+                    if haskey(row, :mclm)    mextra.mcl= Int(floor(row.mclm)) else mextra.mcl= Int(floor(row.mcl)) end
+                    if haskey(row, :mneim)    mextra.mnei= Int(floor(row.mneim)) else mextra.mnei= Int(floor(row.mnei)) end
                
                     extra(mextra, optim)
                     push!(dfp, [mextra.votname])
