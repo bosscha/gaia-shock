@@ -263,12 +263,14 @@ function abc_mcmc_dbscan_full2(dfcart::GaiaClustering.Df, params::GaiaClustering
         end
 
         iter= 0
+        p = Progress(maxiter,"Initialization...")
+
         while initial
             mi, probi = theta_full(params)
             dfcartnorm = getDfcartnorm(dfcart , mi)
             qres , nstars = find_clusters2(dfcartnorm, dfcart, mi, params)
             if qres > minimumQ && nstars >= minstars && nstars <= maxstars
-                println("### init done ...")
+                println("\n### init done ...")
                 initial = false
                 push!(mci.eps, mi.eps)
                 push!(mci.mne, mi.min_nei)
@@ -280,8 +282,9 @@ function abc_mcmc_dbscan_full2(dfcart::GaiaClustering.Df, params::GaiaClustering
                 push!(mci.qn,  nstars)
             end
             iter += 1
+            update!(p, iter)
             if iter > maxiter
-                println("### Maximum iteration reached, no solution for init...")
+                println("\n### Maximum iteration reached, no solution for init...")
                 FLAG= 2      ## init not performed completely
                 return(mci, iter,FLAG)
             end
@@ -295,6 +298,8 @@ function abc_mcmc_dbscan_full2(dfcart::GaiaClustering.Df, params::GaiaClustering
         tstart= now()
 
         iter= 0
+        p = Progress(niter, "Optimizing DBSCAN for Extraction...")
+
         while loopAgain
             micurrent, probcurrent = thetaiter_full(mi , params)
             dfcartnorm = getDfcartnorm(dfcart , micurrent)
@@ -307,8 +312,8 @@ function abc_mcmc_dbscan_full2(dfcart::GaiaClustering.Df, params::GaiaClustering
                     mi = micurrent
                     probi = probcurrent
                     nchain += 1
-                    if (nchain%1000 == 0) println("### chain:",nchain) end
-                    if nchain > nburn && !burndone println("### burn-in done...") ; nchain = 0 ; burndone = true end
+                    if (nchain%1000 == 0) println("\n### chain:",nchain) end
+                    if nchain > nburn && !burndone println("\n### burn-in done...") ; nchain = 0 ; burndone = true end
                     if nchain > niter && burndone loopAgain = false end
                     if burndone
                         push!(mci.eps, mi.eps)
@@ -322,8 +327,8 @@ function abc_mcmc_dbscan_full2(dfcart::GaiaClustering.Df, params::GaiaClustering
                     end
                 else
                     nchain += 1
-                    if (nchain%1000 == 0) println("### chain:",nchain) end
-                    if nchain > nburn && !burndone println("### burn-in done...") ; nchain = 0 ; burndone = true end
+                    if (nchain%1000 == 0) println("\n### chain:",nchain) end
+                    if nchain > nburn && !burndone println("\n### burn-in done...") ; nchain = 0 ; burndone = true end
                     if nchain > niter && burndone loopAgain = false end
                     if burndone
                         push!(mci.eps, mi.eps)
@@ -339,15 +344,16 @@ function abc_mcmc_dbscan_full2(dfcart::GaiaClustering.Df, params::GaiaClustering
             end
 
             iter += 1
+            update!(p, nchain)
             if (iter%10000 == 0)
                 titer= now()
                 duration= Dates.value(titer-tstart) / (1000*3600)
                 meanTime= duration / nchain
                 eta= @sprintf("%3.3f",meanTime * (niter-nchain))
-                println("### iteration: $iter (ETA:$eta h)")
+                println("\n### iteration: $iter (ETA:$eta h)")
             end
             if iter > maxiter
-                println("### Maximum iteration reached, current solution returned...")
+                println("\n### Maximum iteration reached, current solution returned...")
                 if burndone   FLAG= 3 end    ## nchain not reached before maxiter but burnin done...
                 if !burndone  FLAG= 4 end    ## burn-in not performed
                 return(mci, iter, FLAG)
