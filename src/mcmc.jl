@@ -192,7 +192,7 @@ end
 
 ## mini stats over Qc and Qn
 function ministats(niter::Int, df::GaiaClustering.Df, dfcart::GaiaClustering.Df,mi::GaiaClustering.model, params::GaiaClustering.abc)
-    println("### mini stats...")
+    println("\n### mini stats...")
     qcmini = []
     qnmini = []
     for i in 1:niter
@@ -367,7 +367,7 @@ end
 
 ## mini stats over Qc and Qn
 function ministats_full(niter::Int, dfcart::GaiaClustering.Df, mi::modelfull, params::meta)
-    println("### mini stats...")
+    println("\n### mini stats...")
     qcmini = []
     qnmini = []
     for i in 1:niter

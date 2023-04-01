@@ -35,5 +35,6 @@ Pkg.add("GZip")
 Pkg.add("FHist")
 Pkg.add("FileIO")
 Pkg.add("CSVFiles")
+Pkg.add("ProgressMeter")
 
 println("## Package installation for GaiaClustering done...")

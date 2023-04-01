@@ -522,8 +522,13 @@ function export_df(votname, ocdir, df , dfcart, labels , labelmax, pc, m::GaiaCl
     infix *= "oc.csv"
     filename= @sprintf("%s/%s",ocdir, infix)
     if save
-        CSV.write(filename,oc,delim=';')
-        @printf("### %s created  in %s \n",filename, ocdir)
+        if isdir(ocdir)
+            CSV.write(filename,oc,delim=';')
+            @printf("### %s created  in %s \n",filename, ocdir)
+        else
+            print("\n### Error, result (oc) directory $ocdir not found... \n")
+            exit()
+        end
     end
 
     return(oc)
