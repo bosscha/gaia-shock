@@ -271,7 +271,7 @@ function perform_isochrone_fitting(df, isomodeldir)
     arrIso = read_serial_mist(isomodeldir)
 
     if size(arrIso)[1] == 0
-            println("### Isochrone model not set properly...")
+            println("### Isochrone model in $isomodeldir not set properly...")
             exit()
     end
 

@@ -107,6 +107,7 @@ function _extra(m::GaiaClustering.meta, optim)
     @printf("## %s \n",specialstr("Duration: $durationstr hours","YELLOW"))
     @printf("## %s \n",specialstr("Votable done: $(m.votname)","YELLOW"))
     println("##\n##")
+
 end
 ##################################### MAIN
 let
