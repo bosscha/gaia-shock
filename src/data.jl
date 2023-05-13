@@ -153,6 +153,9 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250],
                 vdec     = 4.74e-3 .* pmdec .* distance
                 vl       = 4.74e-3 .* pml  .* distance
                 vb       = 4.74e-3 .* pmb  .* distance
+                
+                debug_red("Cleaning...")
+                GC.gc()
             catch
                 println("## Issues with the ZPT correction...")
             end
@@ -220,6 +223,11 @@ function filter_data(gaia, dist_range = [0., 2000], vra_range = [-250,250],
 
     println("## Filtering done ...")
     println(yellow("## Stars selected: $ndata"))
+
+    debug_red("Cleaning ZPT , data, etc...")
+    zcorr= 0 
+    nu_eff_used_in_astrometry= 0 ; pseudocolour= 0 ; ecl_lat= 0 ; astrometric_params_solved= 0
+    GC.gc()
 
     return(s)
 end

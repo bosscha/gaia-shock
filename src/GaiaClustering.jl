@@ -2,7 +2,7 @@
 ##
 ## Julia 1.0 compliant
 ##
-## Use the astropy python package to read a votable.
+## astropy python package to read a votable.
 
 module GaiaClustering
 

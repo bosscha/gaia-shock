@@ -26,6 +26,10 @@ function extra(m::GaiaClustering.meta, optim)
     @printf("## %s \n",specialstr("Duration: $durationstr hours","YELLOW"))
     @printf("## %s \n",specialstr("Votable done: $(m.votname)","YELLOW"))
     println("##\n##")
+
+    debug_red("Cleaning ...")
+    df=0 ; dfcart= 0 ; dfcartnorm= 0
+    GC.gc()
 end
 ########
 function get_gaia_data(radius, tol, ra, dec, name, rect, table= "gaiadr3.gaia_source")

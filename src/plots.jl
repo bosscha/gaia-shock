@@ -81,6 +81,8 @@ function plot_dbscan_mcmc(plotdir, voname, mc::GaiaClustering.mc , showplot = tr
     figname = plotdir*"/"*voname*".mcmc.png"
     PyPlot.plt.savefig(figname)
     if showplot PyPlot.plt.show() end
+    PyPlot.plt.close()
+    GC.gc()
 end
 
 
@@ -197,6 +199,8 @@ function plot_dbscanfull_mcmc(plotdir, voname, mc::mcfull , showplot = true)
         PyPlot.plt.savefig(figname)
         if showplot PyPlot.plt.show() end
     end
+    PyPlot.plt.close()
+    GC.gc()
 end
 
 
@@ -279,6 +283,8 @@ function plot_cluster(plotdir, voname, indx, sc::GaiaClustering.SCproperties, df
     figname = plotdir*"/"*voname*".cluster.png"
     PyPlot.plt.savefig(figname)
     if showplot PyPlot.plt.show() end
+    PyPlot.plt.close()
+    GC.gc()
 end
 
 function plot_cluster2(plotdir, voname, indx, sc::GaiaClustering.SCproperties2, df::GaiaClustering.Df,
@@ -405,6 +411,8 @@ function plot_cluster2(plotdir, voname, indx, sc::GaiaClustering.SCproperties2, 
     figname = plotdir*"/"*voname*".cluster.png"
     PyPlot.plt.savefig(figname)
     if showplot PyPlot.plt.show() end
+    PyPlot.plt.close()
+    GC.gc()
 end
 
 ## Raw data of the field with Principal Component plots of the extracted cluster
@@ -532,6 +540,8 @@ function plot_rawdata(plotdir, voname, indx, sc::GaiaClustering.SCproperties2, d
     PyPlot.plt.savefig(figname)
 
     if showplot PyPlot.plt.show() end
+    PyPlot.plt.close()
+    GC.gc()
 end
 
 # plot the astrometric data
@@ -649,6 +659,8 @@ function plot_astrom(plotdir, voname, indx, sc::GaiaClustering.SCproperties2, df
     figname = plotdir*"/"*voname*".astrom.png"
     PyPlot.plt.savefig(figname)
     if showplot PyPlot.plt.show() end
+    PyPlot.plt.close()
+    GC.gc()
 end
 
 ###### plot the isochrone solution and CMD
@@ -700,6 +712,8 @@ function plot_isochrone(plotdir, voname, df, iso , txt_iso, showplot = true)
     figname = plotdir*"/"*voname*".isochrone.png"
     PyPlot.plt.savefig(figname)
     if showplot PyPlot.plt.show() end
+    PyPlot.plt.close()
+    GC.gc()
 end
 
 ### plot the step 2  process (tails, etc)
@@ -906,6 +920,9 @@ function plot_tail(plotdir, voname, dftail , dfstep1, dfstep2, dist,  fit, err, 
     debug_red(figname)
     PyPlot.plt.savefig(figname)
     if showplot PyPlot.plt.show() end
+
+    PyPlot.plt.close()
+    GC.gc()
 end
 
 ## levels of a density image
@@ -942,4 +959,6 @@ function plot_sky(ra,dec ; radius=10, figname= "allsky.png")
     r= ra * (π/180) .- π ; d= dec * (π/180)
     PyPlot.plt.scatter(r,d,s=radius, facecolor="green", alpha=0.5)
     PyPlot.plt.savefig(figname)
+    PyPlot.plt.close()
+    GC.gc()
 end

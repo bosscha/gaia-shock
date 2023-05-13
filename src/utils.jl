@@ -76,12 +76,14 @@ end
 
 function debug_red(msg)
     ## 
-   println(red("##_debug_###### $msg"))
+    # println(red("##_debug_###### $msg"))
 end
 
 ### check if two directories exist, if not issue a warning and extinction
 ### useful for ocdir and plotdir
 function checkdir(dir1 , dir2, stopped=true)
+    debug_red(pwd())
+
     if !isdir(dir1) || !isdir(dir2) 
         println("## Error... directory $dir1 or $dir2 does not exist...")
         if stopped 
