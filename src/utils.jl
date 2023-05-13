@@ -76,7 +76,7 @@ end
 
 function debug_red(msg)
     ## 
-   println(red("##_debug_###### $msg"))
+    # println(red("##_debug_###### $msg"))
 end
 
 ### check if two directories exist, if not issue a warning and extinction
