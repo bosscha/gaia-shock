@@ -79,11 +79,13 @@ function reprocess(meta)
                     mextra.votname= get_gaia_data_many(gaia, radius, tol, ra, dec, name , rect)
 
                     if haskey(row, :w3dm)    mextra.w3d= row.w3dm else mextra.w3d= row.w3d end
+                    if haskey(row, :wvelm)   mextra.wvel= row.wvelm else mextra.wvel= row.wvel end     
                     if haskey(row, :whrdm)   mextra.whrd= row.whrdm else mextra.whrd= row.whrd end
                     if haskey(row, :epsm)    mextra.eps= row.epsm else mextra.eps= row.eps end
                     if haskey(row, :mclm)    mextra.mcl= Int(floor(row.mclm)) else mextra.mcl= Int(floor(row.mcl)) end
                     if haskey(row, :mneim)    mextra.mnei= Int(floor(row.mneim)) else mextra.mnei= Int(floor(row.mnei)) end
                
+                    debug_red(mextra)
                     extra(mextra, optim)
                     push!(dfp, [mextra.votname])
                     CSV.write(progressfile, dfp, delim=";")
