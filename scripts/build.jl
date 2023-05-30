@@ -85,7 +85,10 @@ function reprocess(meta)
                     if haskey(row, :mclm)    mextra.mcl= Int(floor(row.mclm)) else mextra.mcl= Int(floor(row.mcl)) end
                     if haskey(row, :mneim)    mextra.mnei= Int(floor(row.mneim)) else mextra.mnei= Int(floor(row.mnei)) end
                
-                    debug_red(mextra)
+                    #smextra.wvel= 8.0
+                    debug_red("Weights : $(mextra.w3d) $(mextra.wvel) $(mextra.whrd)  ")
+
+
                     extra(mextra, optim)
                     push!(dfp, [mextra.votname])
                     CSV.write(progressfile, dfp, delim=";")
