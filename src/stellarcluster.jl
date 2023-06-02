@@ -783,8 +783,11 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
                 println("## label $labelmax written as an oc solution...")
 
                 ### isochrone fitting...
-                minptsiso= 10  # minimum pts to fit..
-                if m.iso == "yes" && count(!isnan, oc.ag) > minptsiso
+                minptsiso= 10  # minimum pts to fit.
+                nvalid= counting_valid(oc)
+                debug_red("nvalid : $nvalid")
+
+                if m.iso == "yes" && count(!isnan, oc.ag) > minptsiso && nvalid > minptsiso 
                     println("## Performing isochrone fitting on the solution...")
                     debug_red(count(!isnan, oc.ag))
                     oc, age, feh, feh_gaia, iso= perform_isochrone_fitting(oc, m.isomodel)

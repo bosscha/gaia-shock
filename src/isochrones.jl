@@ -130,6 +130,8 @@ function dist_cmd2iso(df, iso, wgt)
     diso[1,:] = iso.Gaia_BPmRP_EDR3
     diso[2,:] = iso.Gaia_G_EDR3
 
+    # debug_red("dist_cmd ...........")
+
     kdtree = KDTree(diso; leafsize = 10)
 
     npts= length(df.G)
@@ -138,8 +140,11 @@ function dist_cmd2iso(df, iso, wgt)
     pts[2,:] = df.G
 
     idxs, dists = knn(kdtree, pts, 1, true)
+
     dists = dists .* wgt
     total= sum(dists)
+
+    # debug_red("dists total ... $total")
 
     return(total)
 end
@@ -224,14 +229,26 @@ function update_nan_oc(df)
     ## absolute magnitude
     df.G = df.gbar0 .+ 5 .- 5log10.(df.distance)
 
+
     return(df)
 end
 ##########################################
 ### get solar mass from isochrone
 ### 
 function get_star_mass(df, iso)
+    global n
     println("### add star mass...")
-    n= length(iso.Gaia_G_EDR3)
+
+    n= 0
+    try
+        # debug_red(iso)
+        global n= length(iso.Gaia_G_EDR3)
+        debug_red("n: $n")
+    catch e
+        println("### Warning : no valid Gaia_G_EDR3 field in solution...")
+        return(0)
+    end
+
     diso= zeros(2,n)
     diso[1,:] = iso.Gaia_BPmRP_EDR3
     diso[2,:] = iso.Gaia_G_EDR3
@@ -259,6 +276,8 @@ function perform_isochrone_fitting(df, isomodeldir)
     df= update_mag(df,false)
     oc= filter(:G => G -> !any(f -> f(G), (ismissing, isnothing, isnan)), df)
 
+    noc= nrow(oc)
+    debug_red("...length $noc")
 
     ## reading isochrone model
     if isomodeldir == "" 
@@ -280,10 +299,22 @@ function perform_isochrone_fitting(df, isomodeldir)
 
     df= update_nan_oc(df)
 
-    # debug_red(first(iso))
     df= get_star_mass(df, iso)
 
-    feh_gaia= median(df.mh)
-    return(df , age, feh, feh_gaia, iso)
+    if typeof(df) == Int64          ## no solution...
+        println("### Warning: no solution...")
+        feh_gaia= -99
+    else
+        feh_gaia= median(df.mh)
+    end
 
+    return(df , age, feh, feh_gaia, iso)
+end
+## counting valid row in a df...
+function counting_valid(df)
+    dft= filter(:mh => mh -> !any(f -> f(mh), (ismissing, isnothing, isnan)), df)
+
+    nvalid= length(dft.mh)
+
+    return(nvalid)
 end

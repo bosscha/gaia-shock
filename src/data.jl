@@ -548,7 +548,7 @@ function get_data(m::GaiaClustering.meta)
 
     if m.zpt=="yes"
         zoff= true
-        println("## Will apply Zero Point offset correction on parallax...")
+        println("## Applying Zero Point offset correction on parallax...")
     else
         zoff= false
     end
