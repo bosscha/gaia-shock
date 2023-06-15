@@ -290,21 +290,42 @@ end
 ## see http://astro.utoronto.ca/~bovy/AST1420/notes/notebooks/A.-Coordinate-systems.html
 ##
 
-function galXYZ(l,b,distance)
+function galXYZ(ra,dec,distance)
+    # debug_red("CHANGED l b to RA Dec!!!!!!!!!!!!!!")
+    # debug_red("$ra $dec $distance")
+
     Rgal= 8.34e3
     zsun= 25
     θ= asin(zsun/Rgal)
+    η= 58.5986320306   # degrees
 
-    xg= Rgal*cos(θ)-distance*(cosd(l)cosd(b)cos(θ)+sind(b)sin(θ))
-    yg= distance*sind(l)cosd(b)
-    zg= Rgal*sin(θ)-distance*(cosd(l)cosd(b)sin(θ)-sind(b)cos(θ))
+    raGC= 266.40506655 ; decGC= -28.93616241    ## Galactic center sky coordinates
+    ricrs= [distance*cosd(ra)*cosd(dec) distance*sind(ra)*cosd(dec) distance*sind(dec)]'
+
+    xGC= [ Rgal 0 0 ]'    # sun coordinates in the Galaxy
+
+    # formulas from https://docs.astropy.org/en/stable/coordinates/galactocentric.html
+
+    H= [cos(θ) 0 sin(θ) ; 0 1 0 ; -sin(θ) 0 cos(θ)]      # θ in radians
+    R1= [cosd(decGC) 0 sind(decGC) ; 0 1 0 ; -sind(decGC) 0 cosd(decGC) ]
+    R2= [cosd(raGC) sind(raGC) 0 ; -sind(raGC) cosd(raGC) 0 ; 0 0 1]
+    R3= [1 0 0 ; 0 cosd(η) sind(η) ; 0 -sind(η) cosd(η)]
+
+    R= R3*R1*R2
+
+    rfull= R*ricrs - xGC
+    rfull= H*rfull
+
+    # debug_red(rfull)
+    xg= rfull[1] ; yg= rfull[2] ; zg= rfull[3]
+
+    # debug_red("$xg $yg $zg")
 
     return(xg,yg,zg)
 end
 
 ### Correction of the radial velocity
 ### Conrad (3025)
-
 function RVEL_corr(rvel , distance , l)
   ## Oort's constant
   A = 14.5

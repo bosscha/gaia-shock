@@ -846,9 +846,12 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
                 lg = df.data[1,labels[labelmax]]
                 bg = df.data[2,labels[labelmax]]
                 parg = df.raw[5,labels[labelmax]]
+                ra = df.raw[1,labels[labelmax]]
+                dec = df.raw[2,labels[labelmax]]
+
                 xg= [] ; yg= [] ; zg= []
                 for i in 1:size(dg)[1]
-                    x1 = galXYZ(lg[i],bg[i],dg[i])
+                    x1 = galXYZ(ra[i],dec[i],dg[i])
                     push!(xg,x1[1]) ; push!(yg,x1[2]) ; push!(zg,x1[3])
                 end
                 Xgm= median(xg) ; Ygm= median(yg); Zgm= median(zg)
