@@ -294,8 +294,8 @@ function galXYZ(ra,dec,distance)
     # debug_red("CHANGED l b to RA Dec!!!!!!!!!!!!!!")
     # debug_red("$ra $dec $distance")
 
-    Rgal= 8.34e3
-    zsun= 25
+    Rgal= 8.23e3   # (Leung et al. 2022)
+    zsun= 20.8     #  (Bennett & Bovy 2019)
     θ= asin(zsun/Rgal)
     η= 58.5986320306   # degrees
 
