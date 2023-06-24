@@ -855,6 +855,21 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
                     push!(xg,x1[1]) ; push!(yg,x1[2]) ; push!(zg,x1[3])
                 end
                 Xgm= median(xg) ; Ygm= median(yg); Zgm= median(zg)
+                debug_red("Xg $Xgm Yg $Ygm Zg $Zgm")
+
+                if m.tail == "yes"
+                    ## Xg Yg Zg only for the core...
+                    xgc= [] ; ygc= [] ; zgc= []
+                    dgt= df.data[3,labels[2]]
+                    rat = df.raw[1,labels[2]]
+                    dect = df.raw[2,labels[2]]
+                    for i in 1:size(dgt)[1]
+                        x1 = galXYZ(rat[i],dect[i],dgt[i])
+                        push!(xgc,x1[1]) ; push!(ygc,x1[2]) ; push!(zgc,x1[3])
+                    end  
+                    Xgm_core= median(xgc) ; Ygm_core= median(ygc); Zgm_core= median(zgc)
+                    debug_red("Xg_core $Xgm_core Yg_core $Ygm_core Zg_core $Zgm_core")
+                end
 
                 ## add Galactic positions into SC
                 insertcols!(scdf, 18, :Zg => Zgm)
@@ -880,6 +895,9 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
                     insertcols!(scdf, 33, :distance_core => sc_core.distance)
                     insertcols!(scdf, 33, :dec_core => sc_core.dec)
                     insertcols!(scdf, 33, :ra_core => sc_core.ra)
+                    insertcols!(scdf, 33, :Zg_core => Zgm_core)
+                    insertcols!(scdf, 33, :Yg_core => Ygm_core)
+                    insertcols!(scdf, 33, :Xg_core => Xgm_core)
                     insertcols!(scdf, 33, :ncore => ncore)
                 else
                     insertcols!(scdf, 33, :vraddisp_core => scdf.vraddisp)

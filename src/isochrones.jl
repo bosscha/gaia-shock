@@ -83,6 +83,7 @@ function update_mag(df,filt=true)
     ## absolute magnitude
     df.G = df.gbar0 .+ 5 .- 5log10.(df.distance)
 
+    debug_red("G magnitude corrected for extinction...")
     if filt
         df= filter(:G => G -> !any(f -> f(G), (ismissing, isnothing, isnan)), df)
     end
@@ -295,7 +296,9 @@ function perform_isochrone_fitting(df, isomodeldir)
     end
 
     wgt= weight_cmd(oc, 0.25, 1)
+
     age, feh, iso= fit_isochrone(oc,arrIso, wgt)
+    
 
     df= update_nan_oc(df)
 
