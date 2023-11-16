@@ -102,6 +102,7 @@ function reprocess(meta)
             end
         end
     end
+    println("## Reprocessing completed...")
     rm(progressfile)
 end
 
@@ -179,6 +180,7 @@ function randomfields(meta)
             notfinished= false
         end    
     end
+    println("## Random fields completed...")
     rm(progressfile)
 end
 

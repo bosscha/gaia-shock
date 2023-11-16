@@ -36,5 +36,6 @@ Pkg.add("FHist")
 Pkg.add("FileIO")
 Pkg.add("CSVFiles")
 Pkg.add("ProgressMeter")
+Pkg.add("SQLdf")
 
 println("## Package installation for GaiaClustering done...")

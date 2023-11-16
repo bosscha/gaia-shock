@@ -120,7 +120,7 @@ end
 ## 
 ## df: catalog DataFrame
 ## toldeg: tolerance in degree for the position RA,dec
-## toldist: tolerance in parsec for the distance
+## toldist: relative tolerance for the distance
 ## metric: metric (Qn|Edgm) to choose the oc
 ## rmfile: remove permanently the oc and plot files
 ## tolndiff: minimum difference relative between N for two candidates
@@ -131,6 +131,9 @@ function rm_duplicated(df, toldeg, toldist, tolndiff, metric= "Qn", rmfile= fals
     s= size(dfmerge)
     ndrop= []
 
+    dfcols= propertynames(dfmerge)
+    debug_red(dfcols)
+
     for i in 1:s[1]
         for j in i+1:s[1]
             ra1= dfmerge[i,"ra"] ; dec1= dfmerge[i,"dec"]
@@ -139,12 +142,24 @@ function rm_duplicated(df, toldeg, toldist, tolndiff, metric= "Qn", rmfile= fals
             dist2= dfmerge[j,"distance"] 
             n1= dfmerge[i,"nstars"]
             n2= dfmerge[j,"nstars"]
-            edg1= dfmerge[i,"edgratm"]
-            edg2= dfmerge[j,"edgratm"]
-            name1= dfmerge[i,"votname"]
-            name2= dfmerge[j,"votname"]
             
-            if abs(ra1-ra2) < toldeg && abs(dec1-dec2) < toldeg && abs(dist1-dist2) < toldist && name1 != name2
+            if "edgratm" in dfcols
+                edg1= dfmerge[i,"edgratm"]
+                edg2= dfmerge[j,"edgratm"]
+            else
+                edg1= 0.
+                edg2= 0.
+            end
+
+            if "votname" in dfcols
+                name1= dfmerge[i,"votname"]
+                name2= dfmerge[j,"votname"]
+            else
+                name1= "dummy1.vot"
+                name2= "dummy2.vot"
+            end
+            
+            if abs(ra1-ra2) < toldeg && abs(dec1-dec2) < toldeg && abs(dist1-dist2)/min(dist1,dist2) < toldist && name1 != name2
                 if min(n1,n2) / max(n1,n2) < tolndiff
                     println("## Warning merge, two candidates have large N difference...")
                 end

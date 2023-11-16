@@ -381,6 +381,7 @@ function ministats_full(niter::Int, dfcart::GaiaClustering.Df, mi::modelfull, pa
     @printf("### Qc : %3.3f \n",mean(qcmini))
     @printf("### Qn : %3.3f \n",mean(qnmini))
 
+    debug_red("ministats_full")
     return(0)
 end
 
