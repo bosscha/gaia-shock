@@ -8,7 +8,7 @@ TOLDIST= 0.1         ## distance tolerance (relative)
 TOLANGLE= 0.05      ## angle tolerance on the sky in degrees
 
 cat1= "CG2018_prepared.csv"
-cat2= "catalogue_gaiadr3_final_bis.csv.merge"
+cat2= "catalogue_gaiadr3_CORE_OCs.csv.merge"
 
 # cat2= "spica_firda_milkyway_taufiq_alma_ocressc_joined_prepared.csv"
 
