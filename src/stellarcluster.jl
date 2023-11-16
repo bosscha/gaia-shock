@@ -237,7 +237,6 @@ function find_clusters2(df::GaiaClustering.Df, dfcart::GaiaClustering.Df , m::Ga
             k4 = qn[i]
             ############### Composite metric ###
             qq = (2k1 + k1bis + 3k2 + k3 + k4) / 8.0
-            # qq = (3k1 + k1bis + 3k2 + k4) / 8.0
             ###############
             if qq > qc
                 qc = qq
@@ -247,6 +246,7 @@ function find_clusters2(df::GaiaClustering.Df, dfcart::GaiaClustering.Df , m::Ga
         return(qc, qstar)
     end
 end
+
 ## label from the dbscan labels with maximum stars
 function find_cluster_label(labels)
     let
@@ -492,6 +492,10 @@ function metric2(s::GaiaClustering.Df, labels ,proj = "spatial2d", APERTURE = 1.
     for ilab in labels
         slab = s.data[:,ilab]
 
+        #debugging...
+        #dist_debug= median(slab[1,:])
+        #debug_red("dist $dist_debug")
+
         if proj == "spatial2d"
             yy = slab[2,:]
             zz = slab[3,:]
@@ -577,7 +581,6 @@ function metric2(s::GaiaClustering.Df, labels ,proj = "spatial2d", APERTURE = 1.
 
         Qc    = mean(qc)
         Q_std = std(qc)
-        #println("Q: $Qc -- Q_std : $Q_std")
         push!(Q,(Qc,Q_std))
     end
     return(Q)
