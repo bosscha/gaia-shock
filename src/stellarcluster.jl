@@ -173,7 +173,6 @@ function clusters(data , epsilon, leaf , minneigh, mincluster)
 
     label = Vector{Vector{Int}}()
 
-
     for cl in res.clusters
         indx = cl.core_indices
         append!(indx, cl.boundary_indices)
