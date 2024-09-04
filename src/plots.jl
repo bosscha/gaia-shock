@@ -815,8 +815,8 @@ function plot_tail(plotdir, voname, dftail , dfstep1, dfstep2, dist,  fit, err, 
     nbxy= 128
     stepx= (xrange[2]-xrange[1])/nbxy ; stepy= (yrange[2]-yrange[1])/nbxy
 
-    h = FHist.Hist2D(data, (xrange[1]:stepx:xrange[2], yrange[1]:stepy:yrange[2]))
-    dens= h.hist.weights ./ (stepx*stepy)
+    h = FHist.Hist2D(data ; binedges =(xrange[1]:stepx:xrange[2], yrange[1]:stepy:yrange[2]))
+    dens= h.bincounts ./ (stepx*stepy)
 
     wav= atrous(dens, 7)            ## wavelet transform for smoothing
     rec= addWav(wav,4,8)            ## reconstruction
