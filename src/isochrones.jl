@@ -174,6 +174,8 @@ function fit_isochrone(df,arrIso,wgt)
             bestiso= iso
             bestage= age
             bestfeh= feh
+            
+            # save last cmd..
         end
 
         idiso +=1

@@ -11,7 +11,7 @@ using DataFrames , Formatting, Printf , Dates ,  DelimitedFiles
 using Clustering
 using Statistics , Distributions ,Random, UUIDs
 using Distances, LightGraphs, SimpleWeightedGraphs, NearestNeighbors
-using Glob , GZip , FileIO , CSVFiles , ProgressMeter
+using Glob , GZip , FileIO , CSVFiles , ProgressMeter 
 
 ## For wavelet in imaging
 import Interpolations
@@ -24,7 +24,7 @@ using PyCall , PyPlot
 using VoronoiCells
 import GeometryBasics as gb
 
-VERSION= "1.7.12" 
+VERSION= "1.7.13-dev" 
 
 ## include all the types
 include("types.jl")

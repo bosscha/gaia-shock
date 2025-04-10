@@ -63,6 +63,8 @@ end
 
 function __plot_dist_cmd(dist, plotfile="test-dist_cmd.png", plotdir= ".", ran= [0,0.5])
     debug_red("plotting dist-cmd")
+    writedlm("test_dist_cmd.dat", dist, ' ')
+
     PyPlot.plt.figure(figsize=(9.0,8.0))
     PyPlot.plt.subplot(1, 1, 1 )
     nbins = 50
@@ -188,7 +190,7 @@ function(df::GaiaClustering.Df, dfcart::GaiaClustering.Df, dfnew::GaiaClustering
     ## cut with cmd
     cmdDistMax= 0.05
     idc= findall(x->(x< cmdDistMax),dist)
-    __plot_dist_cmd(dist)
+    #  __plot_dist_cmd(dist)
     s= length(idc)
     debug_red("CMD dist condition: $s")
 
