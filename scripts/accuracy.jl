@@ -289,37 +289,6 @@ function gaia_dr2_g_error(g_mag::Real)
 end
 
 
-# --- Main Simulation Function ---
-
-"""
-    simulate_gaia_dr2_g(g_true::Real; rng::AbstractRNG=Random.GLOBAL_RNG) -> Tuple{Float64, Float64}
-
-Simulates an observed Gaia DR2 G magnitude by adding Gaussian noise based 
-on the expected error for that magnitude.
-
-# Arguments
-- `g_true::Real`: The true (intrinsic) G magnitude of the source.
-- `rng::AbstractRNG`: Optional random number generator for reproducibility. Defaults 
-  to the global RNG.
-
-# Returns
-- `Tuple{Float64, Float64}`: A tuple containing:
-    - `g_observed`: The simulated observed G magnitude (`g_true` + random error).
-    - `sigma_g`: The calculated standard deviation of the G error (from `gaia_dr2_g_error`).
-
-# Example
-```julia
-# Define true magnitude
-true_g = 17.5 
-
-# Simulate observed magnitude
-g_obs, sig_g = simulate_gaia_dr2_g(true_g)
-
-@printf "True G=%.3f\n" true_g
-@printf "Calculated sigma: σ_G=%.4f\n" sig_g
-@printf "Simulated Observed G=%.3f\n" g_obs
-```
-"""
 function simulate_gaia_dr2_g(g_true::Real; rng::AbstractRNG=Random.GLOBAL_RNG)
     
     # 1. Calculate the expected error standard deviation based on G magnitude
@@ -337,6 +306,40 @@ function simulate_gaia_dr2_g(g_true::Real; rng::AbstractRNG=Random.GLOBAL_RNG)
     # 5. Return observed magnitude and the sigma used
     return g_observed, sigma_g
 end
+
+
+function gaia_dr2_pm_error(g_mag::Real)
+    g_ref = 20.0
+    z = 10.0^(0.4 * (g_mag - g_ref))
+    c0_pm = 0.0036  # (mas/yr)^2
+    c1_pm = 1.956   # (mas/yr)^2
+    sigma_pm_sq = c0_pm + c1_pm * z
+    sigma_pm = sqrt(max(0.0, sigma_pm_sq)) # mas/yr
+    return sigma_pm
+end
+
+
+function simulate_gaia_dr2_pm(pmra_true::Real, pmdec_true::Real, g_mag::Real; rng::AbstractRNG=Random.GLOBAL_RNG)
+    
+    # 1. Calculate the expected proper motion error standard deviation based on G magnitude
+    sigma_pm = gaia_dr2_pm_error(g_mag) # Units: mas/yr
+    
+    # 2. Define Normal distribution for the errors (mean 0, std dev sigma_pm)
+    # Use max(eps(), sigma_pm) for numerical stability if sigma_pm could be exactly 0
+    pm_error_dist = Normal(0.0, max(eps(Float64), sigma_pm))
+    
+    # 3. Generate independent random errors for PMRA and PMDec
+    error_pmra = rand(rng, pm_error_dist) # mas/yr
+    error_pmdec = rand(rng, pm_error_dist) # mas/yr
+    
+    # 4. Calculate the simulated observed proper motions
+    pmra_observed = pmra_true + error_pmra   # mas/yr
+    pmdec_observed = pmdec_true + error_pmdec # mas/yr
+    
+    # 5. Return observed proper motions and the sigma used
+    return pmra_observed, pmdec_observed, sigma_pm
+end
+
 
 #########
 function _extra(m::GaiaClustering.meta, optim)
@@ -374,7 +377,7 @@ end
 
 
 function _get_data(m::GaiaClustering.meta)
-    println("##  to add errors on parallax and magnitude  measurements...")
+    println("## Adding errors on parallax, PM and magnitude  measurements...")
     println("## Distance cut : $(m.mindist) $(m.maxdist) pc")
 
     if m.zpt=="yes"
@@ -390,7 +393,7 @@ function _get_data(m::GaiaClustering.meta)
 
     ##
     datanoise= data
-    println("## Adding noise on parallax and magnitude...")
+    println("## Adding noise on parallax, PM and magnitude...")
     # datanoise.parallax = datanoise.parallax .+ simulate_parallax_noise(datanoise.parallax, datanoise.gaia_mag)
     # parallax[i] = convert(Float64, get(gaia,i-1).parallax)
     
@@ -399,6 +402,11 @@ function _get_data(m::GaiaClustering.meta)
         magG = convert(Float64, get(datanoise,i-1).phot_g_mean_mag)
         magRp = convert(Float64, get(datanoise,i-1).phot_rp_mean_mag)
         magBp = convert(Float64, get(datanoise,i-1).phot_bp_mean_mag)
+
+        pmra0 = convert(Float64, get(datanoise,i-1).pmra)
+        pmdec0 = convert(Float64, get(datanoise,i-1).pmdec)
+
+
 
         # debug_red("--- $parallax $magG")
         if isnan(magG)
@@ -409,7 +417,10 @@ function _get_data(m::GaiaClustering.meta)
 
         bp_obs, rp_obs, sig_bp_1, sig_rp_1 = simulate_gaia_dr2_bprp(magRp, magBp, magG)
         magObs , sigG= simulate_gaia_dr2_g(magG)
+        pmraObs , pmdecObs , sigpm= simulate_gaia_dr2_pm(pmra0, pmdec0, magG)
 
+
+        
         # debug_red(parallaxnoise)
     
         # a0= datanoise[i].parallax
@@ -424,6 +435,8 @@ function _get_data(m::GaiaClustering.meta)
         datanoise[i].phot_g_mean_mag= magObs
         datanoise[i].phot_rp_mean_mag= rp_obs
         datanoise[i].phot_bp_mean_mag= bp_obs
+        datanoise[i].pmra= pmraObs
+        datanoise[i].pmdec= pmdecObs
 
 
     end
