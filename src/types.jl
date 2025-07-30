@@ -176,6 +176,7 @@ mutable struct meta
     zpt::String
     iso::String
     tail::String
+    convg::String
     w3d::Float64
     wvel::Float64
     whrd::Float64
@@ -194,6 +195,9 @@ mutable struct meta
     nburnout::Int
     nchain::Int
     maxiter::Int
+    gr_nchain::Int
+
+
 
     cyclemax::Int
     minstarselection::Int

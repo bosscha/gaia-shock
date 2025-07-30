@@ -77,6 +77,17 @@ function __plot_dist_cmd(dist, plotfile="test-dist_cmd.png", plotdir= ".", ran= 
 end
 
 
+function __plot_mcmc_Z(Z)
+    PyPlot.plt.figure(figsize=(9.0,8.0))
+    PyPlot.plt.subplot(1, 1, 1 )
+    nbins = 40
+    PyPlot.plt.hist(Z,nbins, range = [-5,5],  color = "g", alpha=0.8 , density=true )
+    PyPlot.plt.xlabel("Z-score",fontsize=16)
+    PyPlot.plt.ylabel("N", fontsize=16)
+    PyPlot.plt.tick_params(axis="both", which="major", labelsize=12)
+    PyPlot.plt.grid(true)
+    PyPlot.plt.savefig("test-mcmc-Z.png")
+end
 
 function __plot_mcmc_article(mc::mcfull)
     debug_red("plotting mcmc article")
