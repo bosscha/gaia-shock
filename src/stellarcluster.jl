@@ -229,6 +229,7 @@ function find_clusters2(df::GaiaClustering.Df, dfcart::GaiaClustering.Df , m::Ga
 
         qc = 0.
         qstar = 0
+
         for i in 1:length(nlab)
             k1 = q2d[i][1]
             k1bis = q3d[i][1]
@@ -668,6 +669,7 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
         println("############### cycle_extraction #########")
         println("## maximum cycle: $(m.cyclemax)")
         println("## Q metric on DBSCAN solutions: $(m.labels)")
+        if m.convg == "yes" println("## Gelman-Rubin convergence test") end
         if optim
             println("## DBSCAN/weighting optimization. It may take time...")
         else
@@ -695,7 +697,45 @@ function cycle_extraction_optim(df::GaiaClustering.Df, dfcart::GaiaClustering.Df
 
             if optim
                 ## extraction one cycle.. MCMC optimization
-                mc , iter, FLAGmcmc= abc_mcmc_dbscan_full2(dfcart, m)
+                #######  mc , iter, FLAGmcmc= abc_mcmc_dbscan_full2(dfcart, m)
+                
+                ## Debug Geweke diagnostic
+                if m.convg == "yes"
+ 
+                    Zall = []
+                    debug_red("### Geweke convergence diagnostic...")
+                    AA= m.gr_nchain
+                    debug_red("### Geweke convergence $AA times...")
+                    for i in 1:m.gr_nchain
+                        println("## MCMC iteration $i in Geweke diagnostic...")
+                        mc , iter, FLAGmcmc= abc_mcmc_dbscan_full2(dfcart, m)
+                        res= extraction_mcmc(mc, m.votname)
+
+                        Adisp= std(mc.eps)
+                        debug_red("Adisp: $Adisp")
+                        Aearly= mc.eps[1:100]
+                        Bearly= mean(Aearly)
+                        debug_red("Bearly: $Bearly")  
+                        Alate= mc.eps[end-100:end]
+                        Blate= mean(Alate)
+                        debug_red("Blate: $Blate")    
+                        Z= (Blate - Bearly) ./ Adisp
+                        debug_red("Z: $Z") 
+
+                        push!(Zall,Z)
+
+                    end
+                    __plot_mcmc_Z(Zall)
+
+                    Zbar= var(Zall)
+                    Zmean= mean(Zall)   
+                    debug_red("Zbar: $Zbar")
+                    debug_red("Zmean: $Zmean")
+                
+                else
+                    mc , iter, FLAGmcmc= abc_mcmc_dbscan_full2(dfcart, m)
+                end
+           
                 println("## ABC/MCMC flag: $FLAGmcmc")
                 nchain= length(mc.qc)
                 println("## $iter iterations performed...")

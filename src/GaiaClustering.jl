@@ -24,7 +24,7 @@ using PyCall , PyPlot
 using VoronoiCells
 import GeometryBasics as gb
 
-VERSION= "1.7.13-dev" 
+VERSION= "1.8.0" 
 
 ## include all the types
 include("types.jl")
@@ -94,11 +94,11 @@ export mist_df ,  read_isochrones, update_mag , weight_cmd, dist_cmd2iso , fit_i
 include("_build.jl")
 export extra , get_gaia_data , get_gaia_data_many , get_random_field , galactic2equatorial , rm_duplicated, get_chunks
 
-## deprecated functions
+## deprecated functions ## may be used still...
 include("deprecated.jl")
 export abc_mcmc_dbscan_full , check_qminqstar_full , find_clusters , cycle_extraction
 
 ## testing functions
 include("testing.jl")
-export __plot_check , __plot_nstars , __tail_stars , __density_count , __level_dens, __plot_surface_density , __plot_mcmc_article
+export __plot_check , __plot_nstars , __tail_stars , __density_count , __level_dens, __plot_surface_density , __plot_mcmc_article , __plot_mcmc_Z
 end

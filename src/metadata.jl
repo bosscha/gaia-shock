@@ -29,6 +29,7 @@ function set_default_params()::meta
     def.zpt             = "no"              ## yes|no to apply zero point correction (Lindengren 2020)
     def.iso             = "no"              ## yes|no to perform isochrone fitting on OC solutions
     def.tail            = "no"              ## yes|no to perform 2nd step extraction for isolated members (radius/velocity/CMD cut)
+    def.convg           = "no"              ## yes|no to compute convergence statistics, like Gelman-Rubin
 
     # if optim no
     def.w3d             = 7.0               ## w3d weighting
@@ -57,6 +58,9 @@ function set_default_params()::meta
     def.nburnout  = 500             # burn-in iterations
     def.nchain    = 5000            # MCMC iterations==number of CHAINS
     def.maxiter   = 50000           # maximum iteration
+
+    def.gr_nchain  = 10             ## chain number for Gelman-Rubin statistics
+ 
 
     ### Cycle parameters
     ###
@@ -145,6 +149,7 @@ function set_param!(def, parstr,value)
     if parstr == "zpt" def.zpt= value end
     if parstr == "iso" def.iso= value end
     if parstr == "tail" def.tail= value end   
+    if parstr == "convg" def.convg= value end 
     if parstr == "w3d" def.w3d= value end
     if parstr == "wvel" def.wvel= value end
     if parstr == "whrd" def.whrd= value end
@@ -170,6 +175,10 @@ function set_param!(def, parstr,value)
     if parstr == "nburnout" def.nburnout= value end
     if parstr == "nchain"   def.nchain= value end
     if parstr == "maxiter"  def.maxiter= value end
+
+
+    ## MCMC
+    if parstr == "gr_nchain" def.gr_nchain= value end
 
     if parstr == "cyclemax" def.cyclemax= value  end
     if parstr == "minstarselection" def.minstarselection= value  end

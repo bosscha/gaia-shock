@@ -39,7 +39,10 @@ function parse_commandline()
                 action = :store_true    
         "--tail", "-t"
                 help = "Apply a second step to extract more isolated members (tails e.g.)"
-                action = :store_true                   
+                action = :store_true  
+        "--convg", "-c"
+                help = "Compute convergence statistics, like Gelman-Rubin"
+                action = :store_true                          
         "--maxdist", "-d"
             help = "maximum distance for stars in pc"
             arg_type = Float64
@@ -132,6 +135,11 @@ let
     if parsed_args["zpt"] zpt="yes" else zpt= "no" end
     if parsed_args["iso"] iso="yes" else iso= "no" end
     if parsed_args["tail"] tail="yes" else tail= "no" end
+    if parsed_args["convg"] convg="yes" else convg= "no" end
+
+
+
+
 
     ############
     header_extract()
@@ -144,6 +152,9 @@ let
         zpt= m.zpt
         iso= m.iso
         tail=m.tail
+        convg= m.convg
+
+
         if votable == nothing votable= m.votname end
     else
         println("## The default options are used.")
@@ -159,6 +170,7 @@ let
     else
         isoptimized= false
     end
+
 
     if qmetric != nothing m.labels= qmetric end
     if ncycle != nothing m.cyclemax= ncycle end
