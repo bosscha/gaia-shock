@@ -1,0 +1,91 @@
+## default parameters for extraction (MCMC+DBSCAN)
+## v_02.11.2022
+
+## Directories
+##
+# rootdir                                 ## ENV["GAIA_ROOT"]
+# wdir      = "$rootdir/e2e_products"
+# votdir    = "$wdir/votable"
+# plotdir   = "$wdir/plotsSelect"
+# ocdir     = "$wdir/ocfull"
+# votname   = "FSR 0224-2.0deg.vot"
+prefile     = "ocres-Geweke"                  # prefix for the result files
+isomodel    = "/home/stephane/Science_1/gaia/MIST_serial"
+
+## extra init for standalone
+##
+optim           = "yes"           ## yes|no for weighting/dbscan optimization
+pca             = "no"           ## yes|no to add accordingly the PC components and PC vector file
+zpt             = "yes"          ## apply Zero point offset correction for parallax (Lindengren 2020)
+iso             = "yes"          ## isochrone fitting to estimate ag, metallicity and add mass in solar mass
+tail            = "yes"          ## perform 2nd step for extraction in order to get isolated members (tails)
+convg           = "yes"          ## perform statistic method, Geweke e.g., for convergence assessment
+
+#
+# if optim no set the dbscan/weighting values
+w3d             = 6.922              ## w3d weighting
+wvel            = 7.097           ## wvel weighting
+whrd            = 2.258             ## whrd weighting
+eps             = 2.147             ## epsilon DBSCAN
+mcl             = 17                 ## min_cluster DBSCAN
+mnei            = 8                 ## min_neighbor DBSCAN
+
+mindist         = 0.0               ## minimum distance to filter stars in pc
+maxdist         = 15000.0             ## maximum distance to filter stars in pc
+
+## parameters for 2nd step extraction ("tail")
+maxRadTail      = 250.0             ## cut in radius (pc) from the center of the oc candidate (step 1)
+maxVelTail      = 10.0              ## cut in velocity (km/s) from the velocity of the oc candidate (step 1)
+maxDistCmdTail  = 0.05              ## maximum distance to the CMD of the oc candidate (step 1)
+
+### MCMC
+###
+minQc           = 2.6                     ## minimum Qc metric in MCMC
+minQn           = 20                      ## minimum Qn metric in MCMC
+maxQn           = 5000                    ## maximum Qn metric in MCMC
+forcedminstars  = 15                      ## minimum stars forced if not reached
+mingoodsolution = 10                      ## minimum good solution for Q in check_qminqstar
+niterqminq      = 1000                    ## iterions for check_qminqstar  (*30 for the actual numer of iterations)
+
+nburnout        = 500                     ## burn-in iterations (500 usually)
+nchain          = 1000                    ## MCMC chain length (1000 usually)
+maxiter         = 10000
+
+gr_nchain       = 200                    ## chain numbers for Geweke statistics (Z stats)
+
+
+### Cycle parameters
+###
+cyclemax            = 1         ## maximum of cycless
+minstarstop         = 15        ## condition to stop cycling
+minchainreached     = 100       ## minimum chain to analyze solution
+qcminstop           = 1.0       ## more condition on Qc to stop cycling after the first pass
+wratiominstop       = 0.05       ## minimum ratio btwn w3d and wvel (otherwise not an OC)
+
+
+## prior settings
+##
+epsmean         = 2.5                     ## epsilon mean
+epsdisp         = 1.5                     ## epsilon dispersion
+min_nei         = 10                     ## min_nei mean
+min_cl          = 15                      ## min_cl mean
+ncoredisp       = 10                      ## dispersion for min_nei and min_cl
+w3dmean         = 6.0                     ## 2D/3D weight  mean
+w3ddisp         = 4.0                     ## 2D/3D weight  dispersion
+wvelmean        = 6.0                     ## velocity weight  mean
+wveldisp        = 4.0                     ## velocity weight  dispersion
+whrdmean        = 2.0                     ## CMD weight mean
+whrddisp        = 1.5                     ## CMD weight dispersion
+
+## Metrics Q & find_clusters
+##
+clustermax      = 100                    ## cluster max for find_clusters, otherwise returns 0
+aperture2d      = 1.5
+maxaperture2d   = 15.0
+aperture3d      = 3.0
+maxaperture3d   = 20
+aperturev       = 3.0
+maxaperturev    = 20.0
+nboot           = 50
+
+labels          = "QcQn"                      ## metric method (Qn|Qc) for label solutions
